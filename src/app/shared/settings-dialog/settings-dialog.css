@@ -1,0 +1,19 @@
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-body label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.hint {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.75rem;
+}

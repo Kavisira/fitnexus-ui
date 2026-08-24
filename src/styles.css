@@ -1,1 +1,196 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'primeicons/primeicons.css';
+
+body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Shared responsive rule for any feature form's side-by-side field pair
+   (Branches today; the same ".field-row" class name is meant to be
+   reused by Members/Employees/Leads/Attendance forms) — stack the two
+   fields on narrow/mobile screens instead of squeezing them side by
+   side. Kept here (not per-page) so it applies everywhere automatically. */
+@media (max-width: 640px) {
+  .field-row {
+    flex-direction: column;
+  }
+}
+
+/* PrimeNG's p-password wrapper doesn't stretch by default — force it (and
+   its inner input) to fill the parent, and keep the show/hide icon pinned
+   inside the input, on the right, like a native input with an inset icon.
+   These are global (not component-scoped) because Angular's view
+   encapsulation can't reach into PrimeNG's internal markup otherwise. */
+.p-password {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+.p-password .p-password-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 2.5rem;
+}
+
+.p-password .p-password-mask-icon,
+.p-password .p-password-unmask-icon {
+  position: absolute;
+  top: 70%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+/* Fixed top-right placement for the theme toggle on standalone (noauth)
+   pages that don't have the app header — the header itself lays the
+   toggle out inline instead of using this class. */
+.theme-toggle-fixed {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+/* ---------------------------------------------------------------------
+   Shared data-table look — the single place that defines how every
+   p-table in the app looks (Branches today; Members/Employees/Leads/
+   Attendance as those pages get built). Changing a table's appearance
+   app-wide means editing ONLY this block, never a per-page stylesheet.
+
+   Usage in any feature component's template — use the shared
+   <app-table-card> wrapper (shared/table-card), never a hand-rolled
+   <div>: it's a thin wrapper around PrimeNG's own p-card, so the "card
+   panel" itself is a real PrimeNG component (not custom-built markup):
+
+     <app-table-card>
+       <p-table styleClass="app-table" [scrollable]="true" ...>
+         ...
+       </p-table>
+     </app-table-card>
+
+   Also used (without the .app-table rules below applying) by pages that
+   wrap something other than a table in the same card shell — e.g.
+   Branches' card grid — since the point of this wrapper is "the one
+   card look/behavior for a page's main content panel", not specifically
+   "table wrapper".
+
+   Global (not component-scoped via ::ng-deep in each page) for the same
+   reason as the p-password overrides above: Angular's view encapsulation
+   can't reach PrimeNG's internal markup, and a global rule here is what
+   makes the style automatically apply to every future page without each
+   one re-declaring its own CSS or markup.
+
+   Sizing behavior: the card fills all the vertical space its page gives
+   it (the page itself must be a full-height flex column that never
+   scrolls — see .app-content in layout.css, and each page's own root
+   element, e.g. .branches-page) instead of scrolling the whole page.
+   Only the content inside (a table's row area, or a card grid) scrolls
+   internally once it overflows.
+
+   .app-table-card is the class on PrimeNG's <p-card> root element
+   itself (p-card + p-component + this class, all on one host element) —
+   the nested .p-card-body / .p-card-content rules below are PrimeNG's
+   own wrapper divs around whatever's projected inside. */
+.app-table-card {
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-table-card .p-card-body,
+.app-table-card .p-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-table-card .p-card-content {
+  padding: 0;
+}
+
+.app-table-card .app-table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-table-card .app-table .p-datatable {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-table-card .app-table .p-datatable-table-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.app-table-card .app-table .p-paginator {
+  flex-shrink: 0;
+}
+
+.app-table-card .app-table .p-datatable-thead > tr > th {
+  background: var(--p-primary-50, #eff6ff);
+  color: var(--p-primary-800, #1e40af);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--p-primary-200, #bfdbfe);
+}
+
+.app-table-card .app-table .p-datatable-tbody > tr {
+  transition: background-color 0.15s ease;
+}
+
+.app-table-card .app-table .p-datatable-tbody > tr > td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.app-table-card .app-table .p-paginator {
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: transparent;
+}
+
+.app-table-card .table-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+}
+
+.app-table-card .table-caption .search-field {
+  min-width: 260px;
+}
+
+.app-table-card .table-caption .search-field input {
+  width: 100%;
+}
+
+.app-table-card .table-empty-cell {
+  text-align: center;
+  padding: 2.5rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+/* No hand-rolled dark-mode background/shadow override here — the card's
+   surface color comes from PrimeNG's own Card theming (darkModeSelector
+   is configured in app.config.ts), so it already adapts. Only the table
+   header tint below still needs an explicit dark-mode value since it
+   uses our brand blue, not a card token. */
+html.my-app-dark .app-table-card .app-table .p-datatable-thead > tr > th {
+  background: rgba(37, 99, 235, 0.18);
+  color: var(--p-primary-200, #bfdbfe);
+  border-bottom-color: rgba(37, 99, 235, 0.35);
+}

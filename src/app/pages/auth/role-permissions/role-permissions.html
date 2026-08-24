@@ -1,0 +1,80 @@
+<div class="role-permissions-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'rolePermissions.title' | translate }}</h1>
+      <p class="subtitle">{{ 'rolePermissions.subtitle' | translate }}</p>
+    </div>
+    @if (!loading()) {
+      <div class="matrix-actions">
+        @if (isDirty()) {
+          <span class="unsaved-hint">{{ 'rolePermissions.unsavedHint' | translate }}</span>
+        }
+        <button
+          type="button"
+          class="matrix-btn matrix-btn-secondary"
+          [disabled]="!isDirty() || saving()"
+          (click)="discard()"
+        >
+          {{ 'rolePermissions.discard' | translate }}
+        </button>
+        <button
+          type="button"
+          class="matrix-btn matrix-btn-primary"
+          [disabled]="!isDirty() || saving()"
+          (click)="save()"
+        >
+          {{ saving() ? ('rolePermissions.saving' | translate) : ('rolePermissions.saveChanges' | translate) }}
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="loading-text">{{ 'rolePermissions.loading' | translate }}</p>
+  } @else {
+    <div class="matrix-scroll">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th class="screen-col">{{ 'rolePermissions.screenColumn' | translate }}</th>
+            @for (role of roles; track role) {
+              <th class="role-col" colspan="2">{{ roleLabel(role) }}</th>
+            }
+          </tr>
+          <tr class="sub-header">
+            <th class="screen-col"></th>
+            @for (role of roles; track role) {
+              <th class="access-col">{{ 'rolePermissions.readColumn' | translate }}</th>
+              <th class="access-col">{{ 'rolePermissions.writeColumn' | translate }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (screen of screens; track screen) {
+            <tr>
+              <td class="screen-col">{{ screenLabel(screen) }}</td>
+              @for (role of roles; track role) {
+                <td class="access-col">
+                  <input
+                    type="checkbox"
+                    [checked]="cell(role, screen).canRead"
+                    [disabled]="saving()"
+                    (change)="toggleRead(role, screen)"
+                  />
+                </td>
+                <td class="access-col">
+                  <input
+                    type="checkbox"
+                    [checked]="cell(role, screen).canWrite"
+                    [disabled]="saving()"
+                    (change)="toggleWrite(role, screen)"
+                  />
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

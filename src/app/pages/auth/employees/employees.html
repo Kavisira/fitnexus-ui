@@ -1,0 +1,598 @@
+<div class="employees-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'employees.title' | translate }}</h1>
+      <p class="subtitle">{{ 'employees.subtitle' | translate }}</p>
+    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'employees.addEmployee' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="grid-toolbar">
+    <p-iconfield iconPosition="left" class="search-field">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="'employees.searchPlaceholder' | translate"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </p-iconfield>
+
+    <div class="toolbar-right">
+      <span class="result-count">{{ filteredEmployees().length }} / {{ employees().length }}</span>
+      <div class="view-toggle">
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'grid'"
+          [pTooltip]="'branches.gridView' | translate"
+          (click)="setViewMode('grid')"
+        >
+          <i class="pi pi-th-large"></i>
+        </button>
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'list'"
+          [pTooltip]="'branches.listView' | translate"
+          (click)="setViewMode('list')"
+        >
+          <i class="pi pi-bars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-toolbar">
+    <p-select
+      class="filter-field"
+      [options]="branchFilterOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="branchFilter()"
+      (ngModelChange)="branchFilter.set($event)"
+      [placeholder]="'employees.allBranches' | translate"
+    />
+    <p-select
+      class="filter-field"
+      [options]="roleFilterOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="roleFilter()"
+      (ngModelChange)="roleFilter.set($event)"
+      [placeholder]="'employees.allRoles' | translate"
+    />
+    <p-select
+      class="filter-field"
+      [options]="statusFilterOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event)"
+      [placeholder]="'employees.allStatuses' | translate"
+    />
+    @if (hasActiveFilters()) {
+      <button pButton type="button" [text]="true" severity="secondary" class="filter-clear" (click)="clearFilters()">
+        <i class="pi pi-filter-slash" style="margin-right: 0.35rem"></i>
+        {{ 'leads.clearFilters' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="employee-grid" [class.employee-grid-list]="viewMode() === 'list'">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <p-card styleClass="employee-card employee-card-skeleton"></p-card>
+      }
+    } @else {
+      @for (employee of filteredEmployees(); track employee.id) {
+        <p-card styleClass="employee-card" (click)="openDetail(employee)">
+          <div class="employee-card-header">
+            <p-avatar [label]="initials(employee)" shape="circle" size="large" class="employee-avatar" />
+            <div class="employee-card-heading">
+              <div class="employee-card-name">
+                {{ orDash(employee.name) }}
+              </div>
+              <p class="employee-card-line">
+                <i class="pi pi-building"></i>
+                {{ orDash(employee.branch?.location) }}
+              </p>
+              <p class="employee-card-line">
+                <i class="pi pi-phone"></i>
+                {{ orDash(employee.phone) }}
+              </p>
+              <p class="employee-card-line">
+                <i class="pi pi-envelope"></i>
+                {{ orDash(employee.email) }}
+              </p>
+            </div>
+            <p-tag [value]="statusLabel(employee.status)" [severity]="statusSeverity(employee.status)" styleClass="employee-status-tag" />
+          </div>
+
+          <div class="employee-card-split">
+            <div class="employee-card-meta">
+              <div class="employee-meta-row">
+                <span class="employee-meta-label"><i class="pi pi-id-card"></i> {{ 'employees.roleLabel' | translate }}</span>
+                <span class="employee-meta-value">{{ roleLabel(employee.role) }}</span>
+              </div>
+              <div class="employee-meta-row">
+                <span class="employee-meta-label"><i class="pi pi-calendar"></i> {{ 'employees.joinDateLabel' | translate }}</span>
+                <span class="employee-meta-value">{{ employee.joinDate | date: 'MMM d, y' }}</span>
+              </div>
+              @if (viewMode() === 'list') {
+                <div class="employee-meta-row">
+                  <span class="employee-meta-label"><i class="pi pi-wallet"></i> {{ 'employees.basicPayLabel' | translate }}</span>
+                  <span class="employee-meta-value">{{ orDash(employee.basicPay) }}</span>
+                </div>
+                <div class="employee-meta-row">
+                  <span class="employee-meta-label"><i class="pi pi-gift"></i> {{ 'employees.dobLabel' | translate }}</span>
+                  <span class="employee-meta-value">{{ employee.dateOfBirth ? (employee.dateOfBirth | date: 'MMM d, y') : '-' }}</span>
+                </div>
+              }
+            </div>
+
+            @if (viewMode() === 'list') {
+              <div class="employee-card-notes-col">
+                <span class="employee-notes-col-label">{{ 'employees.recentNotesLabel' | translate }}</span>
+                @if (recentNotes(employee).length) {
+                  <ul class="employee-card-notes-list">
+                    @for (activity of recentNotes(employee); track activity.id) {
+                      <li class="employee-card-notes-item">
+                        <span class="employee-card-notes-text">{{ activity.note }}</span>
+                        <span class="employee-card-notes-date">
+                          <i class="pi pi-calendar"></i>
+                          {{ activity.createdAt | date: 'MMM d, y · h:mm a' }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <span class="employee-lastnote-empty">{{ 'employees.noNotesYet' | translate }}</span>
+                }
+              </div>
+            } @else {
+              <div class="employee-card-lastnote">
+                <i class="pi pi-comment"></i>
+                <span class="employee-lastnote-label">{{ 'employees.lastNoteLabel' | translate }}:</span>
+                @if (lastNote(employee); as note) {
+                  <span class="employee-lastnote-text">{{ note }}</span>
+                } @else {
+                  <span class="employee-lastnote-empty">{{ 'employees.noNotesYet' | translate }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="employee-card-footer">
+            <button
+              pButton
+              type="button"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              [pTooltip]="(canWrite() ? 'leads.viewEdit' : 'common.view') | translate"
+              (click)="$event.stopPropagation(); openDetail(employee)"
+            >
+              <i class="pi" [class.pi-pencil]="canWrite()" [class.pi-eye]="!canWrite()"></i>
+            </button>
+            @if (canWrite()) {
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                [pTooltip]="'common.delete' | translate"
+                (click)="$event.stopPropagation(); deleteEmployee(employee)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            }
+          </div>
+        </p-card>
+      } @empty {
+        <div class="employee-grid-empty">
+          <i class="pi pi-id-card"></i>
+          <p>{{ 'employees.empty' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Create dialog -->
+  <p-dialog
+    [(visible)]="createDialogVisible"
+    [modal]="true"
+    [style]="{ width: '54rem' }"
+    [breakpoints]="{ '1100px': '92vw', '768px': '96vw' }"
+    [header]="'employees.addEmployee' | translate"
+  >
+    <form [formGroup]="createForm" (ngSubmit)="saveCreate()" class="employee-form" novalidate>
+      <div class="field-row-3">
+        <div class="field">
+          <label for="c-name">{{ 'employees.nameLabel' | translate }} *</label>
+          <input pInputText id="c-name" type="text" formControlName="name" class="w-full" />
+          @if (cf.name.invalid && cf.name.touched) {
+            <small class="field-error">{{ 'employees.nameRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="c-phone">{{ 'employees.phoneLabel' | translate }} *</label>
+          <input pInputText id="c-phone" type="tel" formControlName="phone" class="w-full" />
+          @if (cf.phone.invalid && cf.phone.touched) {
+            <small class="field-error">{{ 'employees.phoneRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="c-email">{{ 'employees.emailLabel' | translate }}</label>
+          <input pInputText id="c-email" type="email" formControlName="email" class="w-full" />
+        </div>
+      </div>
+
+      <div class="field-row-3">
+        <div class="field">
+          <label for="c-branch">{{ 'employees.branchLabel' | translate }} *</label>
+          <p-select
+            inputId="c-branch"
+            formControlName="branchId"
+            [options]="branchOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            styleClass="w-full"
+          />
+          @if (cf.branchId.invalid && cf.branchId.touched) {
+            <small class="field-error">{{ 'employees.branchRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="c-role">{{ 'employees.roleLabel' | translate }} *</label>
+          <p-select
+            inputId="c-role"
+            formControlName="role"
+            [options]="roleOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="field">
+          <label for="c-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
+          <p-datepicker
+            inputId="c-joinDate"
+            formControlName="joinDate"
+            dateFormat="M d, yy"
+            [showIcon]="true"
+            appendTo="body"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-3">
+        <div class="field">
+          <label for="c-dob">{{ 'employees.dobLabel' | translate }}</label>
+          <p-datepicker
+            inputId="c-dob"
+            formControlName="dateOfBirth"
+            dateFormat="M d, yy"
+            [showIcon]="true"
+            appendTo="body"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label for="c-basicPay">{{ 'employees.basicPayLabel' | translate }}</label>
+          <p-inputnumber
+            inputId="c-basicPay"
+            formControlName="basicPay"
+            mode="decimal"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="2"
+            class="w-full"
+          />
+        </div>
+        <div class="field"></div>
+      </div>
+
+      <div class="employee-login-field">
+        <label class="employee-login-checkbox">
+          <input
+            type="checkbox"
+            formControlName="createLogin"
+            [disabled]="!isLoginEligibleRole(cf.role.value)"
+          />
+          {{ 'employees.createLoginLabel' | translate }}
+        </label>
+        @if (!isLoginEligibleRole(cf.role.value)) {
+          <small class="employee-login-hint">{{ 'employees.loginNeedsEligibleRole' | translate }}</small>
+        } @else if (cf.createLogin.value) {
+          <small class="employee-login-hint">{{ 'employees.createLoginHint' | translate }}</small>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeCreate()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="saving()">{{ 'employees.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Generated login credentials — shown once, right after a login is
+       created (checkbox or the retroactive action). The password is
+       never retrievable again after this, so this is the one chance to
+       copy/share it. -->
+  <p-dialog
+    [visible]="generatedLogin() !== null"
+    [modal]="true"
+    [style]="{ width: '28rem' }"
+    [header]="'employees.loginCreatedTitle' | translate"
+    (onHide)="closeGeneratedLogin()"
+  >
+    @if (generatedLogin(); as login) {
+      <p class="employee-login-created-hint">{{ 'employees.loginCreatedHint' | translate }}</p>
+      <div class="employee-login-credential">
+        <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
+        <span class="employee-login-credential-value">{{ login.username }}</span>
+      </div>
+      <div class="employee-login-credential">
+        <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
+        <span class="employee-login-credential-value">{{ login.password }}</span>
+      </div>
+      <div class="dialog-actions">
+        <button pButton type="button" (click)="closeGeneratedLogin()">{{ 'common.close' | translate }}</button>
+      </div>
+    }
+  </p-dialog>
+
+  <!-- Detail dialog -->
+  <p-dialog
+    [(visible)]="detailDialogVisible"
+    [modal]="true"
+    [style]="{ width: '58rem' }"
+    [breakpoints]="{ '1100px': '94vw', '768px': '96vw' }"
+    [header]="detailEmployee()?.name || ('employees.employeeDetails' | translate)"
+    (onHide)="closeDetail()"
+  >
+    @if (detailEmployee(); as employee) {
+      <button
+        type="button"
+        pButton
+        [text]="true"
+        severity="secondary"
+        class="employee-details-toggle"
+        (click)="detailsExpanded.set(!detailsExpanded())"
+      >
+        <i class="pi" [class.pi-chevron-right]="!detailsExpanded()" [class.pi-chevron-down]="detailsExpanded()"></i>
+        {{ 'employees.employeeDetailsSection' | translate }}
+      </button>
+
+      @if (detailsExpanded()) {
+      <form [formGroup]="detailForm" (ngSubmit)="saveDetail()" class="employee-form" novalidate>
+        <div class="field-row-3">
+          <div class="field">
+            <label for="d-name">{{ 'employees.nameLabel' | translate }} *</label>
+            <input pInputText id="d-name" type="text" formControlName="name" class="w-full" />
+            @if (df.name.invalid && df.name.touched) {
+              <small class="field-error">{{ 'employees.nameRequired' | translate }}</small>
+            }
+          </div>
+          <div class="field">
+            <label for="d-phone">{{ 'employees.phoneLabel' | translate }} *</label>
+            <input pInputText id="d-phone" type="tel" formControlName="phone" class="w-full" />
+            @if (df.phone.invalid && df.phone.touched) {
+              <small class="field-error">{{ 'employees.phoneRequired' | translate }}</small>
+            }
+          </div>
+          <div class="field">
+            <label for="d-email">{{ 'employees.emailLabel' | translate }}</label>
+            <input pInputText id="d-email" type="email" formControlName="email" class="w-full" />
+          </div>
+        </div>
+
+        <div class="field-row-3">
+          <div class="field">
+            <label for="d-branch">{{ 'employees.branchLabel' | translate }} *</label>
+            <p-select
+              inputId="d-branch"
+              formControlName="branchId"
+              [options]="branchOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterBy="label"
+              styleClass="w-full"
+            />
+          </div>
+          <div class="field">
+            <label for="d-role">{{ 'employees.roleLabel' | translate }} *</label>
+            <p-select
+              inputId="d-role"
+              formControlName="role"
+              [options]="roleOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+            />
+          </div>
+          <div class="field">
+            <label for="d-status">{{ 'employees.statusLabel' | translate }}</label>
+            <p-select
+              inputId="d-status"
+              formControlName="status"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="field-row-3">
+          <div class="field">
+            <label for="d-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
+            <p-datepicker
+              inputId="d-joinDate"
+              formControlName="joinDate"
+              dateFormat="M d, yy"
+              [showIcon]="true"
+              appendTo="body"
+              class="w-full"
+            />
+          </div>
+          <div class="field">
+            <label for="d-dob">{{ 'employees.dobLabel' | translate }}</label>
+            <p-datepicker
+              inputId="d-dob"
+              formControlName="dateOfBirth"
+              dateFormat="M d, yy"
+              [showIcon]="true"
+              appendTo="body"
+              class="w-full"
+            />
+          </div>
+          <div class="field">
+            <label for="d-basicPay">{{ 'employees.basicPayLabel' | translate }}</label>
+            <p-inputnumber
+              inputId="d-basicPay"
+              formControlName="basicPay"
+              mode="decimal"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              class="w-full"
+            />
+          </div>
+        </div>
+      </form>
+      }
+
+      <div class="employee-login-status">
+        @if (employee.user) {
+          @if (isOwner) {
+            <!-- Owner-only, always-visible credentials — not just the
+                 one-time reveal at creation. -->
+            <div class="employee-login-credentials-block">
+              <span class="employee-login-active">
+                <i class="pi pi-check-circle"></i>
+                {{ 'employees.loginActiveLabel' | translate }}
+              </span>
+              @if (loadingCredentials()) {
+                <span class="employee-credentials-loading">{{ 'employees.credentialsLoading' | translate }}</span>
+              } @else if (employeeCredentials(); as creds) {
+                <div class="employee-login-credential">
+                  <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
+                  <span class="employee-login-credential-value">{{ creds.username }}</span>
+                </div>
+                <div class="employee-login-credential">
+                  <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
+                  <span class="employee-login-credential-value">{{ creds.password }}</span>
+                </div>
+              } @else if (credentialsError()) {
+                <span class="employee-credentials-error">{{ credentialsError() }}</span>
+              }
+            </div>
+          } @else {
+            <span class="employee-login-active">
+              <i class="pi pi-check-circle"></i>
+              {{ 'employees.loginActiveLabel' | translate }}: {{ employee.user.email }}
+            </span>
+          }
+        } @else if (canWrite() && isLoginEligibleRole(employee.role)) {
+          <button
+            pButton
+            type="button"
+            [text]="true"
+            [loading]="creatingLogin()"
+            (click)="createLoginForEmployee(employee)"
+          >
+            <i class="pi pi-key" style="margin-right: 0.4rem"></i>
+            {{ 'employees.createLoginAction' | translate }}
+          </button>
+        } @else {
+          <span class="employee-login-ineligible">{{ 'employees.loginNeedsEligibleRole' | translate }}</span>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDetail()">
+          {{ 'common.close' | translate }}
+        </button>
+        @if (canWrite()) {
+          <button pButton type="button" [loading]="saving()" (click)="saveDetail()">{{ 'employees.save' | translate }}</button>
+        }
+      </div>
+
+      <div class="employee-timeline-section">
+        <h3>{{ 'employees.timelineTitle' | translate }}</h3>
+
+        @if (canWrite()) {
+          <div class="employee-note-form">
+            <textarea
+              pTextarea
+              rows="2"
+              class="w-full"
+              [placeholder]="'employees.notePlaceholder' | translate"
+              [ngModel]="noteText()"
+              (ngModelChange)="noteText.set($event)"
+            ></textarea>
+            <button
+              pButton
+              type="button"
+              [disabled]="!noteText().trim()"
+              [loading]="savingNote()"
+              (click)="addNote()"
+            >
+              {{ 'employees.addNote' | translate }}
+            </button>
+          </div>
+        }
+
+        @if (employee.activities && employee.activities.length) {
+          <ul class="employee-timeline">
+            @for (activity of employee.activities; track activity.id) {
+              <li class="employee-timeline-item">
+                <span class="employee-timeline-dot"></span>
+                <div class="employee-timeline-content">
+                  <p class="employee-timeline-note">{{ activity.note }}</p>
+                  <div class="employee-timeline-meta">
+                    <span class="employee-timeline-date">
+                      <i class="pi pi-calendar"></i>
+                      {{ 'employees.noteLoggedLabel' | translate }}: {{ activity.createdAt | date: 'MMM d, y · h:mm a' }}
+                    </span>
+                  </div>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="employee-timeline-empty">{{ 'employees.timelineEmpty' | translate }}</p>
+        }
+      </div>
+    }
+  </p-dialog>
+</div>

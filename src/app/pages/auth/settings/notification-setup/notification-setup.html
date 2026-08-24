@@ -1,0 +1,57 @@
+<div class="setup-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'notificationSetup.title' | translate }}</h1>
+      <p class="subtitle">{{ 'notificationSetup.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (!loading()) {
+    <p-card class="setup-card">
+      <div class="setup-row">
+        <div class="setup-row-text">
+          <span class="setup-row-label">{{ 'notificationSetup.enabledLabel' | translate }}</span>
+          <span class="setup-row-hint">{{ 'notificationSetup.enabledHint' | translate }}</span>
+        </div>
+        <p-toggleswitch [(ngModel)]="enabled" [disabled]="!canWrite" />
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <div class="setup-row">
+        <div class="setup-row-text">
+          <span class="setup-row-label">{{ 'notificationSetup.autoCleanLabel' | translate }}</span>
+          <span class="setup-row-hint">{{ 'notificationSetup.autoCleanHint' | translate }}</span>
+        </div>
+        <p-toggleswitch [(ngModel)]="autoCleanEnabled" [disabled]="!canWrite" />
+      </div>
+
+      @if (autoCleanEnabled()) {
+        <div class="setup-row setup-row-indented">
+          <div class="setup-row-text">
+            <span class="setup-row-label">{{ 'notificationSetup.autoCleanDaysLabel' | translate }}</span>
+          </div>
+          <p-inputnumber [(ngModel)]="autoCleanDays" [min]="1" [max]="365" suffix=" days" [disabled]="!canWrite" />
+        </div>
+      }
+
+      <div class="setup-divider"></div>
+
+      <div class="setup-row">
+        <div class="setup-row-text">
+          <span class="setup-row-label">{{ 'notificationSetup.soundLabel' | translate }}</span>
+          <span class="setup-row-hint">{{ 'notificationSetup.soundHint' | translate }}</span>
+        </div>
+        <p-toggleswitch [(ngModel)]="soundEnabled" [disabled]="!canWrite" />
+      </div>
+
+      @if (canWrite) {
+        <div class="setup-actions">
+          <button pButton type="button" [loading]="saving()" (click)="save()">
+            {{ 'leads.save' | translate }}
+          </button>
+        </div>
+      }
+    </p-card>
+  }
+</div>

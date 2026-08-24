@@ -1,0 +1,122 @@
+.sidenav {
+  width: 220px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  transition: width 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+
+  /* Light mode: white panel; hover/active use the header's blue. */
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 2px 0 8px rgba(29, 78, 216, 0.05);
+}
+
+/* Dark mode: dark slate panel matching the header's deep navy, so the
+   whole nav rail reads as one surface instead of a bright white block
+   next to a dark page. */
+:host-context(.my-app-dark) .sidenav {
+  background: #111827;
+  border-right: 1px solid #1f2937;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidenav.collapsed {
+  width: 68px;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.9rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  color: #374151;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+:host-context(.my-app-dark) .nav-link {
+  color: #cbd5e1;
+}
+
+.nav-link:hover {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+}
+
+:host-context(.my-app-dark) .nav-link:hover {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+.nav-link.active {
+  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+}
+
+:host-context(.my-app-dark) .nav-link.active {
+  background: linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.nav-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+.nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: the sidenav is removed from normal layout flow (it no longer
+   pushes the page content over) and instead sits fixed off-screen to
+   the left, sliding in as a full overlay above the content — with
+   app-content's own backdrop behind it — when the header's hamburger
+   button opens it. The desktop "collapsed" icon-rail state doesn't
+   apply here; on mobile it's always full-width when open. */
+@media (max-width: 768px) {
+  .sidenav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100dvh;
+    z-index: 1200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidenav.collapsed {
+    width: 260px;
+  }
+
+  .sidenav.mobile-open {
+    transform: translateX(0);
+  }
+}

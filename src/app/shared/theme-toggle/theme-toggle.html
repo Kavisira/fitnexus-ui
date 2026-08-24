@@ -1,0 +1,16 @@
+<button
+  pButton
+  type="button"
+  class="theme-toggle-btn"
+  [rounded]="true"
+  [text]="true"
+  severity="secondary"
+  [attr.aria-label]="mode() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+  (click)="toggle()"
+>
+  @if (mode() === 'dark') {
+    <svg data-p-icon="sun"></svg>
+  } @else {
+    <svg data-p-icon="moon"></svg>
+  }
+</button>

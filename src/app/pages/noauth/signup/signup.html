@@ -1,0 +1,92 @@
+<div class="auth-page">
+  <div class="theme-toggle-fixed">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
+
+  <div class="auth-card-wrap">
+    <p-card header="Create your account" subheader="Get started with FitNexus.">
+      <form [formGroup]="detailsForm" (ngSubmit)="submitDetails()" class="auth-form" novalidate>
+        <div class="field">
+          <label for="ownerName">Owner name</label>
+          <input pInputText id="ownerName" type="text" formControlName="ownerName" class="w-full" />
+          @if (f.ownerName.invalid && f.ownerName.touched) {
+            <small class="field-error">Owner name is required.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="organizationName">Organization name</label>
+          <input pInputText id="organizationName" type="text" formControlName="organizationName" class="w-full" />
+          @if (f.organizationName.invalid && f.organizationName.touched) {
+            <small class="field-error">Organization name is required.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <input
+            pInputText
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            class="w-full"
+            placeholder="+1 555 123 4567"
+            autocomplete="tel"
+          />
+          @if (f.phone.invalid && f.phone.touched) {
+            <small class="field-error">Enter a valid phone number (with country code).</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input pInputText id="email" type="email" formControlName="email" class="w-full" autocomplete="email" />
+          @if (f.email.invalid && f.email.touched) {
+            <small class="field-error">Enter a valid email address.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <p-password
+            inputId="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (f.password.invalid && f.password.touched) {
+            <small class="field-error">At least 6 characters, with an uppercase letter, a lowercase letter, and a number.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">Confirm password</label>
+          <p-password
+            inputId="confirmPassword"
+            formControlName="confirmPassword"
+            [toggleMask]="true"
+            [feedback]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (detailsForm.errors?.['passwordMismatch'] && f.confirmPassword.touched) {
+            <small class="field-error">Passwords do not match.</small>
+          }
+        </div>
+
+        @if (errorMessage()) {
+          <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+        }
+
+        <button pButton type="submit" class="w-full" [loading]="submitting()">Register</button>
+      </form>
+
+      <div class="back-row">
+        Already have an account?
+        <a routerLink="/login">Log in</a>
+      </div>
+    </p-card>
+  </div>
+</div>

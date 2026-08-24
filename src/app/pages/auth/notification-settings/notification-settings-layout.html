@@ -1,0 +1,20 @@
+<div class="notification-settings-page">
+  <div class="page-header">
+    <h1>{{ 'common.notifications' | translate }}</h1>
+  </div>
+
+  <div class="tab-bar">
+    <a routerLink="setup" routerLinkActive="active" class="tab-link">
+      <i class="pi pi-cog"></i>
+      {{ 'notificationSetup.title' | translate }}
+    </a>
+    <a routerLink="configuration" routerLinkActive="active" class="tab-link">
+      <i class="pi pi-sliders-h"></i>
+      {{ 'notificationConfig.title' | translate }}
+    </a>
+  </div>
+
+  <div class="tab-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,153 @@
+.role-permissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.matrix-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.unsaved-hint {
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.matrix-btn {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.matrix-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.matrix-btn-secondary {
+  background: transparent;
+  border-color: var(--p-content-border-color, #e5e7eb);
+  color: inherit;
+}
+
+.matrix-btn-primary {
+  background: var(--p-primary-color, #6366f1);
+  color: var(--p-primary-contrast-color, #fff);
+}
+
+:host-context(.my-app-dark) .matrix-btn-secondary {
+  border-color: #1f2937;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.loading-text {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.matrix-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.matrix-table th,
+.matrix-table td {
+  padding: 0.65rem 0.85rem;
+  text-align: center;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.matrix-table thead th {
+  background: var(--p-content-background, #f9fafb);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sub-header th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.screen-col {
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 160px;
+}
+
+.role-col {
+  border-left: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.access-col {
+  min-width: 70px;
+}
+
+.access-col:nth-child(odd) {
+  border-left: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.access-col input {
+  width: 1.05rem;
+  height: 1.05rem;
+  cursor: pointer;
+}
+
+.access-col input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .matrix-scroll,
+:host-context(.my-app-dark) .matrix-table th,
+:host-context(.my-app-dark) .matrix-table td,
+:host-context(.my-app-dark) .role-col,
+:host-context(.my-app-dark) .access-col:nth-child(odd) {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .matrix-table thead th {
+  background: rgba(255, 255, 255, 0.03);
+}

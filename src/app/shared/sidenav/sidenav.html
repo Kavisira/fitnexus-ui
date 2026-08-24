@@ -1,0 +1,31 @@
+<nav class="sidenav" [class.collapsed]="collapsed" [class.mobile-open]="mobileOpen">
+  <ul class="nav-list">
+    @for (item of visibleNavItems(); track item.route) {
+      <li>
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-link"
+          [title]="collapsed ? (item.labelKey | translate) : ''"
+          (click)="navigated.emit()"
+        >
+          <span class="nav-icon">
+            @switch (item.icon) {
+              @case ('home') { <svg data-p-icon="home"></svg> }
+              @case ('building') { <svg data-p-icon="building"></svg> }
+              @case ('users') { <svg data-p-icon="users"></svg> }
+              @case ('id-card') { <svg data-p-icon="id-card"></svg> }
+              @case ('user-plus') { <svg data-p-icon="user-plus"></svg> }
+              @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
+              @case ('bell') { <svg data-p-icon="bell"></svg> }
+              @case ('shield') { <svg data-p-icon="shield"></svg> }
+            }
+          </span>
+          @if (!collapsed) {
+            <span class="nav-label">{{ item.labelKey | translate }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

@@ -1,0 +1,416 @@
+.branches-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Fill the full height app-content gives this page (see layout.css)
+     so the card grid below can use all of it and scroll internally,
+     instead of the whole page scrolling — this is the most-used screen,
+     so as much of it as possible should show real data at a glance. */
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+/* Toolbar above the data — search on the left, result count + view
+   toggle on the right. No outer card/panel wraps the toolbar or the
+   data below it — the data itself is the page, not "data inside a
+   panel inside a page". */
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-field {
+  min-width: 260px;
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.search-field input {
+  width: 100%;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+/* Selected view uses the app's brand/primary color, the same blue used
+   everywhere else via the PrimeNG preset in app.config.ts. */
+.view-toggle-btn.active {
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+}
+
+.view-toggle-btn.active:hover {
+  background: var(--p-primary-600, #2563eb);
+  color: #ffffff;
+}
+
+/* Card grid — as many branches visible at once as the screen allows,
+   arranged in rows and columns, scrolling internally once it overflows
+   (the page itself never scrolls, see .branches-page above). */
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  /* Generous padding on every side (not just top) — without an outer
+     panel around the data, the grid needs its own breathing room so
+     cards don't butt straight up against the page edge or each other. */
+  padding: 0.5rem 0.25rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* List view: a single full-width column — one branch per row, with the
+   same card content (plus timezone/language, added in the template only
+   for list mode) so every detail is visible without the compact grid
+   tile hiding anything. */
+.branch-grid.branch-grid-list {
+  grid-template-columns: 1fr;
+}
+
+::ng-deep .branch-card {
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+::ng-deep .branch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+  border-color: var(--p-primary-200, #bfdbfe);
+}
+
+::ng-deep .branch-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+}
+
+::ng-deep .branch-card .p-card-content {
+  padding: 0;
+}
+
+.branch-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .5rem;
+}
+
+::ng-deep .branch-avatar {
+  background: var(--p-content-border-color, #e5e7eb);
+  color: var(--p-text-color, #374151);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Main branch gets a thin brand-colored ring instead of a solid fill —
+   enough to stand out without being a loud block of color. */
+::ng-deep .branch-avatar-main {
+  background: var(--p-primary-50, #eff6ff);
+  color: var(--p-primary-700, #1d4ed8);
+  outline: 2px solid var(--p-primary-400, #60a5fa);
+  outline-offset: 1px;
+}
+
+.branch-card-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.branch-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.branch-card-location {
+  margin: 0.3rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  line-height: 1.4;
+}
+
+::ng-deep .branch-status-tag {
+  flex-shrink: 0;
+}
+
+/* Stat row — icon + value + label. A plain neutral divider top/bottom
+   (no colored background block) keeps this calm in both themes; the
+   only color left is the small icon accent, not a filled panel. */
+.branch-card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.branch-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.branch-stat i {
+  color: var(--p-primary-600, #2563eb);
+  font-size: 0.9rem;
+}
+
+.branch-stat div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.branch-stat-value {
+  font-weight: 700;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branch-stat-label {
+  font-size: 0.65rem;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.branch-card-contact {
+  display: flex;
+  
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+  line-height: 1.4;
+  /* Lines up with the location text above, not the avatar — avatar
+     (large = 3rem) + the header's 1rem gap. */
+  /* margin-left: calc(3rem + 1rem); */
+  padding-bottom: 5px;
+}
+
+.branch-card-contact i {
+  padding: 0.35rem;
+}
+
+.branch-card-footer {
+  display: flex;
+  justify-content: space-between;
+  /* gap: 0.5rem;
+  padding-top: 0.85rem;
+  margin-top: 0.1rem; */
+  /* border-top: 1px solid var(--p-content-border-color, #e5e7eb); */
+}
+
+::ng-deep .main-badge {
+  margin-left: 0.15rem;
+  vertical-align: middle;
+}
+
+.branch-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.branch-grid-empty i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.branch-grid-empty p {
+  margin: 0;
+}
+
+/* Loading placeholders — plain empty cards with a subtle shimmer,
+   matching the real card's size, instead of a spinner replacing the
+   whole grid. */
+::ng-deep .branch-card-skeleton {
+  min-height: 190px;
+  background: linear-gradient(
+    100deg,
+    var(--p-content-background, #f3f4f6) 30%,
+    var(--p-content-border-color, #e5e7eb) 50%,
+    var(--p-content-background, #f3f4f6) 70%
+  );
+  background-size: 200% 100%;
+  animation: branch-card-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes branch-card-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- Add/edit dialog form (unchanged layout, kept from before) ---- */
+
+.branch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 3.2rem;
+  font-family: inherit;
+}
+
+.field-row {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Three fields per row — the dialog is wide enough (54rem) that grouping
+   fields this way keeps the whole form short enough to never need
+   internal scrolling. Collapses to a single column on small screens via
+   the shared .field-row rule in styles.css. */
+.field-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .field-row-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.75rem;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.checkbox-field label {
+  font-weight: 500;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Dark mode ----
+   Everything above now uses neutral surface/border/text tokens
+   (--p-content-background, --p-content-border-color, --p-text-color)
+   rather than filled primary-50/100 color blocks, so most of it adapts
+   to dark mode on its own. Only the icon accent and the main-branch
+   ring still use a fixed primary shade — kept legible here with a
+   lighter shade against the dark card, and the card border/hover glow
+   get an explicit dark value since the light-mode ones were tuned for
+   a white card. */
+:host-context(.my-app-dark) .branch-stat i {
+  color: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) ::ng-deep .branch-avatar-main {
+  outline-color: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) ::ng-deep .branch-card {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) ::ng-deep .branch-card:hover {
+  border-color: var(--p-primary-400, #60a5fa);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(.my-app-dark) .branch-card-footer {
+  border-top-color: #1f2937;
+}

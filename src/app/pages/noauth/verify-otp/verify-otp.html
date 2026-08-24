@@ -1,0 +1,44 @@
+<div class="auth-page">
+  <div class="theme-toggle-fixed">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
+
+  <div class="auth-card-wrap">
+    <p-card header="Verify your account" subheader="Enter the codes sent to your email and phone to continue.">
+      <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" class="auth-form" novalidate>
+        <div class="field">
+          <label for="emailOtp">Email OTP</label>
+          <p-inputotp inputId="emailOtp" formControlName="emailOtp" [length]="6" [integerOnly]="true" />
+          @if (otpControls.emailOtp.invalid && otpControls.emailOtp.touched) {
+            <small class="field-error">Enter the 6-digit code sent to your email.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="phoneOtp">Phone OTP</label>
+          <p-inputotp inputId="phoneOtp" formControlName="phoneOtp" [length]="6" [integerOnly]="true" />
+          @if (otpControls.phoneOtp.invalid && otpControls.phoneOtp.touched) {
+            <small class="field-error">Enter the 6-digit code sent to your phone.</small>
+          }
+        </div>
+
+        @if (errorMessage()) {
+          <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+        }
+
+        <button
+          pButton
+          type="submit"
+          class="w-full"
+          [loading]="verifying()"
+          [disabled]="otpForm.invalid"
+        >Verify &amp; continue</button>
+      </form>
+
+      <div class="otp-actions">
+        <button type="button" pButton [text]="true" [loading]="resending()" [disabled]="resending()" (click)="resendOtp()">Resend codes</button>
+        <button type="button" pButton [text]="true" severity="secondary" (click)="goToLogin()">Back to login</button>
+      </div>
+    </p-card>
+  </div>
+</div>

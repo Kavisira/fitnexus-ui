@@ -1,0 +1,14 @@
+<div class="app-shell">
+  <app-header [sidebarCollapsed]="sidebarCollapsed()" (toggleSidebar)="toggleSidebar()"></app-header>
+  <div class="app-body">
+    <app-sidenav
+      [collapsed]="sidebarCollapsed()"
+      [mobileOpen]="mobileNavOpen()"
+      (navigated)="closeMobileNav()"
+    ></app-sidenav>
+    <div class="sidenav-backdrop" [class.visible]="mobileNavOpen()" (click)="closeMobileNav()"></div>
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

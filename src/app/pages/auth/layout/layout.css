@@ -1,0 +1,77 @@
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  /* Light mode only: a very light gray page background so white cards
+     (branch cards, dialogs, etc.) actually stand out from the page
+     instead of blending into an all-white screen. Dark mode already
+     looks right, so it's left untouched below. */
+  background: #f4f5f7;
+}
+
+:host-context(.my-app-dark) .app-shell {
+  background: transparent;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.app-content {
+  flex: 1;
+  padding: 1.5rem;
+  min-width: 0;
+  min-height: 0;
+  /* Column flex + hidden overflow so the page itself never scrolls —
+     each feature page (e.g. Branches) fills this space and decides
+     internally what scrolls (its own card grid / table row area, via
+     .app-table-card's flex:1 in styles.css), not the whole page. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* <router-outlet> is itself a real (empty) DOM element that Angular
+   renders as a sibling BEFORE the routed component — without this it
+   would also pick up flex:1 below and split the available height with
+   the actual page content, showing as blank space above/around it. It
+   has no visual role, so it's safe to take out of the flex flow. */
+.app-content > router-outlet {
+  display: none;
+}
+
+.app-content > router-outlet ~ * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Dimmed backdrop behind the sidenav when it's open as a mobile overlay.
+   Hidden entirely above the mobile breakpoint (the sidenav is part of
+   the normal layout there and never needs one). */
+.sidenav-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    padding: 1rem;
+  }
+
+  .sidenav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidenav-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

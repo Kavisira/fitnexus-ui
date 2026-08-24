@@ -1,0 +1,84 @@
+.auth-page {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+
+  /* Same background as the login page. */
+  background: url('../../../../../public/assets/imgs/loginbg.png') center / cover no-repeat;
+}
+
+/* Dark overlay so the (light) background image doesn't wash out the card. */
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.68) 0%, rgba(15, 23, 42, 0.82) 60%);
+  z-index: 0;
+}
+
+.auth-card-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+}
+
+.auth-card-wrap ::ng-deep .p-card {
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border-radius: 16px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.otp-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.back-row {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.back-row a {
+  color: var(--p-primary-color, #6366f1);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.back-row a:hover {
+  text-decoration: underline;
+}

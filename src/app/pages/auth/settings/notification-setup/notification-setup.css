@@ -1,0 +1,66 @@
+.setup-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 42rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+::ng-deep .setup-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem;
+}
+
+.setup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.75rem 0;
+}
+
+.setup-row-indented {
+  padding-left: 1rem;
+}
+
+.setup-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.setup-row-label {
+  font-weight: 600;
+  color: var(--p-text-color, #111827);
+}
+
+.setup-row-hint {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.setup-divider {
+  height: 1px;
+  background: var(--p-content-border-color, #e5e7eb);
+  margin: 0.25rem 0;
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+:host-context(.my-app-dark) .setup-divider {
+  background: #1f2937;
+}

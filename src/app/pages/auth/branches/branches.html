@@ -1,0 +1,292 @@
+<div class="branches-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'branches.title' | translate }}</h1>
+      <p class="subtitle">{{ 'branches.subtitle' | translate }}</p>
+    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'branches.addBranch' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="grid-toolbar">
+    <p-iconfield iconPosition="left" class="search-field">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        placeholder="Search branches..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </p-iconfield>
+
+    <div class="toolbar-right">
+      <span class="result-count">{{ filteredBranches().length }} / {{ branches().length }}</span>
+      <div class="view-toggle">
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'grid'"
+          [pTooltip]="'branches.gridView' | translate"
+          (click)="setViewMode('grid')"
+        >
+          <i class="pi pi-th-large"></i>
+        </button>
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'list'"
+          [pTooltip]="'branches.listView' | translate"
+          (click)="setViewMode('list')"
+        >
+          <i class="pi pi-bars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="branch-grid" [class.branch-grid-list]="viewMode() === 'list'">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <p-card styleClass="branch-card branch-card-skeleton"></p-card>
+      }
+    } @else {
+      @for (branch of filteredBranches(); track branch.id) {
+        <p-card styleClass="branch-card">
+          <div class="branch-card-header">
+            <p-avatar
+              [label]="initials(branch)"
+              shape="circle"
+              size="large"
+              [class]="branch.isMainBranch ? 'branch-avatar branch-avatar-main' : 'branch-avatar'"
+            />
+            <div class="branch-card-heading">
+              <div class="branch-card-name">
+                <i class="pi pi-map-marker"></i>
+                {{ orDash(branch.location) }}
+                @if (branch.isMainBranch) {
+                  <p-tag [value]="'branches.mainBadge' | translate" severity="info" styleClass="main-badge" />
+                }
+              </div>
+            </div>
+            <p-tag
+              [value]="(branch.status === 'ACTIVE' ? 'branches.statusActive' : 'branches.statusInactive') | translate"
+              [severity]="branch.status === 'ACTIVE' ? 'success' : 'danger'"
+              styleClass="branch-status-tag"
+            />
+          </div>
+
+          <!-- Location is shown above as the card's main heading; everything
+               below is always displayed with a "-" fallback so nothing ever
+               reads as blank/empty, per order: email, phone, default
+               language, tax rate, member count. -->
+          <div class="branch-card-contact">
+            <span><i class="pi pi-envelope"></i> {{ orDash(branch.email) }}</span>
+            <span><i class="pi pi-phone"></i> {{ orDash(branch.phone) }}</span>
+          </div>
+
+          <div class="branch-card-stats">
+            <div class="branch-stat">
+              <i class="pi pi-language"></i>
+              <div>
+                <span class="branch-stat-value">{{ branch.defaultLanguage === 'ta' ? 'தமிழ்' : (branch.defaultLanguage === 'en' ? 'English' : orDash(branch.defaultLanguage)) }}</span>
+                <span class="branch-stat-label">{{ 'branches.defaultLanguageLabel' | translate }}</span>
+              </div>
+            </div>
+            <div class="branch-stat">
+              <i class="pi pi-percentage"></i>
+              <div>
+                <span class="branch-stat-value">{{ branch.taxRatePercent !== null && branch.taxRatePercent !== undefined ? (branch.taxRatePercent + '%') : '-' }}</span>
+                <span class="branch-stat-label">{{ 'branches.taxRateLabel' | translate }}</span>
+              </div>
+            </div>
+            <div class="branch-stat">
+              <i class="pi pi-users"></i>
+              <div>
+                <span class="branch-stat-value">{{ orDash(branch.memberCount) }}</span>
+                <span class="branch-stat-label">{{ 'branches.colMembers' | translate }}</span>
+              </div>
+            </div>
+            @if (viewMode() === 'list') {
+              <div class="branch-stat">
+                <i class="pi pi-wallet"></i>
+                <div>
+                  <span class="branch-stat-value">{{ orDash(branch.currency) }}</span>
+                  <span class="branch-stat-label">{{ 'branches.currencyLabel' | translate }}</span>
+                </div>
+              </div>
+              <div class="branch-stat">
+                <i class="pi pi-globe"></i>
+                <div>
+                  <span class="branch-stat-value">{{ orDash(branch.timezone) }}</span>
+                  <span class="branch-stat-label">{{ 'branches.timezoneLabel' | translate }}</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (canWrite()) {
+            <div class="branch-card-footer">
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                [pTooltip]="'branches.edit' | translate"
+                (click)="openEdit(branch)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                [severity]="branch.status === 'ACTIVE' ? 'danger' : 'success'"
+                [pTooltip]="(branch.status === 'ACTIVE' ? 'branches.deactivate' : 'branches.activate') | translate"
+                (click)="toggleStatus(branch)"
+              >
+                <i class="pi" [class.pi-ban]="branch.status === 'ACTIVE'" [class.pi-check-circle]="branch.status !== 'ACTIVE'"></i>
+              </button>
+            </div>
+          }
+        </p-card>
+      } @empty {
+        <div class="branch-grid-empty">
+          <i class="pi pi-building"></i>
+          <p>{{ 'branches.empty' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '54rem' }"
+    [breakpoints]="{ '1100px': '92vw', '768px': '96vw' }"
+    [header]="(editingId() ? 'branches.editBranch' : 'branches.addBranch') | translate"
+  >
+    <form [formGroup]="form" (ngSubmit)="save()" class="branch-form" novalidate>
+      <div class="field">
+        <label for="location">{{ 'branches.locationLabel' | translate }} *</label>
+        <input
+          pInputText
+          id="location"
+          type="text"
+          formControlName="location"
+          class="w-full"
+          [placeholder]="'branches.locationPlaceholder' | translate"
+        />
+        @if (f.location.invalid && f.location.touched) {
+          <small class="field-error">{{ 'branches.locationRequired' | translate }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="address">{{ 'branches.addressLabel' | translate }}</label>
+        <textarea
+          pTextarea
+          id="address"
+          formControlName="address"
+          class="w-full"
+          rows="2"
+          [placeholder]="'branches.addressPlaceholder' | translate"
+        ></textarea>
+      </div>
+
+      <div class="field-row-3">
+        <div class="field">
+          <label for="phone">{{ 'branches.phoneLabel' | translate }}</label>
+          <input pInputText id="phone" type="tel" formControlName="phone" class="w-full" />
+        </div>
+        <div class="field">
+          <label for="email">{{ 'branches.emailLabel' | translate }}</label>
+          <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+        </div>
+        <div class="field">
+          <label for="currency">{{ 'branches.currencyLabel' | translate }}</label>
+          <p-select
+            inputId="currency"
+            formControlName="currency"
+            [options]="currencyOptions"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-3">
+        <div class="field">
+          <label for="taxRatePercent">{{ 'branches.taxRateLabel' | translate }} *</label>
+          <p-inputnumber
+            inputId="taxRatePercent"
+            formControlName="taxRatePercent"
+            [min]="0"
+            [max]="100"
+            [maxFractionDigits]="2"
+            styleClass="w-full"
+          />
+          @if (f.taxRatePercent.invalid && f.taxRatePercent.touched) {
+            <small class="field-error">{{ 'branches.taxRateRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="memberCount">{{ 'branches.memberCountLabel' | translate }} *</label>
+          <p-inputnumber inputId="memberCount" formControlName="memberCount" [min]="0" styleClass="w-full" />
+          <small class="field-hint">{{ 'branches.memberCountHint' | translate }}</small>
+          @if (f.memberCount.invalid && f.memberCount.touched) {
+            <small class="field-error">{{ 'branches.memberCountRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="defaultLanguage">{{ 'branches.defaultLanguageLabel' | translate }}</label>
+          <p-select
+            inputId="defaultLanguage"
+            formControlName="defaultLanguage"
+            [options]="languageOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+
+      @if (isCreatingFirstBranch()) {
+        <p-message severity="info" styleClass="w-full">{{ 'branches.autoMainHint' | translate }}</p-message>
+      } @else {
+        <div class="field checkbox-field">
+          <p-checkbox formControlName="isMainBranch" [binary]="true" inputId="isMainBranch" />
+          <label for="isMainBranch">{{ 'branches.isMainBranchLabel' | translate }}</label>
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDialog()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="saving()">{{ 'branches.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

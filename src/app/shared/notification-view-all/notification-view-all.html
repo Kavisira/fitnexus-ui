@@ -1,0 +1,67 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '56rem', height: '85vh' }"
+  [breakpoints]="{ '992px': '94vw' }"
+  [header]="'notifications.viewAll' | translate"
+  (onHide)="close()"
+>
+  <div class="view-all-toolbar">
+    <span class="result-count">
+      {{ store.notifications().length }} {{ 'notifications.title' | translate }}
+    </span>
+    <div class="toolbar-actions">
+      @if (store.unreadGroupCount() > 0) {
+        <button pButton type="button" [text]="true" (click)="markAllRead()">
+          {{ 'notifications.markAllRead' | translate }}
+        </button>
+      }
+      <button pButton type="button" [text]="true" severity="danger" (click)="clearAllRead()">
+        <i class="pi pi-trash" style="margin-right: 0.35rem"></i>
+        {{ 'notifications.clearAllRead' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="view-all-body" [class.view-all-body--empty]="store.groups().length === 0">
+    @if (store.groups().length === 0) {
+      <div class="view-all-empty">
+        <i class="pi pi-bell-slash"></i>
+        <span>{{ 'notifications.empty' | translate }}</span>
+      </div>
+    } @else {
+      @for (group of store.groups(); track group.category) {
+        <div class="notification-group">
+          <button type="button" class="group-header" (click)="toggleCategory(group.category)">
+            <i [class]="categoryIcon(group.category)"></i>
+            <span class="group-label">{{ categoryLabel(group.category) }}</span>
+            @if (group.unreadCount > 0) {
+              <span class="group-unread-badge">{{ group.unreadCount }}</span>
+            }
+            <span class="group-total">({{ group.items.length }})</span>
+            <i class="pi group-chevron" [class.pi-chevron-down]="!isCollapsed(group.category)" [class.pi-chevron-right]="isCollapsed(group.category)"></i>
+          </button>
+
+          @if (!isCollapsed(group.category)) {
+            <ul class="group-items">
+              @for (n of group.items; track n.id) {
+                <li class="notification-item" [class]="severityClass(n.severity)" [class.unread]="!n.read" (click)="onNotificationClick(n)">
+                  <div class="item-main">
+                    <span class="item-title">{{ n.title }}</span>
+                    <span class="item-message">{{ n.message }}</span>
+                    <span class="item-time">{{ n.createdAt | date: 'MMM d, y · h:mm a' }}</span>
+                  </div>
+                  @if (n.read) {
+                    <button type="button" class="item-delete" [pTooltip]="'common.delete' | translate" (click)="deleteNotification($event, n)">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    }
+  </div>
+</p-dialog>

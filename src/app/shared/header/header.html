@@ -1,0 +1,38 @@
+<header class="app-header">
+  <div class="header-left">
+    <button
+      pButton
+      type="button"
+      class="collapse-btn"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      aria-label="Toggle sidebar"
+      (click)="onToggleSidebar()"
+    >
+      <svg data-p-icon="bars"></svg>
+    </button>
+    <span class="app-brand">FitNexus</span>
+  </div>
+
+  <div class="header-right">
+    @if (notificationStore.enabled()) {
+      <app-notification-bell></app-notification-bell>
+    }
+    <app-theme-toggle></app-theme-toggle>
+
+    <button
+      pButton
+      type="button"
+      class="profile-btn"
+      [text]="true"
+      (click)="profileMenu.toggle($event)"
+      aria-haspopup="true"
+    >
+      <p-avatar label="U" shape="circle" size="normal" />
+    </button>
+    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
+  </div>
+</header>
+
+<app-settings-dialog [(visible)]="settingsVisible"></app-settings-dialog>

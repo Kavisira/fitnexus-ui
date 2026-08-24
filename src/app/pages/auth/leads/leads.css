@@ -1,0 +1,730 @@
+.leads-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-field {
+  min-width: 240px;
+  flex: 1 1 240px;
+  max-width: 380px;
+}
+
+.search-field input {
+  width: 100%;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.branch-filter {
+  min-width: 200px;
+}
+
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.filter-field {
+  min-width: 180px;
+}
+
+.filter-date-range {
+  min-width: 220px;
+}
+
+.filter-clear {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.view-toggle-btn.active {
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+}
+
+.view-toggle-btn.active:hover {
+  background: var(--p-primary-600, #2563eb);
+  color: #ffffff;
+}
+
+.lead-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0.25rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.lead-grid.lead-grid-list {
+  grid-template-columns: 1fr;
+}
+
+::ng-deep .lead-card {
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+
+::ng-deep .lead-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+  border-color: var(--p-primary-200, #bfdbfe);
+}
+
+::ng-deep .lead-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+}
+
+::ng-deep .lead-card .p-card-content {
+  padding: 0;
+}
+
+.lead-card-header {
+  display: flex;
+  /* Avatar centered against the whole name+details block, not pinned
+     to the top of it. */
+  align-items: center;
+  gap: 1rem;
+}
+
+::ng-deep .lead-avatar {
+  background: var(--p-content-border-color, #e5e7eb);
+  color: var(--p-text-color, #374151);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.lead-card-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.lead-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Branch/phone/email — one line each, stacked directly under the name
+   inside the same heading column, so they're always exactly below it
+   (no separate section with a guessed offset to keep in sync). */
+.lead-card-line {
+  margin: 0.3rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  line-height: 1.4;
+}
+
+::ng-deep .lead-status-tag {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* Wraps meta rows + the last-note/recent-notes area. In grid view it's
+   a single stacked column (unchanged). In list view it splits 6/6 —
+   meta on the left, recent notes on the right — so the meta row never
+   stretches across the full card width (that's what was causing the
+   huge label/value gap in list mode). */
+.lead-card-split {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lead-grid-list .lead-card-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+/* Source / assigned to / next follow-up — plain label:value rows
+   instead of cramped tiles, so a full date+time actually fits on one
+   line without truncating. */
+.lead-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.lead-grid-list .lead-card-meta {
+  border-top: none;
+  border-bottom: none;
+  padding: 0;
+}
+
+/* Right column of the 6/6 split — last few notes, each with its own
+   timestamp, replacing the single last-note line used in grid view. */
+.lead-card-notes-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding-left: 1.25rem;
+  min-width: 0;
+}
+
+.lead-notes-col-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lead-card-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 9rem;
+  overflow-y: auto;
+}
+
+.lead-card-notes-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--p-content-border-color, #e5e7eb);
+}
+
+.lead-card-notes-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.lead-card-notes-text {
+  font-size: 0.78rem;
+  color: var(--p-text-color, #374151);
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.lead-card-notes-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lead-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.82rem;
+}
+
+.lead-meta-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--p-text-muted-color, #6b7280);
+  flex-shrink: 0;
+}
+
+.lead-meta-label i {
+  color: var(--p-primary-600, #2563eb);
+  font-size: 0.85rem;
+}
+
+.lead-meta-value {
+  font-weight: 600;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Overdue follow-up — the one place here that deliberately gets a
+   color call-out, since it needs to grab attention. */
+.lead-meta-overdue .lead-meta-label,
+.lead-meta-overdue .lead-meta-label i,
+.lead-meta-overdue .lead-meta-value {
+  color: var(--p-red-500, #ef4444);
+}
+
+/* Last logged follow-up note — full width, its own row, with an
+   explicit empty state instead of just vanishing when there's none. */
+.lead-card-lastnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--p-text-color, #374151);
+  line-height: 1.4;
+}
+
+.lead-card-lastnote i {
+  color: var(--p-primary-600, #2563eb);
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.lead-lastnote-text {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.lead-lastnote-empty {
+  color: var(--p-text-muted-color, #6b7280);
+  font-style: italic;
+}
+
+.lead-lastnote-label {
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  flex-shrink: 0;
+}
+
+/* Conclude outcome (Converted/Lost) comment — its own callout row so
+   it reads distinctly from the plain last-note line above it. */
+.lead-card-conclude {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: var(--p-green-50, #f0fdf4);
+  color: var(--p-green-700, #15803d);
+}
+
+.lead-card-conclude.lead-card-conclude-lost {
+  background: var(--p-red-50, #fef2f2);
+  color: var(--p-red-700, #b91c1c);
+}
+
+.lead-card-conclude i {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.lead-conclude-label {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.lead-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.85rem;
+  margin-top: 0.1rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.lead-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lead-grid-empty i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.lead-grid-empty p {
+  margin: 0;
+}
+
+::ng-deep .lead-card-skeleton {
+  min-height: 190px;
+  background: linear-gradient(
+    100deg,
+    var(--p-content-background, #f3f4f6) 30%,
+    var(--p-content-border-color, #e5e7eb) 50%,
+    var(--p-content-background, #f3f4f6) 70%
+  );
+  background-size: 200% 100%;
+  animation: lead-card-shimmer 1.4s ease-in-out infinite;
+  cursor: default;
+}
+
+@keyframes lead-card-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- Dialog forms (create + detail share the same classes) ---- */
+
+.lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 3.2rem;
+  font-family: inherit;
+}
+
+.field-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .field-row-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* ---- Conclude checkbox (detail dialog) ---- */
+
+.lead-conclude-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #f9fafb);
+}
+
+.lead-conclude-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lead-conclude-checkbox input {
+  width: 1.05rem;
+  height: 1.05rem;
+  cursor: pointer;
+}
+
+.lead-conclude-outcome {
+  display: flex;
+  gap: 1.25rem;
+  padding-left: 0.1rem;
+}
+
+.lead-conclude-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.lead-conclude-radio input {
+  cursor: pointer;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Timeline (detail dialog only) ---- */
+
+.lead-timeline-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.lead-timeline-section h3 {
+  margin: 0 0 0.9rem;
+  font-size: 0.95rem;
+}
+
+/* Toggle button for the collapsible lead-details form above the
+   timeline — a plain full-width text button rather than a heavier
+   PrimeNG Accordion, since only one section ever needs to expand here. */
+.lead-details-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.lead-note-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.lead-note-form textarea {
+  resize: vertical;
+  min-height: 2.6rem;
+  font-family: inherit;
+  flex: 1 1 260px;
+}
+
+.lead-note-followup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+
+.lead-note-followup label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lead-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.lead-timeline-item {
+  display: flex;
+  gap: 0.85rem;
+  position: relative;
+  padding-bottom: 1.1rem;
+}
+
+/* Connector line running down the left side, through each dot — hidden
+   on the last item via :last-child. */
+.lead-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 2px;
+  background: var(--p-content-border-color, #e5e7eb);
+}
+
+.lead-timeline-item:last-child::before {
+  display: none;
+}
+
+.lead-timeline-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--p-primary-500, #3b82f6);
+  margin-top: 4px;
+}
+
+.lead-timeline-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.lead-timeline-note {
+  margin: 0 0 0.2rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.lead-timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.lead-timeline-date,
+.lead-timeline-followup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lead-timeline-followup {
+  color: var(--p-primary-600, #2563eb);
+  font-weight: 600;
+}
+
+/* Shown right next to the note text itself, in brackets — kept visually
+   distinct (color + weight) from the plain "logged on" date below it so
+   the two dates are never confused for one another. */
+.lead-timeline-followup-inline {
+  color: var(--p-primary-600, #2563eb);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.lead-timeline-empty {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .lead-meta-label i,
+:host-context(.my-app-dark) .lead-card-lastnote i,
+:host-context(.my-app-dark) .lead-timeline-followup,
+:host-context(.my-app-dark) .lead-timeline-followup-inline {
+  color: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) ::ng-deep .lead-card {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) ::ng-deep .lead-card:hover {
+  border-color: var(--p-primary-400, #60a5fa);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(.my-app-dark) .lead-card-footer {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .lead-timeline-section {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .lead-timeline-dot {
+  background: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) .lead-card-conclude {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--p-green-300, #86efac);
+}
+
+:host-context(.my-app-dark) .lead-card-conclude.lead-card-conclude-lost {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--p-red-300, #fca5a5);
+}
+
+:host-context(.my-app-dark) .lead-conclude-field {
+  border-color: #1f2937;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+:host-context(.my-app-dark) .lead-grid-list .lead-card-split,
+:host-context(.my-app-dark) .lead-card-notes-col,
+:host-context(.my-app-dark) .lead-card-notes-item {
+  border-color: #1f2937;
+}

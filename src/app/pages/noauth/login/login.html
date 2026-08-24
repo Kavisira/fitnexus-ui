@@ -1,0 +1,64 @@
+<div class="login-page">
+  <div class="theme-toggle-fixed">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
+  <div class="login-card-wrap">
+    <p-card header="Welcome back" subheader="Sign in to your FitNexus account">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+        <div class="field">
+          <label for="identifier">Email or phone number</label>
+          <input
+            pInputText
+            id="identifier"
+            type="text"
+            formControlName="identifier"
+            placeholder="Enter your email or phone number"
+            autocomplete="username"
+            class="w-full"
+          />
+          @if (identifier.invalid && identifier.touched) {
+            <small class="field-error">Email or phone number is required.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <p-password
+            inputId="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            autocomplete="current-password"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (password.invalid && password.touched) {
+            <small class="field-error">Password is required.</small>
+          }
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div class="field remember-row">
+          <p-checkbox formControlName="rememberMe" [binary]="true" inputId="rememberMe" />
+          <label for="rememberMe" class="remember-label">Remember me</label>
+        </div>
+
+        @if (errorMessage()) {
+          <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+        }
+
+        <button
+          pButton
+          type="submit"
+          class="w-full"
+          [loading]="submitting()"
+        >Login</button>
+      </form>
+
+      <div class="signup-row">
+        Don't have an account?
+        <a routerLink="/signup">Sign up</a>
+      </div>
+    </p-card>
+  </div>
+</div>

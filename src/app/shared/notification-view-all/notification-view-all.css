@@ -1,0 +1,216 @@
+.view-all-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.result-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.view-all-body {
+  flex: 1 1 auto;
+  min-height: 420px;
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.view-all-body--empty {
+  display: flex;
+}
+
+.view-all-body--empty .view-all-empty {
+  margin: auto;
+}
+
+/* Let the dialog's own content area participate in the flex layout so
+   .view-all-body can grow to fill the taller dialog instead of sitting
+   at its own max-height regardless of how much room the dialog has. */
+::ng-deep .p-dialog-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.view-all-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.9rem;
+}
+
+.view-all-empty i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.notification-group {
+  border-bottom: 1px solid var(--p-content-border-color, #f3f4f6);
+}
+
+.notification-group:last-child {
+  border-bottom: none;
+}
+
+.group-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--p-text-color, #111827);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.group-header:hover {
+  background: var(--p-content-background, #f9fafb);
+}
+
+.group-header i:first-child {
+  color: var(--p-primary-600, #2563eb);
+}
+
+.group-label {
+  flex: 1;
+}
+
+.group-unread-badge {
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--p-red-500, #ef4444);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
+}
+
+.group-total {
+  color: var(--p-text-muted-color, #6b7280);
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+
+.group-chevron {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.78rem;
+}
+
+.group-items {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--p-content-border-color, #e5e7eb);
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: var(--p-content-background, #f9fafb);
+}
+
+.notification-item.unread {
+  background: var(--p-blue-50, #eff6ff);
+}
+
+.notification-item.severity-info {
+  border-left-color: var(--p-blue-400, #60a5fa);
+}
+
+.notification-item.severity-warning {
+  border-left-color: var(--p-orange-400, #fb923c);
+}
+
+.notification-item.severity-urgent {
+  border-left-color: var(--p-red-500, #ef4444);
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.item-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--p-text-color, #111827);
+}
+
+.item-message {
+  font-size: 0.82rem;
+  color: var(--p-text-color, #374151);
+  line-height: 1.4;
+}
+
+.item-time {
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color, #6b7280);
+  margin-top: 0.1rem;
+}
+
+.item-delete {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--p-text-muted-color, #9ca3af);
+  cursor: pointer;
+  padding: 0.15rem;
+}
+
+.item-delete:hover {
+  color: var(--p-red-500, #ef4444);
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .view-all-body {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .notification-group {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .group-header:hover,
+:host-context(.my-app-dark) .notification-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+:host-context(.my-app-dark) .notification-item.unread {
+  background: rgba(59, 130, 246, 0.12);
+}

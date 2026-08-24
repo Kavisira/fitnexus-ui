@@ -1,0 +1,20 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [header]="'settings.title' | translate"
+  [style]="{ width: '380px', height: '100%' }"
+  [dismissableMask]="true"
+>
+  <div class="settings-body">
+    <label for="languageSelect">{{ 'settings.language' | translate }}</label>
+    <p-select
+      inputId="languageSelect"
+      [options]="languages"
+      optionLabel="nativeName"
+      optionValue="code"
+      [(ngModel)]="selectedLanguage"
+      styleClass="w-full"
+    />
+    <small class="hint">{{ 'settings.languageHint' | translate }}</small>
+  </div>
+</p-dialog>

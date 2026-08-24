@@ -1,0 +1,111 @@
+<div class="config-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'notificationConfig.title' | translate }}</h1>
+      <p class="subtitle">{{ 'notificationConfig.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (!loading()) {
+    <div class="config-list">
+      @for (config of configs(); track config.type) {
+        <p-card class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-title">
+              <span class="config-type-name">{{ typeLabel(config.type) }}</span>
+              @if (isNotReady(config.type)) {
+                <p-tag
+                  [value]="'notificationConfig.notReady' | translate"
+                  severity="secondary"
+                  [pTooltip]="'notificationConfig.notReadyHint' | translate"
+                />
+              }
+            </div>
+            <p-toggleswitch [ngModel]="config.enabled" (ngModelChange)="setEnabled(config, $event)" />
+          </div>
+
+          @if (config.enabled) {
+            <div class="config-card-body">
+              <div class="config-field-row">
+                <label>{{ 'notificationConfig.severityLabel' | translate }}</label>
+                <p-select
+                  [options]="severityOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [ngModel]="config.severity"
+                  (ngModelChange)="setSeverity(config, $event)"
+                  styleClass="severity-select"
+                />
+              </div>
+
+              <div class="config-field-row">
+                <label>{{ 'notificationConfig.channelsLabel' | translate }}</label>
+                <div class="channel-toggles">
+                  <div class="channel-toggle">
+                    <p-toggleswitch [ngModel]="config.inAppEnabled" (ngModelChange)="setInAppEnabled(config, $event)" />
+                    <span>{{ 'notificationConfig.channelInApp' | translate }}</span>
+                  </div>
+                  <div class="channel-toggle channel-toggle-disabled" [pTooltip]="'notificationConfig.comingSoon' | translate">
+                    <p-toggleswitch [ngModel]="false" [disabled]="true" />
+                    <span>{{ 'notificationConfig.channelEmail' | translate }}</span>
+                    <p-tag [value]="'notificationConfig.comingSoon' | translate" severity="secondary" />
+                  </div>
+                  <div class="channel-toggle channel-toggle-disabled" [pTooltip]="'notificationConfig.comingSoon' | translate">
+                    <p-toggleswitch [ngModel]="false" [disabled]="true" />
+                    <span>{{ 'notificationConfig.channelWhatsapp' | translate }}</span>
+                    <p-tag [value]="'notificationConfig.comingSoon' | translate" severity="secondary" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="config-field-row config-field-row-column">
+                <label>
+                  {{ 'notificationConfig.offsetsLabel' | translate }}
+                  <span class="offsets-hint">{{ 'notificationConfig.offsetsHint' | translate }}</span>
+                </label>
+
+                @if (offsets(config).length === 0) {
+                  <p class="offsets-empty">{{ 'notificationConfig.offsetsEmpty' | translate }}</p>
+                }
+
+                @for (offset of offsets(config); track $index) {
+                  <div class="offset-row">
+                    <p-inputnumber
+                      [ngModel]="offset.value"
+                      (ngModelChange)="updateOffsetValue(config, $index, $event)"
+                      [min]="0"
+                      class="offset-value"
+                    />
+                    <p-select
+                      [options]="unitOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [ngModel]="offset.unit"
+                      (ngModelChange)="updateOffsetUnit(config, $index, $event)"
+                      styleClass="offset-unit"
+                    />
+                    <span class="offset-before-label">{{ 'notificationConfig.beforeEvent' | translate }}</span>
+                    <button pButton type="button" [text]="true" severity="danger" (click)="removeOffset(config, $index)">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                }
+
+                <button pButton type="button" [text]="true" class="add-offset-btn" (click)="addOffset(config)">
+                  <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
+                  {{ 'notificationConfig.addOffset' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+
+          <div class="config-card-actions">
+            <button pButton type="button" [loading]="savingType() === config.type" (click)="save(config)">
+              {{ 'leads.save' | translate }}
+            </button>
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+</div>

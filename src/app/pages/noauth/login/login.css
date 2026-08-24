@@ -1,0 +1,110 @@
+.login-page {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+
+  /* Background image. To go back to a plain color instead, replace this
+     with: background: linear-gradient(135deg, var(--p-primary-color, #6366f1) 0%, #111827 100%); */
+  background: url('../../../../../public/assets/imgs/loginbg.png') center / cover no-repeat;
+}
+
+/* Dark overlay so the (light) background image doesn't wash out the card. */
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.68) 0%, rgba(15, 23, 42, 0.82) 60%);
+  z-index: 0;
+}
+
+.login-card-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card-wrap ::ng-deep .p-card {
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border-radius: 16px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Password field width/icon placement is handled globally in styles.css
+   (Angular's view encapsulation can't reach PrimeNG's internal markup
+   from a component-scoped stylesheet without ::ng-deep, so the shared
+   override lives in one place instead of being duplicated per page). */
+
+.forgot-link {
+  align-self: flex-end;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--p-primary-color, #6366f1);
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.remember-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remember-label {
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.signup-row {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.signup-row a {
+  color: var(--p-primary-color, #6366f1);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.signup-row a:hover {
+  text-decoration: underline;
+}
+
