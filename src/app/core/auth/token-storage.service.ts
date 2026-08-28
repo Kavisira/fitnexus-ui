@@ -34,6 +34,18 @@ export class TokenStorage {
     return this.getRole() === 'OWNER';
   }
 
+  /** Reads the `email` claim off the current token — display-only,
+   * same "never security-sensitive" caveat as getRole(). Used for the
+   * header's profile avatar initial and account menu. */
+  getEmail(): string | null {
+    const token = this.get();
+    if (!token) {
+      return null;
+    }
+    const decoded = decodeJwt(token);
+    return (decoded?.['email'] as string | undefined) ?? null;
+  }
+
   /** True when a token is present and its `exp` claim (30m or 30d,
    * depending on "remember me" at login) hasn't passed yet. */
   hasValidSession(): boolean {

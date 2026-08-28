@@ -6,12 +6,17 @@ import { VerifyOtp } from './pages/noauth/verify-otp/verify-otp';
 import { Layout } from './pages/auth/layout/layout';
 import { Dashboard } from './pages/auth/dashboard/dashboard';
 import { Branches } from './pages/auth/branches/branches';
+import { Plans } from './pages/auth/plans/plans';
+import { Offers } from './pages/auth/offers/offers';
 import { Leads } from './pages/auth/leads/leads';
 import { Employees } from './pages/auth/employees/employees';
+import { Members } from './pages/auth/members/members';
+import { Expenses } from './pages/auth/expenses/expenses';
 import { NotificationSettingsLayout } from './pages/auth/notification-settings/notification-settings-layout';
 import { NotificationSetup } from './pages/auth/settings/notification-setup/notification-setup';
 import { NotificationConfiguration } from './pages/auth/settings/notification-configuration/notification-configuration';
 import { RolePermissions } from './pages/auth/role-permissions/role-permissions';
+import { Help } from './pages/auth/help/help';
 import { Placeholder } from './shared/placeholder/placeholder';
 import { authGuard, noAuthGuard, ownerGuard, permissionGuard } from './core/auth/auth.guard';
 
@@ -62,11 +67,35 @@ export const routes: Routes = [
         title: 'Branches · FitNexus',
       },
       {
-        path: 'members',
-        component: Placeholder,
+        path: 'plans',
+        component: Plans,
         canActivate: [permissionGuard],
-        data: { labelKey: 'common.members', screen: 'MEMBERS' },
+        data: { screen: 'PLANS' },
+        title: 'Plans & Packages · FitNexus',
+      },
+      {
+        // Offers are part of Plans management (same PLANS permission),
+        // just kept on their own screen rather than inside the Plans
+        // dialog — see the doc comment on the Offers component.
+        path: 'offers',
+        component: Offers,
+        canActivate: [permissionGuard],
+        data: { screen: 'PLANS' },
+        title: 'Offers · FitNexus',
+      },
+      {
+        path: 'members',
+        component: Members,
+        canActivate: [permissionGuard],
+        data: { screen: 'MEMBERS' },
         title: 'Members · FitNexus',
+      },
+      {
+        path: 'expenses',
+        component: Expenses,
+        canActivate: [permissionGuard],
+        data: { screen: 'EXPENSES' },
+        title: 'Expenses · FitNexus',
       },
       {
         path: 'employees',
@@ -97,6 +126,14 @@ export const routes: Routes = [
         component: RolePermissions,
         canActivate: [ownerGuard],
         title: 'Roles & Permissions · FitNexus',
+      },
+      {
+        // Help is reference documentation, not a data screen — every
+        // logged-in user can open it regardless of role, so it has no
+        // permissionGuard/screen data like the other children here.
+        path: 'help',
+        component: Help,
+        title: 'Help & Guide · FitNexus',
       },
       {
         // Setup and Configuration are two tabs of one page, each with

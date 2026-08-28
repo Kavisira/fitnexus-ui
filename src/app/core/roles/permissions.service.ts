@@ -12,7 +12,9 @@ export type PermissionScreen =
   | 'LEADS'
   | 'NOTIFICATIONS'
   | 'BRANCHES'
-  | 'MEMBERS';
+  | 'MEMBERS'
+  | 'PLANS'
+  | 'EXPENSES';
 
 export interface ScreenPermission {
   canRead: boolean;

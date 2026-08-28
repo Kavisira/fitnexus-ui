@@ -8,7 +8,16 @@ import { API_BASE_URL } from '../config/api.config';
 // access and never appears here (see RolesService.can on the backend).
 export type StaffRole = 'BRANCH_MANAGER' | 'TRAINER' | 'FRONT_DESK';
 
-export type PermissionScreen = 'DASHBOARD' | 'EMPLOYEES' | 'ATTENDANCE' | 'LEADS' | 'NOTIFICATIONS' | 'BRANCHES' | 'MEMBERS';
+export type PermissionScreen =
+  | 'DASHBOARD'
+  | 'EMPLOYEES'
+  | 'ATTENDANCE'
+  | 'LEADS'
+  | 'NOTIFICATIONS'
+  | 'BRANCHES'
+  | 'MEMBERS'
+  | 'PLANS'
+  | 'EXPENSES';
 
 export interface RolePermission {
   id: string;

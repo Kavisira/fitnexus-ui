@@ -1,0 +1,591 @@
+.members-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-field {
+  min-width: 260px;
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+::ng-deep .filter-select {
+  min-width: 180px;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.view-toggle-btn.active {
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+}
+
+.view-toggle-btn.active:hover {
+  background: var(--p-primary-600, #2563eb);
+  color: #ffffff;
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0.25rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.member-grid.member-grid-list {
+  grid-template-columns: 1fr;
+}
+
+.member-grid-list .member-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1.5rem;
+}
+
+::ng-deep .member-card {
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+::ng-deep .member-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+  border-color: var(--p-primary-200, #bfdbfe);
+}
+
+::ng-deep .member-card.member-card-inactive {
+  opacity: 0.6;
+}
+
+::ng-deep .member-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.4rem;
+}
+
+::ng-deep .member-card .p-card-content {
+  padding: 0;
+}
+
+.member-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.member-card-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.trial-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-orange-600, #d97706);
+  background: var(--p-orange-100, #fef3c7);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+}
+
+.member-card-sub {
+  margin: 0.15rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.8rem;
+}
+
+.member-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.member-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.member-card-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--p-text-muted-color, #6b7280);
+  white-space: nowrap;
+}
+
+.member-card-value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.member-card-price {
+  color: var(--p-primary-600, #2563eb);
+}
+
+.member-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.member-card-health-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--p-content-border-color, #e5e7eb);
+}
+
+.compare-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: 1rem 0.25rem;
+  scroll-snap-type: x proximity;
+}
+
+.compare-photo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.compare-photo-card img {
+  width: auto;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #f3f4f6);
+}
+
+.compare-photo-review {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-primary-600, #2563eb);
+}
+
+.compare-photo-caption {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  white-space: nowrap;
+}
+
+.checkin-photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checkin-photo-preview img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.progress-history-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.progress-history-no-photo {
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.progress-history-review-badge {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--p-primary-700, #1d4ed8);
+  background: var(--p-primary-100, #dbeafe);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.progress-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.progress-delta i {
+  font-size: 0.65rem;
+}
+
+.progress-delta-down {
+  color: var(--p-green-600, #16a34a);
+}
+
+.progress-delta-up {
+  color: var(--p-red-500, #ef4444);
+}
+
+.progress-history {
+  margin-top: 1rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding-top: 1rem;
+}
+
+.progress-history-table-wrap {
+  max-height: 340px;
+  overflow: auto;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.progress-history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+}
+
+.progress-history-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--p-content-background, #f3f4f6);
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  white-space: nowrap;
+}
+
+.progress-history-table tbody td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  vertical-align: middle;
+  white-space: nowrap;
+  text-align: left !important;
+}
+
+.progress-history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.progress-history-table tbody tr:nth-child(even) {
+  background: var(--p-content-background, #f9fafb);
+}
+
+.progress-history-table tbody tr:hover {
+  background: var(--p-primary-50, #eff6ff);
+}
+
+.progress-history-table th.col-num,
+.progress-history-table td.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-history-table th.col-date,
+.progress-history-table td.col-date {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.progress-history-table th.col-status,
+.progress-history-table td.col-status {
+  text-align: center;
+}
+
+.progress-history-empty {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.85rem;
+}
+
+.member-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.member-grid-empty i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.member-grid-empty p {
+  margin: 0;
+}
+
+::ng-deep .member-card-skeleton {
+  min-height: 180px;
+  background: linear-gradient(
+    100deg,
+    var(--p-content-background, #f3f4f6) 30%,
+    var(--p-content-border-color, #e5e7eb) 50%,
+    var(--p-content-background, #f3f4f6) 70%
+  );
+  background-size: 200% 100%;
+  animation: member-card-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes member-card-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- Add/edit dialog form ---- */
+
+.member-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.field-row-2 {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.field-row-2 .field {
+  flex: 1 1 200px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.75rem;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: flex-start;
+}
+
+.checkbox-field label {
+  font-weight: 500;
+}
+
+.computed-value {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px dashed var(--p-content-border-color, #d1d5db);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.computed-value-price {
+  color: var(--p-primary-600, #2563eb);
+}
+
+.couple-section {
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.couple-section-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) ::ng-deep .member-card {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) ::ng-deep .member-card:hover {
+  border-color: var(--p-primary-400, #60a5fa);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(.my-app-dark) .member-card-body {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .member-card-price {
+  color: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) .computed-value {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .computed-value-price {
+  color: var(--p-primary-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) .couple-section {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .member-card-health-actions {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .progress-history {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .progress-history-row:not(.progress-history-header):nth-child(even) {
+  background: #111827;
+}
+
+:host-context(.my-app-dark) .progress-history-table-wrap {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .progress-history-table thead th {
+  background: #111827;
+  border-bottom-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .progress-history-table tbody td {
+  border-bottom-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .progress-history-table tbody tr:nth-child(even) {
+  background: #111827;
+}
+
+:host-context(.my-app-dark) .progress-history-table tbody tr:hover {
+  background: #1e293b;
+}
+
+:host-context(.my-app-dark) .progress-history-review-badge {
+  background: rgba(59, 130, 246, 0.18);
+  color: var(--p-primary-300, #93c5fd);
+}

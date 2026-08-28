@@ -35,6 +35,26 @@ export class Header {
 
   settingsVisible = signal(false);
 
+  get userEmail(): string {
+    return this.tokenStorage.getEmail() ?? '';
+  }
+
+  get userInitial(): string {
+    return (this.userEmail || 'U').charAt(0).toUpperCase();
+  }
+
+  private static readonly ROLE_LABELS: Record<string, string> = {
+    OWNER: 'Owner',
+    BRANCH_MANAGER: 'Branch Manager',
+    TRAINER: 'Trainer',
+    FRONT_DESK: 'Front Desk',
+  };
+
+  get userRoleLabel(): string {
+    const role = this.tokenStorage.getRole();
+    return role ? (Header.ROLE_LABELS[role] ?? role) : '';
+  }
+
   // A getter (not a fixed array) so the labels are re-translated on every
   // change-detection pass — including right after the language changes.
   get profileMenuItems(): MenuItem[] {

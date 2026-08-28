@@ -32,43 +32,78 @@
   @if (loading()) {
     <p class="loading-text">{{ 'rolePermissions.loading' | translate }}</p>
   } @else {
+    <div class="matrix-legend">
+      <span class="legend-chip legend-chip-view">
+        <i class="pi pi-eye"></i>
+        {{ 'rolePermissions.readColumn' | translate }}
+      </span>
+      <span class="legend-copy">{{ 'rolePermissions.readHint' | translate }}</span>
+      <span class="legend-chip legend-chip-edit">
+        <i class="pi pi-pencil"></i>
+        {{ 'rolePermissions.writeColumn' | translate }}
+      </span>
+      <span class="legend-copy">{{ 'rolePermissions.writeHint' | translate }}</span>
+    </div>
+
     <div class="matrix-scroll">
       <table class="matrix-table">
         <thead>
           <tr>
-            <th class="screen-col">{{ 'rolePermissions.screenColumn' | translate }}</th>
-            @for (role of roles; track role) {
-              <th class="role-col" colspan="2">{{ roleLabel(role) }}</th>
+            <th class="screen-col screen-col-corner">{{ 'rolePermissions.screenColumn' | translate }}</th>
+            @for (role of roles; track role; let idx = $index) {
+              <th class="role-col" [class.role-col-alt]="idx % 2 === 1" colspan="2">
+                <span class="role-col-name">{{ roleLabel(role) }}</span>
+              </th>
             }
           </tr>
           <tr class="sub-header">
             <th class="screen-col"></th>
-            @for (role of roles; track role) {
-              <th class="access-col">{{ 'rolePermissions.readColumn' | translate }}</th>
-              <th class="access-col">{{ 'rolePermissions.writeColumn' | translate }}</th>
+            @for (role of roles; track role; let idx = $index) {
+              <th class="access-col access-col-view" [class.role-col-alt]="idx % 2 === 1">
+                <i class="pi pi-eye" [pTooltip]="'rolePermissions.readColumn' | translate"></i>
+              </th>
+              <th class="access-col access-col-edit" [class.role-col-alt]="idx % 2 === 1">
+                <i class="pi pi-pencil" [pTooltip]="'rolePermissions.writeColumn' | translate"></i>
+              </th>
             }
           </tr>
         </thead>
         <tbody>
           @for (screen of screens; track screen) {
             <tr>
-              <td class="screen-col">{{ screenLabel(screen) }}</td>
-              @for (role of roles; track role) {
-                <td class="access-col">
-                  <input
-                    type="checkbox"
-                    [checked]="cell(role, screen).canRead"
+              <td class="screen-col">
+                {{ screenLabel(screen) }}
+                @if (screen === 'PLANS') {
+                  <div class="screen-col-hint">{{ 'rolePermissions.plansIncludesOffersHint' | translate }}</div>
+                }
+              </td>
+              @for (role of roles; track role; let idx = $index) {
+                <td class="access-col access-col-view" [class.role-col-alt]="idx % 2 === 1">
+                  <button
+                    type="button"
+                    class="perm-toggle perm-toggle-view"
+                    [class.perm-toggle-on]="cell(role, screen).canRead"
                     [disabled]="saving()"
-                    (change)="toggleRead(role, screen)"
-                  />
+                    [attr.aria-pressed]="cell(role, screen).canRead"
+                    [attr.aria-label]="(roleLabel(role) + ' — ' + screenLabel(screen) + ' — ') + ('rolePermissions.readColumn' | translate)"
+                    (click)="toggleRead(role, screen)"
+                  >
+                    <i class="pi" [class.pi-check]="cell(role, screen).canRead" [class.pi-minus]="!cell(role, screen).canRead"></i>
+                  </button>
                 </td>
-                <td class="access-col">
-                  <input
-                    type="checkbox"
-                    [checked]="cell(role, screen).canWrite"
-                    [disabled]="saving()"
-                    (change)="toggleWrite(role, screen)"
-                  />
+                <td class="access-col access-col-edit" [class.role-col-alt]="idx % 2 === 1">
+                  <button
+                    type="button"
+                    class="perm-toggle perm-toggle-edit"
+                    [class.perm-toggle-on]="cell(role, screen).canWrite"
+                    [disabled]="saving() || !cell(role, screen).canRead"
+                    [attr.aria-pressed]="cell(role, screen).canWrite"
+                    [attr.aria-label]="(roleLabel(role) + ' — ' + screenLabel(screen) + ' — ') + ('rolePermissions.writeColumn' | translate)"
+                    [pTooltip]="!cell(role, screen).canRead ? ('rolePermissions.needsReadFirstHint' | translate) : ''"
+                    (click)="toggleWrite(role, screen)"
+                  >
+                    <i class="pi" [class.pi-check]="cell(role, screen).canWrite" [class.pi-minus]="!cell(role, screen).canWrite"></i>
+                  </button>
                 </td>
               }
             </tr>

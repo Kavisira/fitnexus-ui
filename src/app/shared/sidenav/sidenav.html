@@ -1,4 +1,5 @@
 <nav class="sidenav" [class.collapsed]="collapsed" [class.mobile-open]="mobileOpen">
+  <!-- <div class="nav-section-label">{{ 'common.menu' | translate }}</div> -->
   <ul class="nav-list">
     @for (item of visibleNavItems(); track item.route) {
       <li>
@@ -19,6 +20,10 @@
               @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
               @case ('bell') { <svg data-p-icon="bell"></svg> }
               @case ('shield') { <svg data-p-icon="shield"></svg> }
+              @case ('tags') { <svg data-p-icon="tags"></svg> }
+              @case ('percentage') { <svg data-p-icon="percentage"></svg> }
+              @case ('wallet') { <i class="pi pi-wallet"></i> }
+              @case ('help') { <i class="pi pi-question-circle"></i> }
             }
           </span>
           @if (!collapsed) {

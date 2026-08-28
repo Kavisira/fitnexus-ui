@@ -1,5 +1,8 @@
-// API base URL for the NestJS backend. Hardcoded for now rather than
-// using Angular's build-time environment-file system, to keep the setup
-// simple while there's only one target (local dev). Swap this for a
-// proper environment.ts / environment.prod.ts pair before deploying.
-export const API_BASE_URL = 'http://localhost:3000/api';
+// API base URL for the NestJS backend — comes from src/environments, which
+// angular.json's `fileReplacements` swaps between environment.ts (local dev,
+// http://localhost:3000/api) and environment.prod.ts (the deployed Render
+// URL) depending on build configuration. Update environment.prod.ts with
+// the real Render URL once you have it; no other file needs to change.
+import { environment } from '../../../environments/environment';
+
+export const API_BASE_URL = environment.apiBaseUrl;

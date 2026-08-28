@@ -16,3 +16,23 @@ export const CURRENCIES: CurrencyOption[] = [
   { label: 'AUD - Australian Dollar', value: 'AUD' },
   { label: 'CAD - Canadian Dollar', value: 'CAD' },
 ];
+
+/** Resolves an ISO 4217 currency code to its display symbol (e.g. "INR"
+ * -> "₹", "USD" -> "$") using the browser's own Intl data instead of a
+ * hardcoded map, so it stays correct for any currency without upkeep
+ * here. Falls back to the code itself if the browser can't resolve it. */
+export function currencySymbol(code: string | null | undefined): string {
+  if (!code) {
+    return '';
+  }
+  try {
+    const parts = new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency: code,
+      currencyDisplay: 'narrowSymbol',
+    }).formatToParts(0);
+    return parts.find((p) => p.type === 'currency')?.value ?? code;
+  } catch {
+    return code;
+  }
+}

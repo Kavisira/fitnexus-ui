@@ -12,6 +12,7 @@
   "packageManager": "npm@11.13.0",
   "dependencies": {
     "@angular/common": "^22.1.0",
+    "chart.js": "^4.4.7",
     "@angular/compiler": "^22.1.0",
     "@angular/core": "^22.1.0",
     "@angular/forms": "^22.1.0",

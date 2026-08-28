@@ -12,7 +12,10 @@
     >
       <svg data-p-icon="bars"></svg>
     </button>
-    <span class="app-brand">FitNexus</span>
+    <div class="app-brand">
+      <span class="brand-mark"><i class="pi pi-bolt"></i></span>
+      <span class="brand-text">FitNexus</span>
+    </div>
   </div>
 
   <div class="header-right">
@@ -29,9 +32,20 @@
       (click)="profileMenu.toggle($event)"
       aria-haspopup="true"
     >
-      <p-avatar label="U" shape="circle" size="normal" />
+      <p-avatar [label]="userInitial" shape="circle" size="normal" />
+      <i class="pi pi-angle-down profile-caret"></i>
     </button>
-    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
+    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body">
+      <ng-template #start>
+        <div class="profile-menu-header">
+          <p-avatar [label]="userInitial" shape="circle" size="large" />
+          <div class="profile-menu-info">
+            <span class="profile-menu-email">{{ userEmail }}</span>
+            <span class="profile-menu-role">{{ userRoleLabel }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-menu>
   </div>
 </header>
 

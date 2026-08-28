@@ -1,0 +1,211 @@
+<div class="plans-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'plans.title' | translate }}</h1>
+      <p class="subtitle">{{ 'plans.subtitle' | translate }}</p>
+    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'plans.addPlan' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="grid-toolbar">
+    <p-iconfield iconPosition="left" class="search-field">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="'plans.searchPlaceholder' | translate"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </p-iconfield>
+
+    <div class="toolbar-right">
+      <p-select
+        [options]="branchFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="branchFilter()"
+        (ngModelChange)="branchFilter.set($event)"
+        [placeholder]="'plans.allBranches' | translate"
+        styleClass="filter-select"
+      />
+      <p-select
+        [options]="durationFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="durationFilter()"
+        (ngModelChange)="durationFilter.set($event)"
+        [placeholder]="'plans.allDurations' | translate"
+        styleClass="filter-select"
+      />
+      @if (hasActiveFilters()) {
+        <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+      <span class="result-count">{{ filteredPlans().length }} / {{ plans().length }}</span>
+    </div>
+  </div>
+
+  <div class="plan-grid">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <p-card styleClass="plan-card plan-card-skeleton"></p-card>
+      }
+    } @else {
+      @for (plan of filteredPlans(); track plan.id) {
+        <p-card styleClass="plan-card">
+          <div class="plan-card-header">
+            <div class="plan-card-heading">
+              <div class="plan-card-name">
+                <i class="pi pi-tag"></i>
+                {{ orDash(plan.name) }}
+              </div>
+              <div class="plan-card-branch">
+                <i class="pi pi-map-marker"></i>
+                {{ orDash(plan.branch?.location) }}
+              </div>
+            </div>
+            <p-tag [value]="durationLabel(plan.duration)" severity="info" styleClass="duration-tag" />
+          </div>
+
+          <div class="plan-card-price">
+            <span class="plan-price-value">{{ currencySymbol(plan.branch?.currency) }}{{ plan.price }}</span>
+            <span class="plan-price-label">{{ 'plans.priceLabel' | translate }}</span>
+          </div>
+
+          <div class="plan-card-total">
+            <span class="plan-total-value">{{ currencySymbol(plan.branch?.currency) }}{{ priceWithTax(plan) }}</span>
+            <span class="plan-total-label">{{ taxRateLabel(plan) }}</span>
+          </div>
+
+          <div class="plan-card-footer">
+            @if (canWrite()) {
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                [pTooltip]="'plans.edit' | translate"
+                (click)="openEdit(plan)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                [pTooltip]="'plans.delete' | translate"
+                (click)="remove(plan)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            }
+          </div>
+        </p-card>
+      } @empty {
+        <div class="plan-grid-empty">
+          <i class="pi pi-tags"></i>
+          <p>{{ 'plans.empty' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '32rem' }"
+    [breakpoints]="{ '768px': '96vw' }"
+    [header]="(editingId() ? 'plans.editPlan' : 'plans.addPlan') | translate"
+  >
+    <form [formGroup]="form" (ngSubmit)="save()" class="plan-form" novalidate>
+      <div class="field">
+        <label for="branchId">{{ 'plans.branchLabel' | translate }} *</label>
+        <p-select
+          inputId="branchId"
+          formControlName="branchId"
+          [options]="branchOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label"
+          styleClass="w-full"
+          appendTo="body"
+          [placeholder]="'plans.branchPlaceholder' | translate"
+        />
+        @if (f.branchId.invalid && f.branchId.touched) {
+          <small class="field-error">{{ 'plans.branchRequired' | translate }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="name">{{ 'plans.nameLabel' | translate }} *</label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          class="w-full"
+          [placeholder]="'plans.namePlaceholder' | translate"
+        />
+        @if (f.name.invalid && f.name.touched) {
+          <small class="field-error">{{ 'plans.nameRequired' | translate }}</small>
+        }
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="price">{{ 'plans.priceLabel' | translate }} *</label>
+          <p-inputnumber
+            inputId="price"
+            formControlName="price"
+            [min]="0"
+            [maxFractionDigits]="2"
+            mode="decimal"
+            styleClass="w-full"
+          />
+          @if (f.price.invalid && f.price.touched) {
+            <small class="field-error">{{ 'plans.priceRequired' | translate }}</small>
+          }
+        </div>
+        <div class="field">
+          <label for="duration">{{ 'plans.durationLabel' | translate }} *</label>
+          <p-select
+            inputId="duration"
+            formControlName="duration"
+            [options]="durationOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+      </div>
+
+      @if (taxPreviewText(); as preview) {
+        <p-message severity="info" styleClass="w-full">{{ preview }}</p-message>
+      }
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDialog()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="saving()">{{ 'plans.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+
+</div>

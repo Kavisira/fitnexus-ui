@@ -71,6 +71,44 @@ h1 {
   color: var(--p-text-muted-color, #6b7280);
 }
 
+/* ---- Legend — explains what View/Edit mean before the grid, so the
+   grid itself doesn't need to carry that explanation ---- */
+
+.matrix-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.legend-chip-view {
+  color: var(--p-blue-700, #1d4ed8);
+  background: var(--p-blue-100, #dbeafe);
+}
+
+.legend-chip-edit {
+  color: var(--p-primary-700, #6d28d9);
+  background: var(--p-primary-100, #ede9fe);
+}
+
+.legend-copy {
+  margin-right: 0.5rem;
+}
+
+/* ---- Matrix ---- */
+
 .matrix-scroll {
   overflow-x: auto;
   border: 1px solid var(--p-content-border-color, #e5e7eb);
@@ -79,59 +117,140 @@ h1 {
 
 .matrix-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 720px;
 }
 
 .matrix-table th,
 .matrix-table td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.65rem 0.6rem;
   text-align: center;
   border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
 }
 
 .matrix-table thead th {
   background: var(--p-content-background, #f9fafb);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .sub-header th {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--p-text-muted-color, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 0.95rem;
+  top: 2.5rem;
+}
+
+.role-col-name {
+  display: inline-block;
+}
+
+/* Each role owns two adjacent columns (View + Edit). A soft tint
+   alternated per role — not per column — is what actually makes it
+   obvious at a glance which pair of checkmarks belongs to which role,
+   instead of just a thin vertical rule between every column. */
+.role-col-alt {
+  background: var(--p-content-background, #f3f4f6);
+}
+
+:host-context(.my-app-dark) .role-col-alt {
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .screen-col {
   text-align: left;
   font-weight: 600;
   white-space: nowrap;
-  min-width: 160px;
+  min-width: 180px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--p-mask-background, #ffffff);
+}
+
+thead .screen-col {
+  z-index: 3;
+  background: var(--p-content-background, #f9fafb);
+}
+
+.screen-col-hint {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--p-text-muted-color, #6b7280);
+  white-space: normal;
 }
 
 .role-col {
-  border-left: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-left: 2px solid var(--p-content-border-color, #e5e7eb);
 }
 
 .access-col {
-  min-width: 70px;
+  min-width: 56px;
 }
 
-.access-col:nth-child(odd) {
-  border-left: 1px solid var(--p-content-border-color, #e5e7eb);
+.access-col-view {
+  border-left: 2px solid var(--p-content-border-color, #e5e7eb);
 }
 
-.access-col input {
-  width: 1.05rem;
-  height: 1.05rem;
+.access-col i {
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+/* ---- Toggle buttons — a bare checkbox under an abbreviated header
+   reads as noise once there are 3 roles x 2 columns; a filled circular
+   button that's visibly colored ON/neutral OFF is legible without
+   having to trace back up to the header. ---- */
+
+.perm-toggle {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--p-content-border-color, #d1d5db);
+  background: var(--p-content-background, #ffffff);
+  color: var(--p-text-muted-color, #9ca3af);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
-.access-col input:disabled {
+.perm-toggle:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.perm-toggle:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.45;
+}
+
+.perm-toggle i {
+  font-size: 0.75rem;
+  color: inherit;
+}
+
+.perm-toggle-view.perm-toggle-on {
+  background: var(--p-blue-500, #3b82f6);
+  border-color: var(--p-blue-500, #3b82f6);
+  color: #ffffff;
+}
+
+.perm-toggle-edit.perm-toggle-on {
+  background: var(--p-primary-500, #7c3aed);
+  border-color: var(--p-primary-500, #7c3aed);
+  color: #ffffff;
+}
+
+tbody tr:hover .screen-col,
+tbody tr:hover {
+  background: var(--p-primary-50, #f5f3ff);
+}
+
+tbody tr:hover .role-col-alt {
+  background: var(--p-primary-100, #ede9fe);
 }
 
 tbody tr:last-child td {
@@ -144,10 +263,40 @@ tbody tr:last-child td {
 :host-context(.my-app-dark) .matrix-table th,
 :host-context(.my-app-dark) .matrix-table td,
 :host-context(.my-app-dark) .role-col,
-:host-context(.my-app-dark) .access-col:nth-child(odd) {
+:host-context(.my-app-dark) .access-col-view {
   border-color: #1f2937;
 }
 
-:host-context(.my-app-dark) .matrix-table thead th {
-  background: rgba(255, 255, 255, 0.03);
+:host-context(.my-app-dark) .matrix-table thead th,
+:host-context(.my-app-dark) thead .screen-col {
+  background: #111827;
+}
+
+:host-context(.my-app-dark) .screen-col {
+  background: #0b1220;
+}
+
+:host-context(.my-app-dark) .perm-toggle {
+  background: #0b1220;
+  border-color: #1f2937;
+  color: #6b7280;
+}
+
+:host-context(.my-app-dark) tbody tr:hover,
+:host-context(.my-app-dark) tbody tr:hover .screen-col {
+  background: rgba(124, 58, 237, 0.12);
+}
+
+:host-context(.my-app-dark) tbody tr:hover .role-col-alt {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+:host-context(.my-app-dark) .legend-chip-view {
+  background: rgba(59, 130, 246, 0.18);
+  color: var(--p-blue-300, #93c5fd);
+}
+
+:host-context(.my-app-dark) .legend-chip-edit {
+  background: rgba(124, 58, 237, 0.2);
+  color: var(--p-primary-300, #c4b5fd);
 }

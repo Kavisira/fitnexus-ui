@@ -1,0 +1,94 @@
+<div class="help-page">
+  <aside class="help-nav">
+    <div class="help-nav-header">
+      <h1>Help &amp; Guide</h1>
+      <p class="help-nav-subtitle">How each screen in FitNexus works.</p>
+      <span class="p-input-icon-left help-search">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          placeholder="Search topics..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+        />
+      </span>
+    </div>
+    <ul class="help-topic-list">
+      @for (section of filteredSections(); track section.id) {
+        <li>
+          <button
+            type="button"
+            class="help-topic-btn"
+            [class.active]="active().id === section.id"
+            (click)="select(section)"
+          >
+            <span class="help-topic-icon"><i class="pi pi-{{ section.icon }}"></i></span>
+            <span class="help-topic-text">
+              <span class="help-topic-title">{{ section.title }}</span>
+              <span class="help-topic-summary">{{ section.summary }}</span>
+            </span>
+          </button>
+        </li>
+      }
+      @if (!filteredSections().length) {
+        <li class="help-no-results">No topics match "{{ searchTerm() }}".</li>
+      }
+    </ul>
+  </aside>
+
+  <main class="help-reading-pane">
+    <div class="help-article">
+      <div class="help-article-header">
+        <span class="help-article-icon"><i class="pi pi-{{ active().icon }}"></i></span>
+        <div>
+          <h2>{{ active().title }}</h2>
+          <span class="help-who-badge"><i class="pi pi-lock"></i> {{ active().whoCanSee }}</span>
+        </div>
+      </div>
+
+      <section class="help-block">
+        <h3>Overview</h3>
+        @for (para of active().overview; track $index) {
+          <p>{{ para }}</p>
+        }
+      </section>
+
+      @if (active().steps?.length) {
+        <section class="help-block">
+          @for (group of active().steps; track group.title) {
+            <h3>{{ group.title }}</h3>
+            <ol class="help-steps">
+              @for (step of group.items; track $index) {
+                <li>{{ step.text }}</li>
+              }
+            </ol>
+          }
+        </section>
+      }
+
+      @if (active().tips?.length) {
+        <section class="help-block help-tips">
+          <h3><i class="pi pi-lightbulb"></i> Tips</h3>
+          <ul>
+            @for (tip of active().tips; track $index) {
+              <li>{{ tip }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (active().faqs?.length) {
+        <section class="help-block">
+          <h3>Frequently asked</h3>
+          @for (faq of active().faqs; track faq.q) {
+            <div class="help-faq">
+              <div class="help-faq-q">{{ faq.q }}</div>
+              <div class="help-faq-a">{{ faq.a }}</div>
+            </div>
+          }
+        </section>
+      }
+    </div>
+  </main>
+</div>

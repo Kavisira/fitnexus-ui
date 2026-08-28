@@ -1,0 +1,234 @@
+.expenses-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.filters-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 160px;
+}
+
+.filter-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+::ng-deep .filter-select {
+  min-width: 160px;
+}
+
+.total-chip {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--p-primary-50, #eff6ff);
+  border: 1px solid var(--p-primary-200, #bfdbfe);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+.total-chip-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.total-chip-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--p-primary-600, #2563eb);
+}
+
+.expense-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+}
+
+.chart-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.chart-box {
+  height: 220px;
+  position: relative;
+}
+
+.table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+}
+
+::ng-deep .expenses-table .p-datatable-thead > tr > th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-note {
+  color: var(--p-text-muted-color, #6b7280);
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.category-chip i {
+  color: var(--p-primary-500, #7c3aed);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.empty-state i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* ---- Dialog form ---- */
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.field-row-2 {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.field-row-2 .field {
+  flex: 1 1 200px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .chart-card {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .table-wrap {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .total-chip {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .total-chip-value {
+  color: var(--p-primary-300, #93c5fd);
+}

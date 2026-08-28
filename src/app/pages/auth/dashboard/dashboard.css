@@ -1,0 +1,509 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 0.3rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.loading-text,
+.error-text {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.error-text {
+  color: var(--p-red-500, #ef4444);
+}
+
+/* ---- Organization overview strip ---- */
+
+.org-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--p-primary-600, #6d28d9) 0%, var(--p-primary-500, #7c3aed) 55%, #4f46e5 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 30px -12px rgba(109, 40, 217, 0.5);
+}
+
+.org-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  flex: 1 1 160px;
+}
+
+.org-chip i {
+  font-size: 1.15rem;
+  opacity: 0.9;
+}
+
+.org-chip-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.org-chip-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Stat cards ---- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.15rem 1.3rem;
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -10px rgba(15, 23, 42, 0.18);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--p-primary-400, #a78bfa);
+}
+
+.stat-card-good::before {
+  background: var(--p-green-500, #22c55e);
+}
+
+.stat-card-bad::before {
+  background: var(--p-red-500, #ef4444);
+}
+
+.stat-card-warn::before {
+  background: var(--p-orange-500, #f59e0b);
+}
+
+.stat-card-blue::before {
+  background: var(--p-blue-500, #3b82f6);
+}
+
+.stat-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  font-size: 1.4rem;
+  color: var(--p-primary-200, #ddd6fe);
+  opacity: 0.7;
+}
+
+.stat-card-good .stat-icon {
+  color: var(--p-green-200, #bbf7d0);
+}
+
+.stat-card-bad .stat-icon {
+  color: var(--p-red-200, #fecaca);
+}
+
+.stat-card-warn .stat-icon {
+  color: var(--p-orange-200, #fed7aa);
+}
+
+.stat-card-blue .stat-icon {
+  color: var(--p-blue-200, #bfdbfe);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  max-width: calc(100% - 2rem);
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.stat-card-good .stat-value {
+  color: var(--p-green-600, #16a34a);
+}
+
+.stat-card-bad .stat-value {
+  color: var(--p-red-500, #ef4444);
+}
+
+.stat-card-warn .stat-value {
+  color: var(--p-orange-600, #d97706);
+}
+
+/* ---- Charts ----
+   The overflow bug lives in Chart.js sizing: a <canvas> inside a flex
+   column with no fixed width keeps growing to fit its own content
+   instead of shrinking to the card. Pinning position:relative + a
+   fixed height on .chart-box (Chart.js reads the *parent's* box, not
+   the canvas's own attributes, when responsive:true) plus width/height
+   100% + block on the canvas itself is what actually contains it. */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.chart-card-wide {
+  grid-column: 1 / -1;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.35rem;
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  min-width: 0;
+}
+
+.chart-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-card h2 i:first-child {
+  color: var(--p-primary-500, #7c3aed);
+  font-size: 0.95rem;
+}
+
+.expand-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--p-text-muted-color, #9ca3af);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.expand-btn:hover {
+  background: var(--p-primary-50, #f5f3ff);
+  color: var(--p-primary-600, #7c3aed);
+}
+
+.expand-btn i {
+  font-size: 0.85rem;
+}
+
+.expanded-chart-box {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+}
+
+.expanded-chart-box ::ng-deep p-chart {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+.chart-box {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chart-box-small {
+  height: 230px;
+}
+
+/* The host <p-chart> element (not the canvas) is what Chart.js's
+   ResizeObserver measures to size the canvas — it needs to be an
+   absolutely-positioned, box-filling block so it actually reports
+   .chart-box's dimensions rather than its own content size. Do NOT
+   also force the canvas's CSS width/height here — Chart.js manages
+   that itself via inline styles after measuring the host, and fighting
+   it with !important is what caused the "chart spilling out of its
+   card" bug (canvas kept rendering at its own intrinsic size while the
+   card clipped it). */
+.chart-box ::ng-deep p-chart {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 0.85rem;
+}
+
+/* ---- Branch breakdown ---- */
+
+.branch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.35rem;
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.branch-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.branch-card h2 i {
+  color: var(--p-primary-500, #7c3aed);
+}
+
+.branch-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+}
+
+.branch-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.branch-table thead th {
+  background: var(--p-content-background, #f9fafb);
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  white-space: nowrap;
+}
+
+.branch-table tbody td {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  white-space: nowrap;
+}
+
+.branch-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.branch-table tbody tr:nth-child(even) {
+  background: var(--p-content-background, #f9fafb);
+}
+
+.branch-table tbody tr:hover {
+  background: var(--p-primary-50, #f5f3ff);
+}
+
+.branch-name {
+  font-weight: 700;
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.profit-positive {
+  color: var(--p-green-600, #16a34a);
+  font-weight: 700;
+}
+
+.profit-negative {
+  color: var(--p-red-500, #ef4444);
+  font-weight: 700;
+}
+
+/* ---- Ops view (Trainer / Front Desk) ---- */
+
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.ops-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.35rem;
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.ops-card h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ops-card h2 i {
+  color: var(--p-primary-500, #7c3aed);
+}
+
+.ops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ops-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.ops-row:nth-child(even) {
+  background: var(--p-content-background, #f3f4f6);
+}
+
+.ops-row-name {
+  font-weight: 700;
+}
+
+.ops-row-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.ops-row-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--p-primary-600, #2563eb);
+}
+
+/* ---- Branch filter ---- */
+
+.branch-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.branch-filter label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+::ng-deep .branch-filter-select {
+  min-width: 200px;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .stat-card,
+:host-context(.my-app-dark) .chart-card,
+:host-context(.my-app-dark) .ops-card,
+:host-context(.my-app-dark) .branch-card {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: none;
+}
+
+:host-context(.my-app-dark) .branch-table thead th,
+:host-context(.my-app-dark) .branch-table tbody tr:nth-child(even) {
+  background: #0b1220;
+}
+
+:host-context(.my-app-dark) .branch-table thead th,
+:host-context(.my-app-dark) .branch-table tbody td {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .branch-table-wrap {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .ops-row:nth-child(even) {
+  background: #0b1220;
+}
+
+:host-context(.my-app-dark) .org-strip {
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+}

@@ -1,0 +1,208 @@
+<div class="offers-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'offersPage.title' | translate }}</h1>
+      <p class="subtitle">{{ 'offersPage.subtitle' | translate }}</p>
+    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'offersPage.addOffer' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="grid-toolbar">
+    <input
+      pInputText
+      type="text"
+      [placeholder]="'offersPage.searchPlaceholder' | translate"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      class="search-field"
+    />
+    <div class="toolbar-right">
+      <p-select
+        [options]="typeFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="typeFilter()"
+        (ngModelChange)="typeFilter.set($event)"
+        [placeholder]="'offersPage.allTypes' | translate"
+        styleClass="filter-select"
+      />
+      @if (hasActiveFilters()) {
+        <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+      <span class="result-count">{{ filteredOffers().length }} / {{ offers().length }}</span>
+    </div>
+  </div>
+
+  <div class="offer-grid">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4]; track i) {
+        <p-card styleClass="offer-card offer-card-skeleton"></p-card>
+      }
+    } @else {
+      @for (offer of filteredOffers(); track offer.id) {
+        <p-card styleClass="offer-card" [class.offer-card-inactive]="!offer.isActive">
+          <div class="offer-card-header">
+            <div class="offer-card-heading">
+              <div class="offer-card-name">
+                <i class="pi pi-percentage"></i>
+                {{ offer.name }}
+              </div>
+              <div class="offer-card-summary">{{ offerSummary(offer) }}</div>
+            </div>
+            <p-tag
+              [value]="offer.isActive ? ('offersPage.active' | translate) : ('offersPage.inactive' | translate)"
+              [severity]="offer.isActive ? 'success' : 'secondary'"
+            />
+          </div>
+
+          <div class="offer-card-type">{{ typeLabel(offer.type) }}</div>
+
+          @if (canWrite()) {
+            <div class="offer-card-footer">
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                [pTooltip]="'plans.edit' | translate"
+                (click)="openEdit(offer)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                [pTooltip]="'plans.delete' | translate"
+                (click)="remove(offer)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+        </p-card>
+      } @empty {
+        <div class="offer-grid-empty">
+          <i class="pi pi-percentage"></i>
+          <p>{{ 'offersPage.empty' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '768px': '96vw' }"
+    [header]="(editingId() ? 'offersPage.editOffer' : 'offersPage.addOffer') | translate"
+  >
+    <form [formGroup]="form" (ngSubmit)="save()" class="offer-form" novalidate>
+      <div class="field">
+        <label for="offerName">{{ 'offersPage.nameLabel' | translate }} *</label>
+        <input
+          pInputText
+          id="offerName"
+          type="text"
+          formControlName="name"
+          class="w-full"
+          [placeholder]="'offersPage.namePlaceholder' | translate"
+        />
+        @if (f.name.invalid && f.name.touched) {
+          <small class="field-error">{{ 'offersPage.nameRequired' | translate }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="offerType">{{ 'offersPage.typeLabel' | translate }} *</label>
+        <p-select
+          inputId="offerType"
+          formControlName="type"
+          [options]="offerTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+          appendTo="body"
+        />
+      </div>
+
+      @switch (formType()) {
+        @case ('PERCENT_DISCOUNT') {
+          <div class="field">
+            <label for="offerPercent">{{ 'offersPage.percentLabel' | translate }} *</label>
+            <p-inputnumber
+              inputId="offerPercent"
+              formControlName="percentValue"
+              [min]="0.01"
+              [max]="100"
+              [maxFractionDigits]="2"
+              suffix="%"
+              styleClass="w-full"
+            />
+          </div>
+        }
+        @case ('FLAT_DISCOUNT') {
+          <div class="field">
+            <label for="offerFlat">{{ 'offersPage.flatAmountLabel' | translate }} *</label>
+            <p-inputnumber
+              inputId="offerFlat"
+              formControlName="flatAmount"
+              [min]="0.01"
+              [maxFractionDigits]="2"
+              mode="decimal"
+              styleClass="w-full"
+            />
+            <small class="field-hint">{{ 'offersPage.flatAmountHint' | translate }}</small>
+          </div>
+        }
+        @case ('EXTRA_DURATION') {
+          <div class="field">
+            <label for="offerExtraMonths">{{ 'offersPage.extraMonthsLabel' | translate }} *</label>
+            <p-inputnumber inputId="offerExtraMonths" formControlName="extraMonths" [min]="1" styleClass="w-full" />
+          </div>
+        }
+        @case ('COUPLE') {
+          <div class="field">
+            <label for="offerCouplePercent">{{ 'offersPage.couplePercentLabel' | translate }} *</label>
+            <p-inputnumber
+              inputId="offerCouplePercent"
+              formControlName="percentValue"
+              [min]="0.01"
+              [max]="100"
+              [maxFractionDigits]="2"
+              suffix="%"
+              styleClass="w-full"
+            />
+            <small class="field-hint">{{ 'offersPage.coupleHint' | translate }}</small>
+          </div>
+        }
+      }
+
+      <div class="field checkbox-field">
+        <p-checkbox formControlName="isActive" [binary]="true" inputId="offerIsActive" />
+        <label for="offerIsActive">{{ 'offersPage.activeLabel' | translate }}</label>
+      </div>
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDialog()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="saving()">{{ 'plans.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

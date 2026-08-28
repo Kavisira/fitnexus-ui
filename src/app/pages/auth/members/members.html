@@ -1,0 +1,688 @@
+<div class="members-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'common.members' | translate }}</h1>
+      <p class="subtitle">{{ 'members.subtitle' | translate }}</p>
+    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'members.addMember' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="grid-toolbar">
+    <input
+      pInputText
+      type="text"
+      [placeholder]="'members.searchPlaceholder' | translate"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+      class="search-field"
+    />
+    <div class="toolbar-right">
+      <p-select
+        [options]="branchFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="branchFilter()"
+        (ngModelChange)="branchFilter.set($event)"
+        [placeholder]="'members.allBranches' | translate"
+        styleClass="filter-select"
+      />
+      <p-select
+        [options]="statusFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        [placeholder]="'members.allStatuses' | translate"
+        styleClass="filter-select"
+      />
+      @if (hasActiveFilters()) {
+        <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      }
+      <span class="result-count">{{ filteredMembers().length }} / {{ members().length }}</span>
+      <div class="view-toggle">
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'grid'"
+          [pTooltip]="'branches.gridView' | translate"
+          (click)="setViewMode('grid')"
+        >
+          <i class="pi pi-th-large"></i>
+        </button>
+        <button
+          pButton
+          type="button"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          class="view-toggle-btn"
+          [class.active]="viewMode() === 'list'"
+          [pTooltip]="'branches.listView' | translate"
+          (click)="setViewMode('list')"
+        >
+          <i class="pi pi-bars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="member-grid" [class.member-grid-list]="viewMode() === 'list'">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4]; track i) {
+        <p-card styleClass="member-card member-card-skeleton"></p-card>
+      }
+    } @else {
+      @for (member of filteredMembers(); track member.id) {
+        <p-card styleClass="member-card" [class.member-card-inactive]="member.status === 'INACTIVE'">
+          <div class="member-card-header">
+            <div class="member-card-heading">
+              <div class="member-card-name">
+                <i class="pi pi-user"></i>
+                {{ member.name }}
+                @if (member.isTrial) {
+                  <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
+                }
+              </div>
+              <div class="member-card-sub">{{ member.phone }}</div>
+            </div>
+            <p-tag
+              [value]="member.status === 'ACTIVE' ? ('members.active' | translate) : ('members.inactive' | translate)"
+              [severity]="member.status === 'ACTIVE' ? 'success' : 'secondary'"
+            />
+          </div>
+
+          <div class="member-card-body">
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-building"></i> {{ 'members.branchLabel' | translate }}</span>
+              <span class="member-card-value">{{ orDash(member.branch?.location) }}</span>
+            </div>
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-tag"></i> {{ 'members.planLabel' | translate }}</span>
+              <span class="member-card-value">{{ orDash(member.plan?.name) }}</span>
+            </div>
+            @if (member.offer) {
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-percentage"></i> {{ 'members.offerLabel' | translate }}</span>
+                <span class="member-card-value">{{ member.offer.name }}</span>
+              </div>
+            }
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-calendar"></i> {{ 'members.durationLabel' | translate }}</span>
+              <span class="member-card-value">
+                {{ member.startDate | date: 'MMM d, y' }} - {{ member.endDate | date: 'MMM d, y' }}
+              </span>
+            </div>
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-wallet"></i> {{ 'members.priceLabel' | translate }}</span>
+              <span class="member-card-value member-card-price">{{ memberPrice(member) }}</span>
+            </div>
+            @if (member.assignedTrainerEmployee) {
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-shield"></i> {{ 'members.trainerLabel' | translate }}</span>
+                <span class="member-card-value">{{ member.assignedTrainerEmployee.name }}</span>
+              </div>
+            }
+            @if (viewMode() === 'list') {
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-envelope"></i> {{ 'members.emailLabel' | translate }}</span>
+                <span class="member-card-value">{{ orDash(member.email) }}</span>
+              </div>
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-sitemap"></i> {{ 'members.sourceLabel' | translate }}</span>
+                <span class="member-card-value">{{ orDash(member.source) }}</span>
+              </div>
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-money-bill"></i> {{ 'members.paymentModeLabel' | translate }}</span>
+                <span class="member-card-value">{{ orDash(member.paymentMode) }}</span>
+              </div>
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-heart"></i> {{ 'members.bloodGroupLabel' | translate }}</span>
+                <span class="member-card-value">{{ orDash(member.bloodGroup) }}</span>
+              </div>
+            }
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-user"></i> {{ 'members.ageLabel' | translate }}</span>
+              <span class="member-card-value">{{ age(member) }}</span>
+            </div>
+            @if (latestEntry(member); as latest) {
+              <div class="member-card-row">
+                <span class="member-card-label"><i class="pi pi-chart-line"></i> {{ 'members.bmiLabel' | translate }}</span>
+                <span class="member-card-value">
+                  {{ latest.bmi }}
+                  <p-tag [value]="('members.bmiStatus.' + latest.bmiStatus) | translate" [severity]="bmiStatusSeverity[latest.bmiStatus]" />
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="member-card-health-actions">
+            @if (canWrite()) {
+              <button pButton type="button" [text]="true" size="small" (click)="openLogMetrics(member)">
+                <i class="pi pi-plus-circle" style="margin-right: 0.35rem"></i>
+                {{ 'members.logCheckin' | translate }}
+              </button>
+            }
+            <button pButton type="button" [text]="true" size="small" (click)="openProgress(member)">
+              <i class="pi pi-eye" style="margin-right: 0.35rem"></i>
+              {{ 'members.viewProgress' | translate }}
+            </button>
+          </div>
+
+          @if (canWrite()) {
+            <div class="member-card-footer">
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                [pTooltip]="'plans.edit' | translate"
+                (click)="openEdit(member)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                [pTooltip]="'plans.delete' | translate"
+                (click)="remove(member)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+        </p-card>
+      } @empty {
+        <div class="member-grid-empty">
+          <i class="pi pi-users"></i>
+          <p>{{ 'members.empty' | translate }}</p>
+        </div>
+      }
+    }
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '60rem' }"
+    [breakpoints]="{ '992px': '90vw', '768px': '98vw' }"
+    [header]="(editingId() ? 'members.editMember' : 'members.addMember') | translate"
+  >
+    <form [formGroup]="form" (ngSubmit)="save()" class="member-form" novalidate>
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-branch">{{ 'members.branchLabel' | translate }} *</label>
+          <p-select
+            inputId="m-branch"
+            formControlName="branchId"
+            [options]="branchOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+            [filter]="true"
+            filterBy="label"
+          />
+        </div>
+        <div class="field">
+          <label for="m-plan">{{ 'members.planLabel' | translate }} *</label>
+          <p-select
+            inputId="m-plan"
+            formControlName="planId"
+            [options]="planOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+            [filter]="true"
+            filterBy="label"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-name">{{ 'members.nameLabel' | translate }} *</label>
+          <input pInputText id="m-name" type="text" formControlName="name" class="w-full" />
+        </div>
+        <div class="field">
+          <label for="m-phone">{{ 'members.phoneLabel' | translate }} *</label>
+          <input pInputText id="m-phone" type="text" formControlName="phone" class="w-full" />
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-email">{{ 'members.emailLabel' | translate }}</label>
+          <input pInputText id="m-email" type="email" formControlName="email" class="w-full" />
+        </div>
+        <div class="field">
+          <label for="m-source">{{ 'members.sourceLabel' | translate }}</label>
+          <p-select
+            inputId="m-source"
+            formControlName="source"
+            [options]="sourceOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-offer">{{ 'members.offerLabel' | translate }}</label>
+          <p-select
+            inputId="m-offer"
+            formControlName="offerId"
+            [options]="offerOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+        <div class="field">
+          <label for="m-trainer">{{ 'members.trainerLabel' | translate }}</label>
+          <p-select
+            inputId="m-trainer"
+            formControlName="assignedTrainerEmployeeId"
+            [options]="trainerOptions()"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+            [showClear]="true"
+            [placeholder]="'members.noTrainer' | translate"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-startDate">{{ 'members.startDateLabel' | translate }} *</label>
+          <p-datepicker
+            inputId="m-startDate"
+            formControlName="startDate"
+            dateFormat="M d, yy"
+            [showIcon]="true"
+            appendTo="body"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>{{ 'members.endDateLabel' | translate }}</label>
+          <div class="computed-value">
+            {{ endDatePreview() ? (endDatePreview() | date: 'MMM d, y') : '—' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="m-paymentMode">{{ 'members.paymentModeLabel' | translate }}</label>
+          <p-select
+            inputId="m-paymentMode"
+            formControlName="paymentMode"
+            [options]="paymentModeOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+        <div class="field">
+          <label>{{ 'members.priceLabel' | translate }}</label>
+          <div class="computed-value computed-value-price">
+            {{ pricePreview() ?? '—' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field checkbox-field">
+          <p-checkbox formControlName="isTrial" [binary]="true" inputId="m-isTrial" />
+          <label for="m-isTrial">{{ 'members.trialLabel' | translate }}</label>
+        </div>
+        @if (editingId()) {
+          <div class="field">
+            <label for="m-status">{{ 'members.statusLabel' | translate }}</label>
+            <p-select
+              inputId="m-status"
+              formControlName="status"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              appendTo="body"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="couple-section">
+        <div class="couple-section-title">{{ 'members.healthProfileTitle' | translate }}</div>
+        <div class="field-row-2">
+          <div class="field">
+            <label for="m-dob">{{ 'members.dobLabel' | translate }}</label>
+            <p-datepicker
+              inputId="m-dob"
+              formControlName="dateOfBirth"
+              dateFormat="M d, yy"
+              [showIcon]="true"
+              appendTo="body"
+              class="w-full"
+            />
+          </div>
+          <div class="field">
+            <label for="m-gender">{{ 'members.genderLabel' | translate }}</label>
+            <p-select
+              inputId="m-gender"
+              formControlName="gender"
+              [options]="genderOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              appendTo="body"
+              [showClear]="true"
+            />
+          </div>
+        </div>
+        <div class="field-row-2" style="margin-top: 0.75rem">
+          <div class="field">
+            <label for="m-bloodGroup">{{ 'members.bloodGroupLabel' | translate }}</label>
+            <p-select
+              inputId="m-bloodGroup"
+              formControlName="bloodGroup"
+              [options]="bloodGroupOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              appendTo="body"
+              [showClear]="true"
+            />
+          </div>
+          <div class="field">
+            <label for="m-height">{{ 'members.heightLabel' | translate }}</label>
+            <p-inputnumber inputId="m-height" formControlName="heightCm" [min]="30" suffix=" cm" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field-row-2" style="margin-top: 0.75rem">
+          <div class="field">
+            <label for="m-goalWeight">{{ 'members.goalWeightLabel' | translate }}</label>
+            <p-inputnumber inputId="m-goalWeight" formControlName="goalWeightKg" [min]="1" suffix=" kg" styleClass="w-full" />
+          </div>
+        </div>
+      </div>
+
+      @if (!editingId() && isCoupleOffer()) {
+        <div class="couple-section">
+          <div class="couple-section-title">{{ 'members.couplePartnerTitle' | translate }}</div>
+          <p-selectbutton
+            [options]="[
+              { label: ('members.partnerNew' | translate), value: 'new' },
+              { label: ('members.partnerExisting' | translate), value: 'existing' },
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="partnerMode()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="partnerMode.set($event)"
+          />
+
+          @if (partnerMode() === 'new') {
+            <form [formGroup]="partnerForm" class="field-row-2" style="margin-top: 0.75rem">
+              <div class="field">
+                <label for="p-name">{{ 'members.nameLabel' | translate }} *</label>
+                <input pInputText id="p-name" type="text" formControlName="name" class="w-full" />
+              </div>
+              <div class="field">
+                <label for="p-phone">{{ 'members.phoneLabel' | translate }} *</label>
+                <input pInputText id="p-phone" type="text" formControlName="phone" class="w-full" />
+              </div>
+              <div class="field">
+                <label for="p-email">{{ 'members.emailLabel' | translate }}</label>
+                <input pInputText id="p-email" type="email" formControlName="email" class="w-full" />
+              </div>
+              <div class="field">
+                <label>{{ 'members.priceLabel' | translate }}</label>
+                <div class="computed-value computed-value-price">{{ partnerPricePreview() ?? '—' }}</div>
+              </div>
+            </form>
+          } @else {
+            <div class="field" style="margin-top: 0.75rem">
+              <label for="p-existing">{{ 'members.selectExistingMember' | translate }} *</label>
+              <p-select
+                inputId="p-existing"
+                [options]="existingMemberOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="null"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="partnerMemberIdControl.setValue($event)"
+                styleClass="w-full"
+                appendTo="body"
+                [filter]="true"
+                filterBy="label"
+              />
+              <div class="computed-value computed-value-price" style="margin-top: 0.4rem">
+                {{ partnerPricePreview() ?? '—' }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDialog()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="saving()">{{ 'plans.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Monthly weight/measurement check-in -->
+  <p-dialog
+    [(visible)]="metricsDialogVisible"
+    [modal]="true"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '768px': '96vw' }"
+    [header]="'members.logCheckin' | translate"
+  >
+    <form [formGroup]="metricsForm" (ngSubmit)="saveMetricEntry()" class="member-form" novalidate>
+      <div class="field">
+        <label for="c-recordedAt">{{ 'members.checkinDateLabel' | translate }} *</label>
+        <p-datepicker
+          inputId="c-recordedAt"
+          formControlName="recordedAt"
+          dateFormat="M d, yy"
+          [showIcon]="true"
+          appendTo="body"
+          class="w-full"
+        />
+      </div>
+      <div class="field">
+        <label for="c-weight">{{ 'members.weightLabel' | translate }} *</label>
+        <p-inputnumber inputId="c-weight" formControlName="weightKg" [min]="1" suffix=" kg" styleClass="w-full" />
+      </div>
+      <div class="field-row-2">
+        <div class="field">
+          <label for="c-chest">{{ 'members.chestLabel' | translate }}</label>
+          <p-inputnumber inputId="c-chest" formControlName="chestCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="c-waist">{{ 'members.waistLabel' | translate }}</label>
+          <p-inputnumber inputId="c-waist" formControlName="waistCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="c-hips">{{ 'members.hipsLabel' | translate }}</label>
+        <p-inputnumber inputId="c-hips" formControlName="hipsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+      </div>
+
+      <div class="field">
+        <label for="c-photo">{{ 'members.photoLabel' | translate }}</label>
+        @if (metricsPhotoDataUrl()) {
+          <div class="checkin-photo-preview">
+            <img [src]="metricsPhotoDataUrl()" alt="" />
+            <button pButton type="button" [text]="true" [rounded]="true" severity="danger" (click)="clearMetricsPhoto()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        } @else {
+          <input
+            id="c-photo"
+            type="file"
+            accept="image/*"
+            (change)="onMetricsPhotoSelected($event)"
+            [disabled]="metricsPhotoProcessing()"
+          />
+        }
+        <small class="field-hint">{{ 'members.photoHint' | translate }}</small>
+      </div>
+
+      @if (metricsPreviewText()) {
+        <div class="computed-value computed-value-price">{{ metricsPreviewText() }}</div>
+      }
+
+      @if (metricsError()) {
+        <p-message severity="error" styleClass="w-full">{{ metricsError() }}</p-message>
+      }
+
+      <div class="dialog-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeMetricsDialog()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button pButton type="submit" [loading]="metricsSaving()">{{ 'plans.save' | translate }}</button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Progress — every logged photo side by side + full check-in history -->
+  <p-dialog
+    [(visible)]="progressDialogVisible"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '80rem' }"
+    [breakpoints]="{ '768px': '98vw' }"
+    [header]="'members.progressTitle' | translate"
+  >
+    @if (progressMember(); as member) {
+      @if (entriesWithPhoto().length) {
+        <div class="compare-strip">
+          @for (entry of entriesWithPhoto(); track entry.id; let idx = $index) {
+            <div class="compare-photo-card">
+              <img [src]="entry.photoUrl" alt="" />
+              <div class="compare-photo-review">{{ reviewLabel(idx) }} {{ 'members.reviewLabel' | translate }}</div>
+              <div class="compare-photo-caption">
+                {{ entry.recordedAt | date: 'MMM d, y' }} — {{ entry.weightKg }} kg
+              </div>
+            </div>
+          }
+        </div>
+        @if (entriesWithPhoto().length === 1) {
+          <p-message severity="info" styleClass="w-full">{{ 'members.needMorePhotosHint' | translate }}</p-message>
+        }
+      } @else {
+        <p-message severity="info" styleClass="w-full">{{ 'members.noPhotosYetHint' | translate }}</p-message>
+      }
+
+      @if (!member.heightCm) {
+        <p-message severity="warn" styleClass="w-full">{{ 'members.heightRequiredForMetrics' | translate }}</p-message>
+      }
+
+      <div class="progress-history">
+        <div class="couple-section-title">{{ 'members.historyTitle' | translate }}</div>
+        @if (progressLoading()) {
+          <p>{{ 'common.loading' | translate }}</p>
+        } @else if (progressHistory().length) {
+          <div class="progress-history-table-wrap">
+            <table class="progress-history-table">
+              <thead>
+                <tr>
+                  <th class="col-review">{{ 'members.reviewLabel' | translate }}</th>
+                  <th class="col-photo"></th>
+                  <th class="col-date">{{ 'members.checkinDateLabel' | translate }}</th>
+                  <th class="col-num">{{ 'members.weightLabel' | translate }}</th>
+                  <th class="col-num">{{ 'members.chestLabel' | translate }}</th>
+                  <th class="col-num">{{ 'members.waistLabel' | translate }}</th>
+                  <th class="col-num">{{ 'members.hipsLabel' | translate }}</th>
+                  <th class="col-num">{{ 'members.bmiLabel' | translate }}</th>
+                  <th class="col-status">{{ 'members.statusLabel' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of progressRows(); track row.entry.id) {
+                  <tr>
+                    <td class="col-review">
+                      <span class="progress-history-review-badge">{{ reviewLabel(row.index) }}</span>
+                    </td>
+                    <td class="col-photo">
+                      @if (row.entry.photoUrl) {
+                        <img [src]="row.entry.photoUrl" alt="" class="progress-history-thumb" />
+                      } @else {
+                        <span class="progress-history-no-photo">—</span>
+                      }
+                    </td>
+                    <td class="col-date">{{ row.entry.recordedAt | date: 'MMM d, y' }}</td>
+                    <td class="col-num">
+                      {{ row.entry.weightKg }} kg
+                      @if (row.weightDelta !== null && row.weightDelta !== 0) {
+                        <span class="progress-delta" [class.progress-delta-down]="row.weightDelta < 0" [class.progress-delta-up]="row.weightDelta > 0">
+                          <i class="pi" [class.pi-arrow-down]="row.weightDelta < 0" [class.pi-arrow-up]="row.weightDelta > 0"></i>
+                          {{ (row.weightDelta > 0 ? '+' : '') + (row.weightDelta | number: '1.1-1') }}
+                        </span>
+                      }
+                    </td>
+                    <td class="col-num">{{ orDash(row.entry.chestCm) }}</td>
+                    <td class="col-num">{{ orDash(row.entry.waistCm) }}</td>
+                    <td class="col-num">{{ orDash(row.entry.hipsCm) }}</td>
+                    <td class="col-num">
+                      {{ row.entry.bmi }}
+                      @if (row.bmiDelta !== null && row.bmiDelta !== 0) {
+                        <span class="progress-delta" [class.progress-delta-down]="row.bmiDelta < 0" [class.progress-delta-up]="row.bmiDelta > 0">
+                          <i class="pi" [class.pi-arrow-down]="row.bmiDelta < 0" [class.pi-arrow-up]="row.bmiDelta > 0"></i>
+                          {{ (row.bmiDelta > 0 ? '+' : '') + (row.bmiDelta | number: '1.1-1') }}
+                        </span>
+                      }
+                    </td>
+                    <td class="col-status">
+                      <p-tag [value]="('members.bmiStatus.' + row.entry.bmiStatus) | translate" [severity]="bmiStatusSeverity[row.entry.bmiStatus]" />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="progress-history-empty">{{ 'members.noCheckinsYet' | translate }}</p>
+        }
+      </div>
+    }
+
+    <div class="dialog-actions">
+      <button pButton type="button" severity="secondary" [text]="true" (click)="closeProgressDialog()">
+        {{ 'common.close' | translate }}
+      </button>
+    </div>
+  </p-dialog>
+</div>

@@ -1,0 +1,251 @@
+.offers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-field {
+  min-width: 260px;
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+::ng-deep .filter-select {
+  min-width: 200px;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0.25rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+::ng-deep .offer-card {
+  border-radius: 14px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+::ng-deep .offer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+  border-color: var(--p-primary-200, #bfdbfe);
+}
+
+::ng-deep .offer-card.offer-card-inactive {
+  opacity: 0.6;
+}
+
+::ng-deep .offer-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.4rem;
+}
+
+::ng-deep .offer-card .p-card-content {
+  padding: 0;
+}
+
+.offer-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.offer-card-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.offer-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.offer-card-summary {
+  margin: 0.3rem 0 0;
+  color: var(--p-primary-600, #2563eb);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.offer-card-type {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color, #6b7280);
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.offer-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.offer-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.offer-grid-empty i {
+  font-size: 2rem;
+  color: var(--p-primary-300, #93c5fd);
+}
+
+.offer-grid-empty p {
+  margin: 0;
+}
+
+::ng-deep .offer-card-skeleton {
+  min-height: 150px;
+  background: linear-gradient(
+    100deg,
+    var(--p-content-background, #f3f4f6) 30%,
+    var(--p-content-border-color, #e5e7eb) 50%,
+    var(--p-content-background, #f3f4f6) 70%
+  );
+  background-size: 200% 100%;
+  animation: offer-card-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes offer-card-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- Add/edit dialog form ---- */
+
+.offer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-hint {
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.75rem;
+}
+
+.field-error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.checkbox-field label {
+  font-weight: 500;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) ::ng-deep .offer-card {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) ::ng-deep .offer-card:hover {
+  border-color: var(--p-primary-400, #60a5fa);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+:host-context(.my-app-dark) .offer-card-type {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .offer-card-summary {
+  color: var(--p-primary-300, #93c5fd);
+}

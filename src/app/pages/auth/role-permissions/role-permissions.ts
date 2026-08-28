@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
@@ -17,7 +18,10 @@ import {
 // the backend returns) so the table always shows a full grid even
 // before RolesService.ensureSeeded has run for a given cell.
 const ROLES: StaffRole[] = ['BRANCH_MANAGER', 'TRAINER', 'FRONT_DESK'];
-const SCREENS: PermissionScreen[] = ['DASHBOARD', 'EMPLOYEES', 'ATTENDANCE', 'LEADS', 'NOTIFICATIONS', 'BRANCHES', 'MEMBERS'];
+// DASHBOARD is deliberately excluded — it's always-on for every role
+// (server-enforced in RolesService.can/getForRole) and has no write
+// action, so there's nothing here for an owner to configure.
+const SCREENS: PermissionScreen[] = ['EMPLOYEES', 'ATTENDANCE', 'LEADS', 'NOTIFICATIONS', 'BRANCHES', 'MEMBERS', 'PLANS', 'EXPENSES'];
 
 interface Cell {
   role: StaffRole;
@@ -44,7 +48,7 @@ type Matrix = Record<string, Record<string, Cell>>;
 @Component({
   selector: 'app-role-permissions',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe, TooltipModule],
   templateUrl: './role-permissions.html',
   styleUrls: ['./role-permissions.css'],
 })
