@@ -1,0 +1,159 @@
+.leave-management-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lm-section {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+}
+
+.lm-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.lm-section h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lm-config-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.lm-unsaved-hint {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lm-info-icon {
+  font-size: 0.78rem;
+  margin-left: 0.25rem;
+  color: var(--p-text-muted-color, #9ca3af);
+  cursor: help;
+}
+
+.lm-config-hint {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.loading-text,
+.empty-text {
+  color: var(--p-text-muted-color, #6b7280);
+  padding: 1rem 0;
+}
+
+.lm-table-wrap,
+.lm-config-table-wrap {
+  overflow-x: auto;
+}
+
+.lm-table,
+.lm-config-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.lm-table th,
+.lm-table td,
+.lm-config-table th,
+.lm-config-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  font-size: 0.86rem;
+}
+
+.lm-table thead th,
+.lm-config-table thead th {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.col-num {
+  text-align: right;
+}
+
+.lm-reason {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lm-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.lm-decided-note {
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.lm-config-input {
+  width: 5.5rem;
+}
+
+.lm-decision-summary {
+  margin: 0 0 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.lm-decision-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.4rem;
+  resize: vertical;
+}
+
+.lm-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+:host-context(.my-app-dark) .lm-section {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .lm-table th,
+:host-context(.my-app-dark) .lm-table td,
+:host-context(.my-app-dark) .lm-config-table th,
+:host-context(.my-app-dark) .lm-config-table td {
+  border-color: #1f2937;
+}

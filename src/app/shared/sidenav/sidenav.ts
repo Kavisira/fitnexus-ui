@@ -76,8 +76,9 @@ export class Sidenav {
     { labelKey: 'common.leads', route: '/leads', icon: 'user-plus', screen: 'LEADS' },
     { labelKey: 'common.attendance', route: '/attendance', icon: 'calendar-clock', screen: 'ATTENDANCE' },
     { labelKey: 'common.notifications', route: '/notifications', icon: 'bell', screen: 'NOTIFICATIONS' },
+    { labelKey: 'common.leaveManagement', route: '/leave-management', icon: 'calendar-clock', screen: 'LEAVES' },
     { labelKey: 'common.rolePermissions', route: '/roles-permissions', icon: 'shield', ownerOnly: true },
-    { labelKey: 'common.help', route: '/help', icon: 'help', alwaysVisible: true },
+    { labelKey: 'common.alerts', route: '/alerts', icon: 'alert', ownerOnly: true },
   ];
 
   // Only the screens the current user can actually read — recomputed

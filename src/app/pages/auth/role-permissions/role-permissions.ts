@@ -21,7 +21,7 @@ const ROLES: StaffRole[] = ['BRANCH_MANAGER', 'TRAINER', 'FRONT_DESK'];
 // DASHBOARD is deliberately excluded — it's always-on for every role
 // (server-enforced in RolesService.can/getForRole) and has no write
 // action, so there's nothing here for an owner to configure.
-const SCREENS: PermissionScreen[] = ['EMPLOYEES', 'ATTENDANCE', 'LEADS', 'NOTIFICATIONS', 'BRANCHES', 'MEMBERS', 'PLANS', 'EXPENSES'];
+const SCREENS: PermissionScreen[] = ['EMPLOYEES', 'ATTENDANCE', 'LEADS', 'NOTIFICATIONS', 'BRANCHES', 'MEMBERS', 'PLANS', 'EXPENSES', 'LEAVES'];
 
 interface Cell {
   role: StaffRole;

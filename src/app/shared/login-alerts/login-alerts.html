@@ -1,0 +1,20 @@
+@if (current(); as alert) {
+  <p-dialog
+    [visible]="true"
+    [modal]="true"
+    [closable]="false"
+    [style]="{ width: '28rem' }"
+    [header]="alert.title"
+  >
+    <p class="la-message">{{ alert.message }}</p>
+
+    <div class="la-checkbox-row">
+      <p-checkbox [(ngModel)]="dontShowAgain" [binary]="true" inputId="la-dont-show" />
+      <label for="la-dont-show">{{ 'loginAlerts.dontShowAgain' | translate }}</label>
+    </div>
+
+    <div class="la-actions">
+      <button pButton type="button" (click)="closeCurrent()">{{ 'common.close' | translate }}</button>
+    </div>
+  </p-dialog>
+}

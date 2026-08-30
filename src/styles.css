@@ -1,9 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'primeicons/primeicons.css';
 
-body {
+html, body {
     padding: 0 !important;
     margin: 0 !important;
+    /* The app shell (header + sidenav + content) is pinned to exactly
+       the viewport height and scrolls nowhere itself — only
+       .app-content (the routed page) scrolls. Without this, a page
+       taller than the viewport makes the whole document scroll,
+       dragging the "sticky" header/sidenav along with it since a
+       sticky element only holds still within a container that
+       actually has its own overflow — the document itself doesn't
+       count. */
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Shared responsive rule for any feature form's side-by-side field pair

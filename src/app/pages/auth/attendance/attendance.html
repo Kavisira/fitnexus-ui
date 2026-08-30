@@ -1,0 +1,366 @@
+<div class="att-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'attendance.title' | translate }}</h1>
+      <p class="subtitle">{{ 'attendance.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="att-tab-bar">
+    @for (tab of tabs; track tab.id) {
+      <button
+        type="button"
+        class="att-tab-btn"
+        [class.active]="activeTab() === tab.id"
+        (click)="selectTab(tab.id)"
+      >{{ tab.labelKey | translate }}</button>
+    }
+  </div>
+
+  @if (activeTab() === 'staff' || activeTab() === 'members') {
+    <div class="att-period-picker">
+      <p-select [options]="monthOptions" optionLabel="label" optionValue="value" [ngModel]="calendarMonth()" (ngModelChange)="calendarMonth.set($event); onPeriodChange()" />
+      <p-select [options]="yearOptions()" optionLabel="label" optionValue="value" [ngModel]="calendarYear()" (ngModelChange)="calendarYear.set($event); onPeriodChange()" />
+      @if (isCurrentMonth()) {
+        <span class="att-live-badge"><i class="pi pi-circle-fill"></i> {{ 'attendance.liveHint' | translate }}</span>
+      }
+    </div>
+  }
+
+  @if (activeTab() === 'staff') {
+    <section class="att-section">
+      <div class="att-section-header">
+        <h2>{{ 'attendance.tabs.staff' | translate }}</h2>
+      </div>
+      <p class="att-hint">{{ 'attendance.staff.hint' | translate }}</p>
+
+      @if (staffCalendarLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else {
+        <div class="att-calendar">
+          @for (wd of weekdayNames; track wd) {
+            <div class="att-cal-weekday">{{ wd }}</div>
+          }
+          @for (cell of calendarGrid(); track cell.key) {
+            @if (!cell.date) {
+              <div class="att-cal-cell blank"></div>
+            } @else {
+              <button
+                type="button"
+                class="att-cal-cell"
+                [class.today]="cell.key === todayKey"
+                (click)="openDayDetail(cell, 'staff')"
+              >
+                <span class="att-cal-daynum">{{ cell.date.getDate() }}</span>
+                @if (staffCalendarByDate()[cell.key]; as day) {
+                  <span class="att-cal-count present">{{ day.present }}</span>
+                  @if (!day.final) {
+                    <span class="att-cal-provisional">{{ 'attendance.staff.soFar' | translate }}</span>
+                  }
+                } @else {
+                  <span class="att-cal-count muted">–</span>
+                }
+              </button>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'members') {
+    <section class="att-section">
+      <div class="att-section-header">
+        <h2>{{ 'attendance.tabs.members' | translate }}</h2>
+      </div>
+      <p class="att-hint">{{ 'attendance.members.hint' | translate }}</p>
+
+      @if (memberCalendarLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else {
+        <div class="att-calendar">
+          @for (wd of weekdayNames; track wd) {
+            <div class="att-cal-weekday">{{ wd }}</div>
+          }
+          @for (cell of calendarGrid(); track cell.key) {
+            @if (!cell.date) {
+              <div class="att-cal-cell blank"></div>
+            } @else {
+              <button
+                type="button"
+                class="att-cal-cell"
+                [class.today]="cell.key === todayKey"
+                (click)="openDayDetail(cell, 'members')"
+              >
+                <span class="att-cal-daynum">{{ cell.date.getDate() }}</span>
+                @if (memberCalendarByDate()[cell.key] !== undefined) {
+                  <span class="att-cal-count members">{{ memberCalendarByDate()[cell.key] }}</span>
+                } @else {
+                  <span class="att-cal-count muted">–</span>
+                }
+              </button>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (dayDetailVisible()) {
+    <p-dialog [visible]="true" (visibleChange)="closeDayDetail()" [modal]="true" [style]="{ width: '32rem' }" [header]="dayDetail()?.date ?? ''">
+      @if (dayDetailLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (dayDetail(); as detail) {
+        @if (dayDetailMode() === 'staff') {
+          @if (!detail.employees.length) {
+            <p class="empty-text">{{ 'attendance.dayDetail.noStaff' | translate }}</p>
+          } @else {
+            <div class="att-table-wrap">
+              <table class="att-table">
+                <thead><tr><th>{{ 'attendance.dayDetail.name' | translate }}</th><th>{{ 'attendance.dayDetail.firstLogin' | translate }}</th><th>{{ 'attendance.dayDetail.lastLogout' | translate }}</th></tr></thead>
+                <tbody>
+                  @for (e of detail.employees; track e.employeeId) {
+                    <tr>
+                      <td>{{ e.name }}</td>
+                      <td>{{ e.firstPunchAt | date: 'shortTime' }}</td>
+                      <td>{{ e.lastPunchAt | date: 'shortTime' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        } @else {
+          @if (!detail.members.length) {
+            <p class="empty-text">{{ 'attendance.dayDetail.noMembers' | translate }}</p>
+          } @else {
+            <div class="att-table-wrap">
+              <table class="att-table">
+                <thead><tr><th>{{ 'attendance.dayDetail.name' | translate }}</th><th>{{ 'attendance.dayDetail.firstLogin' | translate }}</th><th>{{ 'attendance.dayDetail.lastLogout' | translate }}</th></tr></thead>
+                <tbody>
+                  @for (m of detail.members; track m.memberId) {
+                    <tr>
+                      <td>{{ m.name }}</td>
+                      <td>{{ m.firstPunchAt | date: 'shortTime' }}</td>
+                      <td>{{ m.lastPunchAt | date: 'shortTime' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      }
+    </p-dialog>
+  }
+
+  @if (activeTab() === 'absent') {
+    <section class="att-section">
+      <div class="att-section-header">
+        <h2>{{ 'attendance.absent.title' | translate }}</h2>
+        <p-datepicker [ngModel]="absentDate()" (ngModelChange)="onAbsentDateChange($event)" [maxDate]="now" dateFormat="dd M yy" />
+      </div>
+      <p class="att-hint">{{ 'attendance.absent.hint' | translate }}</p>
+
+      @if (absentLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (absentResult(); as result) {
+        @if (!result.finalized) {
+          <p class="empty-text">{{ 'attendance.absent.notFinalized' | translate }}</p>
+        } @else if (!result.employees.length) {
+          <p class="empty-text">{{ 'attendance.absent.none' | translate }}</p>
+        } @else {
+          <ul class="att-holiday-list">
+            @for (e of result.employees; track e.employeeId) {
+              <li><span>{{ e.name }}</span></li>
+            }
+          </ul>
+        }
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'devices') {
+    <section class="att-section">
+      <div class="att-section-header">
+        <h2>{{ 'attendance.devices.title' | translate }}</h2>
+        @if (canWrite()) {
+          <button pButton type="button" class="p-button-sm" (click)="openDeviceDialog()">
+            <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'attendance.devices.addDevice' | translate }}
+          </button>
+        }
+      </div>
+
+      <p class="att-hint">{{ 'attendance.devices.hint' | translate }}</p>
+
+      @if (devicesLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (!devices().length) {
+        <p class="empty-text">{{ 'attendance.devices.noDevices' | translate }}</p>
+      } @else {
+        <div class="att-device-grid">
+          @for (device of devices(); track device.id) {
+            <div class="att-device-card">
+              <div class="att-device-card-header">
+                <strong>{{ device.name }}</strong>
+                <p-tag [value]="device.vendorType" severity="secondary" />
+              </div>
+              <p class="att-device-branch">{{ device.branch?.location }}</p>
+
+              @if (device.vendorType === 'ADMS_PUSH') {
+                <div class="att-setup-box">
+                  <p class="att-setup-title">{{ 'attendance.devices.admsSetupTitle' | translate }}</p>
+                  <p>{{ 'attendance.devices.admsSetupStep1' | translate }}</p>
+                  <p><strong>{{ 'attendance.devices.serverAddress' | translate }}:</strong> {{ apiOrigin }}</p>
+                  <p><strong>{{ 'attendance.devices.serialNumber' | translate }}:</strong> {{ device.serialNumber }}</p>
+                  <p class="att-setup-note">{{ 'attendance.devices.admsSetupStep2' | translate }}</p>
+                </div>
+              } @else if (device.vendorType === 'GENERIC_WEBHOOK') {
+                <div class="att-setup-box">
+                  <p class="att-setup-title">{{ 'attendance.devices.webhookSetupTitle' | translate }}</p>
+                  <p><strong>URL:</strong> {{ webhookBase }}/{{ device.id }}</p>
+                  <p><strong>{{ 'attendance.devices.apiKey' | translate }}:</strong> <code>{{ device.apiKey }}</code></p>
+                  <p class="att-setup-note">{{ 'attendance.devices.webhookSetupNote' | translate }}</p>
+                </div>
+              } @else {
+                <div class="att-setup-box">
+                  <p>{{ 'attendance.devices.csvSetupNote' | translate }}</p>
+                </div>
+              }
+
+              @if (canWrite()) {
+                <div class="att-device-actions">
+                  <button pButton type="button" class="p-button-sm p-button-outlined" (click)="manageEnrollments(device)">{{ 'attendance.devices.manageEnrollments' | translate }}</button>
+                  @if (device.vendorType === 'GENERIC_WEBHOOK') {
+                    <button pButton type="button" class="p-button-sm p-button-outlined" (click)="rotateKey(device)">{{ 'attendance.devices.rotateKey' | translate }}</button>
+                  }
+                  <button pButton type="button" class="p-button-sm p-button-danger p-button-text" (click)="removeDevice(device)">{{ 'attendance.devices.remove' | translate }}</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (unmatchedPunches().length) {
+        <div class="att-unmatched">
+          <h3>{{ 'attendance.devices.unmatchedTitle' | translate }}</h3>
+          <p class="att-hint">{{ 'attendance.devices.unmatchedHint' | translate }}</p>
+          <ul>
+            @for (p of unmatchedPunches(); track p.id) {
+              <li>{{ 'attendance.devices.unmatchedRow' | translate }}: <strong>{{ p.biometricUserId }}</strong> — {{ p.device?.name }} — {{ p.punchTime | date: 'short' }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+
+    <p-dialog [visible]="deviceDialogVisible()" (visibleChange)="closeDeviceDialog()" [modal]="true" [style]="{ width: '28rem' }" [header]="'attendance.devices.addDevice' | translate">
+      <div class="att-form-field">
+        <label>{{ 'attendance.devices.name' | translate }}</label>
+        <input pInputText type="text" [ngModel]="newDeviceName()" (ngModelChange)="newDeviceName.set($event)" />
+      </div>
+      <div class="att-form-field">
+        <label>{{ 'attendance.devices.branch' | translate }}</label>
+        <p-select [options]="branches()" optionLabel="location" optionValue="id" [ngModel]="newDeviceBranchId()" (ngModelChange)="newDeviceBranchId.set($event)" [style]="{ width: '100%' }" />
+      </div>
+      <div class="att-form-field">
+        <label>{{ 'attendance.devices.vendorType' | translate }}</label>
+        <p-select [options]="vendorOptions" optionLabel="label" optionValue="value" [ngModel]="newDeviceVendorType()" (ngModelChange)="newDeviceVendorType.set($event)" [style]="{ width: '100%' }" />
+      </div>
+      @if (newDeviceVendorType() === 'ADMS_PUSH') {
+        <div class="att-form-field">
+          <label>{{ 'attendance.devices.serialNumber' | translate }}</label>
+          <input pInputText type="text" [ngModel]="newDeviceSerial()" (ngModelChange)="newDeviceSerial.set($event)" />
+        </div>
+      }
+      <div class="att-dialog-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeDeviceDialog()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [disabled]="savingDevice()" (click)="saveDevice()">{{ 'common.save' | translate }}</button>
+      </div>
+    </p-dialog>
+
+    @if (enrollmentDeviceId()) {
+      <p-dialog [visible]="true" (visibleChange)="closeEnrollments()" [modal]="true" [style]="{ width: '34rem' }" [header]="'attendance.devices.manageEnrollments' | translate">
+        @if (enrollmentsLoading()) {
+          <p class="loading-text">{{ 'common.loading' | translate }}</p>
+        } @else {
+          @if (!enrollments().length) {
+            <p class="empty-text">{{ 'attendance.devices.noEnrollments' | translate }}</p>
+          } @else {
+            <ul class="att-enrollment-list">
+              @for (e of enrollments(); track e.id) {
+                <li>
+                  <span><strong>{{ e.biometricUserId }}</strong> → {{ e.personType === 'EMPLOYEE' ? e.employee?.name : e.member?.name }}</span>
+                  @if (canWrite()) {
+                    <button pButton type="button" class="p-button-text p-button-sm p-button-danger" (click)="removeEnrollment(e)"><i class="pi pi-trash"></i></button>
+                  }
+                </li>
+              }
+            </ul>
+          }
+
+          @if (canWrite()) {
+            <div class="att-enrollment-form">
+              <div class="att-form-field">
+                <label>{{ 'attendance.devices.deviceBioId' | translate }}</label>
+                <input pInputText type="text" [ngModel]="newEnrollmentBioId()" (ngModelChange)="newEnrollmentBioId.set($event)" />
+              </div>
+              <div class="att-form-field">
+                <label>{{ 'attendance.devices.personType' | translate }}</label>
+                <p-select [options]="personTypeOptions" optionLabel="label" optionValue="value" [ngModel]="newEnrollmentPersonType()" (ngModelChange)="newEnrollmentPersonType.set($event)" [style]="{ width: '100%' }" />
+              </div>
+              @if (newEnrollmentPersonType() === 'EMPLOYEE') {
+                <div class="att-form-field">
+                  <label>{{ 'attendance.devices.employee' | translate }}</label>
+                  <p-select [options]="employees()" optionLabel="name" optionValue="id" [ngModel]="newEnrollmentEmployeeId()" (ngModelChange)="newEnrollmentEmployeeId.set($event)" [style]="{ width: '100%' }" />
+                </div>
+              } @else {
+                <div class="att-form-field">
+                  <label>{{ 'attendance.devices.memberId' | translate }}</label>
+                  <input pInputText type="text" [ngModel]="newEnrollmentMemberId()" (ngModelChange)="newEnrollmentMemberId.set($event)" />
+                </div>
+              }
+              <button pButton type="button" [disabled]="savingEnrollment()" (click)="addEnrollment()">{{ 'attendance.devices.addEnrollment' | translate }}</button>
+            </div>
+          }
+        }
+      </p-dialog>
+    }
+  }
+
+  @if (activeTab() === 'holidays') {
+    <section class="att-section">
+      <div class="att-section-header">
+        <h2>{{ 'attendance.holidays.title' | translate }}</h2>
+      </div>
+
+      @if (canWrite()) {
+        <div class="att-holiday-form">
+          <p-datepicker [ngModel]="newHolidayDate()" (ngModelChange)="newHolidayDate.set($event)" [placeholder]="'attendance.holidays.date' | translate" dateFormat="dd M yy" />
+          <input pInputText type="text" [ngModel]="newHolidayName()" (ngModelChange)="newHolidayName.set($event)" [placeholder]="'attendance.holidays.name' | translate" />
+          <button pButton type="button" [disabled]="savingHoliday()" (click)="addHoliday()">
+            <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'attendance.holidays.add' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (holidaysLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (!holidays().length) {
+        <p class="empty-text">{{ 'attendance.holidays.noHolidays' | translate }}</p>
+      } @else {
+        <ul class="att-holiday-list">
+          @for (h of holidays(); track h.id) {
+            <li>
+              <span>{{ h.date | date: 'mediumDate' }} — {{ h.name }}</span>
+              @if (canWrite()) {
+                <button pButton type="button" class="p-button-text p-button-sm p-button-danger" (click)="removeHoliday(h)"><i class="pi pi-trash"></i></button>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>

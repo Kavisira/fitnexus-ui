@@ -17,6 +17,9 @@ import { NotificationSetup } from './pages/auth/settings/notification-setup/noti
 import { NotificationConfiguration } from './pages/auth/settings/notification-configuration/notification-configuration';
 import { RolePermissions } from './pages/auth/role-permissions/role-permissions';
 import { Help } from './pages/auth/help/help';
+import { LeaveManagement } from './pages/auth/leave-management/leave-management';
+import { Attendance } from './pages/auth/attendance/attendance';
+import { Alerts } from './pages/auth/alerts/alerts';
 import { Placeholder } from './shared/placeholder/placeholder';
 import { authGuard, noAuthGuard, ownerGuard, permissionGuard } from './core/auth/auth.guard';
 
@@ -113,7 +116,7 @@ export const routes: Routes = [
       },
       {
         path: 'attendance',
-        component: Placeholder,
+        component: Attendance,
         canActivate: [permissionGuard],
         data: { labelKey: 'common.attendance', screen: 'ATTENDANCE' },
         title: 'Attendance · FitNexus',
@@ -126,6 +129,22 @@ export const routes: Routes = [
         component: RolePermissions,
         canActivate: [ownerGuard],
         title: 'Roles & Permissions · FitNexus',
+      },
+      {
+        // Login alerts are configured org-wide and shown to every
+        // login, so — like Roles & Permissions — this is owner-only
+        // rather than gated by a per-role permission screen.
+        path: 'alerts',
+        component: Alerts,
+        canActivate: [ownerGuard],
+        title: 'Login Alerts · FitNexus',
+      },
+      {
+        path: 'leave-management',
+        component: LeaveManagement,
+        canActivate: [permissionGuard],
+        data: { screen: 'LEAVES' },
+        title: 'Leave Management · FitNexus',
       },
       {
         // Help is reference documentation, not a data screen — every

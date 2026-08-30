@@ -1,0 +1,96 @@
+.alerts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.al-section {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+}
+
+.loading-text,
+.empty-text {
+  color: var(--p-text-muted-color, #6b7280);
+  padding: 1rem 0;
+}
+
+.al-table-wrap {
+  overflow-x: auto;
+}
+
+.al-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.al-table th,
+.al-table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.al-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.al-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.9rem;
+  flex: 1;
+}
+
+.al-form-field input,
+.al-form-field textarea {
+  width: 100%;
+}
+
+.al-form-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.al-form-row {
+  display: flex;
+  gap: 0.9rem;
+}
+
+.al-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.al-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}

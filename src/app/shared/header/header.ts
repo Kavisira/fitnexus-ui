@@ -4,6 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { Bars } from '@primeicons/angular/bars';
 
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
@@ -18,7 +20,7 @@ import { PermissionsService } from '../../core/roles/permissions.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ButtonModule, MenuModule, AvatarModule, ThemeToggle, SettingsDialog, NotificationBell, Bars],
+  imports: [ButtonModule, MenuModule, AvatarModule, ThemeToggle, SettingsDialog, NotificationBell, Bars, TooltipModule, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
 })
@@ -80,6 +82,10 @@ export class Header {
 
   openSettings(): void {
     this.settingsVisible.set(true);
+  }
+
+  openHelp(): void {
+    this.router.navigateByUrl('/help');
   }
 
   private logout(): void {

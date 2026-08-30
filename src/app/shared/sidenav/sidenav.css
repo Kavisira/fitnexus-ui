@@ -1,52 +1,102 @@
 .sidenav {
+  /* NOTE: as of now this rail shows icon + label inline by default —
+     it's a brand-new product and clients need to get familiar with
+     it before we hide labels behind a hover flyout. The full
+     icon-only + hover-flyout mode (width 72px, absolutely-positioned
+     .nav-label) is preserved below in the "FUTURE: icon-only mode"
+     block, commented out, ready to re-enable later by swapping which
+     .nav-label / .sidenav width rules are active. */
   width: 220px;
-  height: 100%;
+  /* Sticky, not part of the page scroll: only .app-content (the
+     routed page) scrolls internally — the rail should hold its
+     position the whole time instead of scrolling away with it.
+     Height is a % of .app-body, which now has a real, fixed height
+     (the shell is pinned to the viewport — see layout.css) rather
+     than just a minimum, so this resolves to an actual pixel value:
+     equal 0.75rem breathing room above AND below the rail, matching
+     the margin on the other three sides. Using 100vh here instead
+     would overshoot .app-body's real (header-reduced) height and
+     push the rail's bottom edge past the screen. */
+  height: calc(100% - 1.5rem);
+  margin: 0.75rem 0 0.75rem 0.75rem;
   box-sizing: border-box;
-  overflow-x: hidden;
-  transition: width 0.2s ease, background 0.2s ease;
+  position: sticky;
+  top: 0.75rem;
+  align-self: flex-start;
+  z-index: 40;
+  overflow: visible;
+  transition: background 0.2s ease, width 0.2s ease;
   flex-shrink: 0;
+  border-radius: 18px;
 
-  /* Light mode: white panel; hover/active use the header's blue. */
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  box-shadow: 2px 0 8px rgba(29, 78, 216, 0.05);
+  /* Frosted-glass floating panel: translucent white + blur, so the
+     page background behind it (app-shell's light gray) softly shows
+     through instead of the nav reading as a flat opaque block. */
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Dark mode: dark slate panel matching the header's deep navy, so the
-   whole nav rail reads as one surface instead of a bright white block
-   next to a dark page. */
+/* Dark mode: same glass treatment, tinted dark instead of light, so
+   the whole nav rail still reads as a floating frosted surface rather
+   than a bright white block next to a dark page. */
 :host-context(.my-app-dark) .sidenav {
-  background: #111827;
-  border-right: 1px solid #1f2937;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  background: rgba(17, 24, 39, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .sidenav.collapsed {
-  width: 68px;
+  width: 72px;
+}
+
+/* Browsers without backdrop-filter support (rare, but graceful
+   degradation matters for a business tool) fall back to a solid panel
+   so text stays readable instead of sitting on a half-see-through mess. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sidenav {
+    background: #ffffff;
+  }
+
+  :host-context(.my-app-dark) .sidenav {
+    background: #111827;
+  }
 }
 
 .nav-list {
   list-style: none;
   margin: 0;
-  padding: 0.9rem 0.55rem;
+  padding: 0.6rem 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.1rem;
 }
 
 .nav-link {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.7rem;
-  padding: 0.6rem 0.7rem;
+  padding: 0.55rem 0.7rem;
   border-radius: 9px;
   color: #475569;
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 500;
   white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+/* A light nod to Dock-style magnification on hover — just enough to
+   feel alive without turning into a full icon-zoom effect that would
+   fight with the text labels sitting right next to it. */
+.nav-link:hover {
+  transform: translateX(2px) scale(1.015);
 }
 
 :host-context(.my-app-dark) .nav-link {
@@ -74,16 +124,12 @@
 .nav-link.active::before {
   content: '';
   position: absolute;
-  left: -0.55rem;
+  left: -0.4rem;
   top: 0.3rem;
   bottom: 0.3rem;
   width: 3px;
   border-radius: 0 3px 3px 0;
   background: #2563eb;
-}
-
-.sidenav.collapsed .nav-link.active::before {
-  left: -0.4rem;
 }
 
 :host-context(.my-app-dark) .nav-link.active {
@@ -109,8 +155,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 1.7rem;
+  height: 1.7rem;
   border-radius: 7px;
   flex-shrink: 0;
   color: inherit;
@@ -118,19 +164,78 @@
 }
 
 .nav-icon svg {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 0.95rem;
+  height: 0.95rem;
   fill: currentColor;
 }
 
 .nav-icon .pi {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .nav-label {
+  /* Default (current phase): plain inline label next to the icon,
+     always visible — no hover/flyout behavior. */
+  position: static;
+  display: inline-block;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: inherit;
+  pointer-events: auto;
 }
+
+/* FUTURE: icon-only mode with hover flyout.
+   To re-enable this later (once clients are familiar with the app),
+   swap .sidenav's width back to 72px, .nav-link's justify-content
+   back to center (no gap), and replace the .nav-label rule above with
+   the block below (uncommented), which restores the absolutely
+   positioned flyout-on-hover treatment.
+
+.nav-label {
+  position: absolute;
+  left: calc(100% + 0.6rem);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 30;
+
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.28);
+  color: #f8fafc;
+}
+
+:host-context(.my-app-dark) .nav-label {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #1e293b;
+}
+
+.nav-link:hover .nav-label {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+*/
 
 .nav-section-label {
   padding: 0.7rem 0.85rem 0.3rem;
@@ -158,10 +263,27 @@
     left: 0;
     width: 260px;
     height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    border: none;
     z-index: 1200;
+    overflow-y: auto;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    /* Mobile overlay stays a solid, fully opaque panel rather than
+       glassy — it sits above the dimmed backdrop and page content, so
+       translucency there would just make text harder to read, not
+       add anything. */
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  :host-context(.my-app-dark) .sidenav {
+    background: #111827;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .sidenav.collapsed {
@@ -170,5 +292,29 @@
 
   .sidenav.mobile-open {
     transform: translateX(0);
+  }
+
+  .nav-link {
+    justify-content: flex-start;
+    gap: 0.7rem;
+  }
+
+  .nav-label {
+    position: static;
+    display: inline-block;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    color: inherit;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

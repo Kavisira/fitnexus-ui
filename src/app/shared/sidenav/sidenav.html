@@ -7,7 +7,6 @@
           [routerLink]="item.route"
           routerLinkActive="active"
           class="nav-link"
-          [title]="collapsed ? (item.labelKey | translate) : ''"
           (click)="navigated.emit()"
         >
           <span class="nav-icon">
@@ -24,11 +23,10 @@
               @case ('percentage') { <svg data-p-icon="percentage"></svg> }
               @case ('wallet') { <i class="pi pi-wallet"></i> }
               @case ('help') { <i class="pi pi-question-circle"></i> }
+              @case ('alert') { <i class="pi pi-exclamation-triangle"></i> }
             }
           </span>
-          @if (!collapsed) {
-            <span class="nav-label">{{ item.labelKey | translate }}</span>
-          }
+          <span class="nav-label">{{ item.labelKey | translate }}</span>
         </a>
       </li>
     }

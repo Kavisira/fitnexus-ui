@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { Header } from '../../../shared/header/header';
 import { Sidenav } from '../../../shared/sidenav/sidenav';
 import { NotificationStore } from '../../../core/notifications/notification-store.service';
+import { LoginAlerts } from '../../../shared/login-alerts/login-alerts';
 
 /**
  * Shell layout for authenticated (logged-in) areas of the app: header
@@ -13,7 +14,7 @@ import { NotificationStore } from '../../../core/notifications/notification-stor
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterOutlet, Header, Sidenav],
+  imports: [RouterOutlet, Header, Sidenav, LoginAlerts],
   templateUrl: './layout.html',
   styleUrls: ['./layout.css'],
 })

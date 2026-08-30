@@ -19,6 +19,20 @@
   </div>
 
   <div class="header-right">
+    <button
+      pButton
+      type="button"
+      class="help-btn"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      [pTooltip]="'common.help' | translate"
+      tooltipPosition="bottom"
+      aria-label="Help"
+      (click)="openHelp()"
+    >
+      <i class="pi pi-question-circle"></i>
+    </button>
     @if (notificationStore.enabled()) {
       <app-notification-bell></app-notification-bell>
     }

@@ -30,130 +30,187 @@
   } @else if (errorMessage()) {
     <p class="error-text">{{ errorMessage() }}</p>
   } @else if (analytics(); as data) {
-    <!-- ---- Owner / Branch Manager: full analytics ---- -->
+    <!-- ---- Owner / Branch Manager: full analytics, split into tabs ---- -->
 
-    <div class="org-strip">
-      <div class="org-chip">
-        <i class="pi pi-building"></i>
-        <span class="org-chip-value">{{ data.organization.totalBranches }}</span>
-        <span class="org-chip-label">{{ 'dashboard.branches' | translate }}</span>
-      </div>
-      <div class="org-chip">
-        <i class="pi pi-id-card"></i>
-        <span class="org-chip-value">{{ data.organization.activeEmployees }}/{{ data.organization.totalEmployees }}</span>
-        <span class="org-chip-label">{{ 'dashboard.activeStaff' | translate }}</span>
-      </div>
-      <div class="org-chip">
-        <i class="pi pi-users"></i>
-        <span class="org-chip-value">{{ data.members.activeCount }}</span>
-        <span class="org-chip-label">{{ 'dashboard.activeMembers' | translate }}</span>
-      </div>
-      <div class="org-chip">
-        <i class="pi pi-percentage"></i>
-        <span class="org-chip-value">{{ data.leads.conversionRate }}%</span>
-        <span class="org-chip-label">{{ 'dashboard.leadConversion' | translate }}</span>
-      </div>
+    <div class="dash-tab-bar">
+      @for (tab of tabs(); track tab.id) {
+        <button type="button" class="dash-tab-btn" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
+          <i class="pi pi-{{ tab.icon }}"></i>
+          {{ tab.labelKey | translate }}
+        </button>
+      }
     </div>
 
-    <div class="stat-grid">
-      <div class="stat-card stat-card-blue">
-        <i class="pi pi-user-plus stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.newThisMonth' | translate }}</span>
-        <span class="stat-value">{{ data.members.newThisMonth }}</span>
+    @if (activeTab() === 'overview') {
+      <div class="org-strip">
+        <div class="org-chip">
+          <i class="pi pi-building"></i>
+          <span class="org-chip-value">{{ data.organization.totalBranches }}</span>
+          <span class="org-chip-label">{{ 'dashboard.branches' | translate }}</span>
+        </div>
+        <div class="org-chip">
+          <i class="pi pi-id-card"></i>
+          <span class="org-chip-value">{{ data.organization.activeEmployees }}/{{ data.organization.totalEmployees }}</span>
+          <span class="org-chip-label">{{ 'dashboard.activeStaff' | translate }}</span>
+        </div>
+        <div class="org-chip">
+          <i class="pi pi-users"></i>
+          <span class="org-chip-value">{{ data.members.activeCount }}</span>
+          <span class="org-chip-label">{{ 'dashboard.activeMembers' | translate }}</span>
+        </div>
+        <div class="org-chip">
+          <i class="pi pi-percentage"></i>
+          <span class="org-chip-value">{{ data.leads.conversionRate }}%</span>
+          <span class="org-chip-label">{{ 'dashboard.leadConversion' | translate }}</span>
+        </div>
       </div>
-      <div class="stat-card stat-card-warn">
-        <i class="pi pi-clock stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.expiringIn7' | translate }}</span>
-        <span class="stat-value">{{ data.members.expiringIn7 }}</span>
-      </div>
-      <div class="stat-card stat-card-blue">
-        <i class="pi pi-calendar stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.expiringIn30' | translate }}</span>
-        <span class="stat-value">{{ data.members.expiringIn30 }}</span>
-      </div>
-      <div class="stat-card stat-card-good">
-        <i class="pi pi-arrow-up-right stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.revenueThisMonth' | translate }}</span>
-        <span class="stat-value">{{ data.finance.revenueThisMonth | number: '1.0-0' }}</span>
-      </div>
-      <div class="stat-card stat-card-bad">
-        <i class="pi pi-arrow-down-right stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.expensesThisMonth' | translate }}</span>
-        <span class="stat-value">{{ data.finance.expensesThisMonth | number: '1.0-0' }}</span>
-      </div>
-      <div class="stat-card" [class.stat-card-good]="data.finance.netProfitThisMonth >= 0" [class.stat-card-bad]="data.finance.netProfitThisMonth < 0">
-        <i class="pi pi-wallet stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.netProfitThisMonth' | translate }}</span>
-        <span class="stat-value">{{ data.finance.netProfitThisMonth | number: '1.0-0' }}</span>
-      </div>
-    </div>
 
-    <div class="chart-grid">
-      <div class="chart-card chart-card-wide">
-        <h2><i class="pi pi-chart-line"></i>{{ 'dashboard.financeTrend' | translate }}
-          <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.financeTrend', 'line', financeChartData(), lineChartOptions())">
-            <i class="pi pi-window-maximize"></i>
-          </button>
-        </h2>
-        <div class="chart-box">
-          <p-chart type="line" [data]="financeChartData()" [options]="lineChartOptions()" />
+      <div class="stat-grid">
+        <div class="stat-card stat-card-good">
+          <i class="pi pi-arrow-up-right stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.revenueThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.revenueThisMonth | number: '1.0-0' }}</span>
+        </div>
+        <div class="stat-card stat-card-bad">
+          <i class="pi pi-arrow-down-right stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.expensesThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.expensesThisMonth | number: '1.0-0' }}</span>
+        </div>
+        <div class="stat-card" [class.stat-card-good]="data.finance.netProfitThisMonth >= 0" [class.stat-card-bad]="data.finance.netProfitThisMonth < 0">
+          <i class="pi pi-wallet stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.netProfitThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.netProfitThisMonth | number: '1.0-0' }}</span>
+        </div>
+        <div class="stat-card stat-card-blue">
+          <i class="pi pi-user-plus stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.newThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.members.newThisMonth }}</span>
         </div>
       </div>
-      <div class="chart-card">
-        <h2><i class="pi pi-chart-pie"></i>{{ 'dashboard.revenueByPlan' | translate }}
-          <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.revenueByPlan', 'doughnut', revenueByPlanChartData(), doughnutChartOptions())">
-            <i class="pi pi-window-maximize"></i>
-          </button>
-        </h2>
-        <div class="chart-box chart-box-small">
-          @if (data.finance.revenueByPlan.length) {
-            <p-chart type="doughnut" [data]="revenueByPlanChartData()" [options]="doughnutChartOptions()" />
-          } @else {
-            <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
-          }
-        </div>
-      </div>
-      <div class="chart-card">
-        <h2><i class="pi pi-chart-pie"></i>{{ 'dashboard.expensesByCategory' | translate }}
-          <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.expensesByCategory', 'doughnut', expensesByCategoryChartData(), doughnutChartOptions())">
-            <i class="pi pi-window-maximize"></i>
-          </button>
-        </h2>
-        <div class="chart-box chart-box-small">
-          @if (data.finance.expensesByCategory.length) {
-            <p-chart type="doughnut" [data]="expensesByCategoryChartData()" [options]="doughnutChartOptions()" />
-          } @else {
-            <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
-          }
-        </div>
-      </div>
-      <div class="chart-card">
-        <h2><i class="pi pi-users"></i>{{ 'dashboard.memberSignups' | translate }}
-          <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.memberSignups', 'line', signupChartData(), lineChartOptions())">
-            <i class="pi pi-window-maximize"></i>
-          </button>
-        </h2>
-        <div class="chart-box chart-box-small">
-          <p-chart type="line" [data]="signupChartData()" [options]="lineChartOptions()" />
-        </div>
-      </div>
-      <div class="chart-card">
-        <h2><i class="pi pi-filter"></i>{{ 'dashboard.leadsPipeline' | translate }}
-          <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.leadsPipeline', 'bar', leadsByStatusChartData(), barChartOptions())">
-            <i class="pi pi-window-maximize"></i>
-          </button>
-        </h2>
-        <div class="chart-box chart-box-small">
-          @if (data.leads.byStatus.length) {
-            <p-chart type="bar" [data]="leadsByStatusChartData()" [options]="barChartOptions()" />
-          } @else {
-            <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
-          }
-        </div>
-      </div>
-    </div>
+    }
 
-    @if (data.branchBreakdown.length) {
+    @if (activeTab() === 'members') {
+      <div class="stat-grid">
+        <div class="stat-card stat-card-blue">
+          <i class="pi pi-user-plus stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.newThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.members.newThisMonth }}</span>
+        </div>
+        <div class="stat-card stat-card-warn">
+          <i class="pi pi-clock stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.expiringIn7' | translate }}</span>
+          <span class="stat-value">{{ data.members.expiringIn7 }}</span>
+        </div>
+        <div class="stat-card stat-card-blue">
+          <i class="pi pi-calendar stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.expiringIn30' | translate }}</span>
+          <span class="stat-value">{{ data.members.expiringIn30 }}</span>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card chart-card-wide">
+          <h2><i class="pi pi-users"></i>{{ 'dashboard.memberSignups' | translate }}
+            <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.memberSignups', 'line', signupChartData(), lineChartOptions())">
+              <i class="pi pi-window-maximize"></i>
+            </button>
+          </h2>
+          <div class="chart-box">
+            <p-chart type="line" [data]="signupChartData()" [options]="lineChartOptions()" />
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'finance') {
+      <div class="stat-grid">
+        <div class="stat-card stat-card-good">
+          <i class="pi pi-arrow-up-right stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.revenueThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.revenueThisMonth | number: '1.0-0' }}</span>
+        </div>
+        <div class="stat-card stat-card-bad">
+          <i class="pi pi-arrow-down-right stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.expensesThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.expensesThisMonth | number: '1.0-0' }}</span>
+        </div>
+        <div class="stat-card" [class.stat-card-good]="data.finance.netProfitThisMonth >= 0" [class.stat-card-bad]="data.finance.netProfitThisMonth < 0">
+          <i class="pi pi-wallet stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.netProfitThisMonth' | translate }}</span>
+          <span class="stat-value">{{ data.finance.netProfitThisMonth | number: '1.0-0' }}</span>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card chart-card-wide">
+          <h2><i class="pi pi-chart-line"></i>{{ 'dashboard.financeTrend' | translate }}
+            <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.financeTrend', 'line', financeChartData(), lineChartOptions())">
+              <i class="pi pi-window-maximize"></i>
+            </button>
+          </h2>
+          <div class="chart-box">
+            <p-chart type="line" [data]="financeChartData()" [options]="lineChartOptions()" />
+          </div>
+        </div>
+        <div class="chart-card">
+          <h2><i class="pi pi-chart-pie"></i>{{ 'dashboard.revenueByPlan' | translate }}
+            <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.revenueByPlan', 'doughnut', revenueByPlanChartData(), doughnutChartOptions())">
+              <i class="pi pi-window-maximize"></i>
+            </button>
+          </h2>
+          <div class="chart-box chart-box-small">
+            @if (data.finance.revenueByPlan.length) {
+              <p-chart type="doughnut" [data]="revenueByPlanChartData()" [options]="doughnutChartOptions()" />
+            } @else {
+              <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
+            }
+          </div>
+        </div>
+        <div class="chart-card">
+          <h2><i class="pi pi-chart-pie"></i>{{ 'dashboard.expensesByCategory' | translate }}
+            <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.expensesByCategory', 'doughnut', expensesByCategoryChartData(), doughnutChartOptions())">
+              <i class="pi pi-window-maximize"></i>
+            </button>
+          </h2>
+          <div class="chart-box chart-box-small">
+            @if (data.finance.expensesByCategory.length) {
+              <p-chart type="doughnut" [data]="expensesByCategoryChartData()" [options]="doughnutChartOptions()" />
+            } @else {
+              <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'leads') {
+      <div class="org-strip">
+        <div class="org-chip">
+          <i class="pi pi-percentage"></i>
+          <span class="org-chip-value">{{ data.leads.conversionRate }}%</span>
+          <span class="org-chip-label">{{ 'dashboard.leadConversion' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card chart-card-wide">
+          <h2><i class="pi pi-filter"></i>{{ 'dashboard.leadsPipeline' | translate }}
+            <button type="button" class="expand-btn" [attr.aria-label]="'dashboard.expand' | translate" (click)="openExpand('dashboard.leadsPipeline', 'bar', leadsByStatusChartData(), barChartOptions())">
+              <i class="pi pi-window-maximize"></i>
+            </button>
+          </h2>
+          <div class="chart-box">
+            @if (data.leads.byStatus.length) {
+              <p-chart type="bar" [data]="leadsByStatusChartData()" [options]="barChartOptions()" />
+            } @else {
+              <p class="chart-empty">{{ 'dashboard.noData' | translate }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'branches' && data.branchBreakdown.length) {
       <div class="branch-card">
         <h2><i class="pi pi-sitemap"></i>{{ 'dashboard.branchBreakdownTitle' | translate }}</h2>
         <div class="branch-table-wrap">
@@ -184,62 +241,243 @@
         </div>
       </div>
     }
+
+    @if (activeTab() === 'employeePortal') {
+      <div class="ep-balance-grid">
+        @for (row of leaveBalance(); track row.leaveType) {
+          <div class="ep-balance-card">
+            <span class="ep-balance-type">{{ leaveTypeLabel(row.leaveType) }}</span>
+            <span class="ep-balance-value">{{ row.balance }}</span>
+            <span class="ep-balance-label">{{ 'dashboard.leave.daysAvailable' | translate }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="ep-header">
+        <h2>{{ 'dashboard.leave.myRequestsTitle' | translate }}</h2>
+        <button pButton type="button" (click)="openApplyDialog()"><i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'dashboard.leave.apply' | translate }}</button>
+      </div>
+
+      @if (leaveLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (!myLeaveRequests().length) {
+        <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
+      } @else {
+        <div class="ep-table-wrap">
+          <table class="ep-table">
+            <thead>
+              <tr>
+                <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
+                <th>{{ 'leaveManagement.dates' | translate }}</th>
+                <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
+                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of myLeaveRequests(); track r.id) {
+                <tr>
+                  <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+                  <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+                  <td class="col-num">{{ r.days }}</td>
+                  <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
+                  <td>
+                    @if (r.status === 'PENDING') {
+                      <button
+                        pButton
+                        type="button"
+                        class="p-button-sm p-button-text p-button-danger"
+                        [loading]="cancellingId() === r.id"
+                        (click)="cancelLeaveRequest(r.id)"
+                      >{{ 'dashboard.leave.cancel' | translate }}</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
   } @else if (ops(); as data) {
     <!-- ---- Trainer / Front Desk: day-to-day ops, no money figures ---- -->
 
-    <div class="stat-grid">
-      <div class="stat-card stat-card-blue">
-        <i class="pi pi-camera stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.todaysCheckins' | translate }}</span>
-        <span class="stat-value">{{ data.todaysCheckins }}</span>
-      </div>
-      <div class="stat-card stat-card-warn">
-        <i class="pi pi-clock stat-icon"></i>
-        <span class="stat-label">{{ 'dashboard.expiringIn7' | translate }}</span>
-        <span class="stat-value">{{ data.expiringSoon }}</span>
-      </div>
+    <div class="dash-tab-bar">
+      @for (tab of tabs(); track tab.id) {
+        <button type="button" class="dash-tab-btn" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
+          <i class="pi pi-{{ tab.icon }}"></i>
+          {{ tab.labelKey | translate }}
+        </button>
+      }
     </div>
 
-    <div class="ops-grid">
-      <div class="ops-card">
-        <h2><i class="pi pi-heart"></i>{{ 'dashboard.bmiAttentionTitle' | translate }}</h2>
-        @if (data.bmiHighlights.length) {
-          <div class="ops-list">
-            @for (m of data.bmiHighlights; track m.id) {
-              <div class="ops-row">
-                <span class="ops-row-name">{{ m.name }}</span>
-                <span class="ops-row-value">
-                  {{ m.bmi }}
-                  <p-tag [value]="('members.bmiStatus.' + m.bmiStatus) | translate" [severity]="bmiSeverity(m.bmiStatus)" />
-                </span>
-              </div>
-            }
+    @if (activeTab() === 'overview') {
+      <div class="stat-grid">
+        <div class="stat-card stat-card-blue">
+          <i class="pi pi-camera stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.todaysCheckins' | translate }}</span>
+          <span class="stat-value">{{ data.todaysCheckins }}</span>
+        </div>
+        <div class="stat-card stat-card-warn">
+          <i class="pi pi-clock stat-icon"></i>
+          <span class="stat-label">{{ 'dashboard.expiringIn7' | translate }}</span>
+          <span class="stat-value">{{ data.expiringSoon }}</span>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'bmi') {
+      <div class="ops-grid">
+        <div class="ops-card">
+          <h2><i class="pi pi-heart"></i>{{ 'dashboard.bmiAttentionTitle' | translate }}</h2>
+          @if (data.bmiHighlights.length) {
+            <div class="ops-list">
+              @for (m of data.bmiHighlights; track m.id) {
+                <div class="ops-row">
+                  <span class="ops-row-name">{{ m.name }}</span>
+                  <span class="ops-row-value">
+                    {{ m.bmi }}
+                    <p-tag [value]="('members.bmiStatus.' + m.bmiStatus) | translate" [severity]="bmiSeverity(m.bmiStatus)" />
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="chart-empty">{{ 'dashboard.noBmiAttention' | translate }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'followUps') {
+      <div class="ops-grid">
+        <div class="ops-card">
+          <h2><i class="pi pi-phone"></i>{{ 'dashboard.followUpsTitle' | translate }}</h2>
+          @if (data.followUps.length) {
+            <div class="ops-list">
+              @for (l of data.followUps; track l.id) {
+                <div class="ops-row">
+                  <span class="ops-row-name">{{ l.name }}</span>
+                  <span class="ops-row-value">
+                    {{ l.phone }}
+                    <span class="ops-row-status">{{ leadStatusLabel(l.status) }}</span>
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="chart-empty">{{ 'dashboard.noFollowUps' | translate }}</p>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'employeePortal') {
+      <div class="ep-balance-grid">
+        @for (row of leaveBalance(); track row.leaveType) {
+          <div class="ep-balance-card">
+            <span class="ep-balance-type">{{ leaveTypeLabel(row.leaveType) }}</span>
+            <span class="ep-balance-value">{{ row.balance }}</span>
+            <span class="ep-balance-label">{{ 'dashboard.leave.daysAvailable' | translate }}</span>
           </div>
-        } @else {
-          <p class="chart-empty">{{ 'dashboard.noBmiAttention' | translate }}</p>
         }
       </div>
 
-      <div class="ops-card">
-        <h2><i class="pi pi-phone"></i>{{ 'dashboard.followUpsTitle' | translate }}</h2>
-        @if (data.followUps.length) {
-          <div class="ops-list">
-            @for (l of data.followUps; track l.id) {
-              <div class="ops-row">
-                <span class="ops-row-name">{{ l.name }}</span>
-                <span class="ops-row-value">
-                  {{ l.phone }}
-                  <span class="ops-row-status">{{ leadStatusLabel(l.status) }}</span>
-                </span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="chart-empty">{{ 'dashboard.noFollowUps' | translate }}</p>
-        }
+      <div class="ep-header">
+        <h2>{{ 'dashboard.leave.myRequestsTitle' | translate }}</h2>
+        <button pButton type="button" (click)="openApplyDialog()"><i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'dashboard.leave.apply' | translate }}</button>
       </div>
-    </div>
+
+      @if (leaveLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else if (!myLeaveRequests().length) {
+        <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
+      } @else {
+        <div class="ep-table-wrap">
+          <table class="ep-table">
+            <thead>
+              <tr>
+                <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
+                <th>{{ 'leaveManagement.dates' | translate }}</th>
+                <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
+                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of myLeaveRequests(); track r.id) {
+                <tr>
+                  <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+                  <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+                  <td class="col-num">{{ r.days }}</td>
+                  <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
+                  <td>
+                    @if (r.status === 'PENDING') {
+                      <button
+                        pButton
+                        type="button"
+                        class="p-button-sm p-button-text p-button-danger"
+                        [loading]="cancellingId() === r.id"
+                        (click)="cancelLeaveRequest(r.id)"
+                      >{{ 'dashboard.leave.cancel' | translate }}</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
   }
+
+  <p-dialog
+    [visible]="applyDialogVisible()"
+    (visibleChange)="closeApplyDialog()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '28rem' }"
+    [header]="'dashboard.leave.applyTitle' | translate"
+  >
+    <div class="ep-apply-form">
+      <label>{{ 'leaveManagement.typeColumn' | translate }}</label>
+      <p-select
+        [options]="leaveTypeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="applyLeaveType()"
+        (ngModelChange)="applyLeaveType.set($event)"
+      />
+
+      <label>{{ 'dashboard.leave.startDate' | translate }}</label>
+      <p-datepicker
+        [ngModel]="applyStartDate()"
+        (ngModelChange)="applyStartDate.set($event)"
+        dateFormat="M d, yy"
+        [showIcon]="true"
+      />
+
+      <label>{{ 'dashboard.leave.endDate' | translate }}</label>
+      <p-datepicker
+        [ngModel]="applyEndDate()"
+        (ngModelChange)="applyEndDate.set($event)"
+        dateFormat="M d, yy"
+        [showIcon]="true"
+      />
+
+      <label>{{ 'dashboard.leave.reasonLabel' | translate }}</label>
+      <textarea pTextarea rows="3" class="ep-apply-textarea" [ngModel]="applyReason()" (ngModelChange)="applyReason.set($event)"></textarea>
+
+      @if (applyError()) {
+        <p class="ep-apply-error">{{ applyError() }}</p>
+      }
+
+      <div class="ep-apply-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeApplyDialog()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [loading]="applySaving()" (click)="submitLeaveApplication()">{{ 'dashboard.leave.submit' | translate }}</button>
+      </div>
+    </div>
+  </p-dialog>
 
   <p-dialog
     [visible]="!!expandedChart()"

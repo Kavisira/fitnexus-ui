@@ -17,7 +17,8 @@ export type PermissionScreen =
   | 'BRANCHES'
   | 'MEMBERS'
   | 'PLANS'
-  | 'EXPENSES';
+  | 'EXPENSES'
+  | 'LEAVES';
 
 export interface RolePermission {
   id: string;

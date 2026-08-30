@@ -1,5 +1,11 @@
 .app-shell {
-  min-height: 100dvh;
+  /* Fixed to the viewport, not just a minimum — this is what makes
+     the header/sidenav "sticky" actually hold in place instead of
+     scrolling off with the page: the shell itself never grows taller
+     than the screen or scrolls, so only .app-content's own overflow
+     does. */
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   /* Light mode only: a very light gray page background so white cards
@@ -24,13 +30,18 @@
   padding: 1.5rem;
   min-width: 0;
   min-height: 0;
-  /* Column flex + hidden overflow so the page itself never scrolls —
-     each feature page (e.g. Branches) fills this space and decides
-     internally what scrolls (its own card grid / table row area, via
-     .app-table-card's flex:1 in styles.css), not the whole page. */
+  /* This is the ONLY scrolling region in the app shell: the header is
+     sticky and the sidenav is sticky, so whatever a page renders here
+     scrolls on its own (vertical only) instead of the whole page
+     moving and dragging the header/sidenav along with it. Most
+     feature pages already manage their own internal scroll area (e.g.
+     .app-table-card's flex:1 in styles.css) and simply won't overflow
+     this container in practice — this is the fallback for anything
+     that does. */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* <router-outlet> is itself a real (empty) DOM element that Angular

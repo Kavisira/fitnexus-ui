@@ -1,0 +1,94 @@
+<div class="alerts-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'alerts.title' | translate }}</h1>
+      <p class="subtitle">{{ 'alerts.subtitle' | translate }}</p>
+    </div>
+    <button pButton type="button" (click)="openCreate()">
+      <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'alerts.addAlert' | translate }}
+    </button>
+  </div>
+
+  <section class="al-section">
+    @if (loading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!alerts().length) {
+      <p class="empty-text">{{ 'alerts.noAlerts' | translate }}</p>
+    } @else {
+      <div class="al-table-wrap">
+        <table class="al-table">
+          <thead>
+            <tr>
+              <th>{{ 'alerts.titleColumn' | translate }}</th>
+              <th>{{ 'alerts.audienceColumn' | translate }}</th>
+              <th>{{ 'alerts.window' | translate }}</th>
+              <th>{{ 'alerts.statusColumn' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (alert of alerts(); track alert.id) {
+              <tr>
+                <td>{{ alert.title }}</td>
+                <td>{{ audienceLabel(alert) }}</td>
+                <td>{{ windowLabel(alert) }}</td>
+                <td>
+                  <p-tag [value]="(alert.isActive ? 'alerts.active' : 'alerts.inactive') | translate" [severity]="alert.isActive ? 'success' : 'secondary'" />
+                </td>
+                <td class="al-actions">
+                  <button pButton type="button" class="p-button-text p-button-sm" (click)="openEdit(alert)"><i class="pi pi-pencil"></i></button>
+                  <button pButton type="button" class="p-button-text p-button-sm p-button-danger" (click)="remove(alert)"><i class="pi pi-trash"></i></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <p-dialog [visible]="dialogVisible()" (visibleChange)="closeDialog()" [modal]="true" [style]="{ width: '30rem' }" [header]="(editingId() ? 'alerts.editAlert' : 'alerts.addAlert') | translate">
+    <div class="al-form-field">
+      <label>{{ 'alerts.titleColumn' | translate }}</label>
+      <input pInputText type="text" [ngModel]="formTitle()" (ngModelChange)="formTitle.set($event)" />
+    </div>
+    <div class="al-form-field">
+      <label>{{ 'alerts.message' | translate }}</label>
+      <textarea pTextarea rows="4" [ngModel]="formMessage()" (ngModelChange)="formMessage.set($event)"></textarea>
+    </div>
+    <div class="al-form-row">
+      <div class="al-form-field">
+        <label>{{ 'alerts.startDate' | translate }}</label>
+        <p-datepicker [ngModel]="formStartDate()" (ngModelChange)="formStartDate.set($event)" dateFormat="dd M yy" />
+      </div>
+      <div class="al-form-field">
+        <label>{{ 'alerts.endDate' | translate }}</label>
+        <p-datepicker [ngModel]="formEndDate()" (ngModelChange)="formEndDate.set($event)" dateFormat="dd M yy" [showClear]="true" [placeholder]="'alerts.noEndDate' | translate" />
+      </div>
+    </div>
+    <div class="al-form-field">
+      <label>{{ 'alerts.audienceColumn' | translate }}</label>
+      <p-select [options]="audienceOptions" optionLabel="label" optionValue="value" [ngModel]="formAudienceType()" (ngModelChange)="formAudienceType.set($event)" [style]="{ width: '100%' }" />
+    </div>
+    @if (formAudienceType() === 'BRANCH') {
+      <div class="al-form-field">
+        <label>{{ 'alerts.audience.BRANCH' | translate }}</label>
+        <p-select [options]="assignableTargets().branches" optionLabel="location" optionValue="id" [ngModel]="formAudienceBranchId()" (ngModelChange)="formAudienceBranchId.set($event)" [style]="{ width: '100%' }" />
+      </div>
+    }
+    @if (formAudienceType() === 'USER') {
+      <div class="al-form-field">
+        <label>{{ 'alerts.audience.USER' | translate }}</label>
+        <p-select [options]="assignableTargets().users" optionLabel="name" optionValue="id" [ngModel]="formAudienceUserId()" (ngModelChange)="formAudienceUserId.set($event)" [style]="{ width: '100%' }" />
+      </div>
+    }
+    <div class="al-checkbox-row">
+      <p-checkbox [ngModel]="formIsActive()" (ngModelChange)="formIsActive.set($event)" [binary]="true" inputId="al-is-active" />
+      <label for="al-is-active">{{ 'alerts.isActive' | translate }}</label>
+    </div>
+    <div class="al-dialog-actions">
+      <button pButton type="button" class="p-button-text" (click)="closeDialog()">{{ 'common.cancel' | translate }}</button>
+      <button pButton type="button" [disabled]="saving()" (click)="save()">{{ 'common.save' | translate }}</button>
+    </div>
+  </p-dialog>
+</div>

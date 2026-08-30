@@ -1,0 +1,182 @@
+<div class="leave-management-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'leaveManagement.title' | translate }}</h1>
+      <p class="subtitle">{{ 'leaveManagement.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <section class="lm-section">
+    <div class="lm-section-header">
+      <h2>{{ 'leaveManagement.requestsTitle' | translate }}</h2>
+      <p-select
+        [options]="statusFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusFilterChange($event)"
+        styleClass="lm-status-filter"
+      />
+    </div>
+
+    @if (loading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!requests().length) {
+      <p class="empty-text">{{ 'leaveManagement.noRequests' | translate }}</p>
+    } @else {
+      <div class="lm-table-wrap">
+        <table class="lm-table">
+          <thead>
+            <tr>
+              <th>{{ 'leaveManagement.employee' | translate }}</th>
+              <th>{{ 'leaveManagement.branch' | translate }}</th>
+              <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
+              <th>{{ 'leaveManagement.dates' | translate }}</th>
+              <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
+              <th>{{ 'leaveManagement.reason' | translate }}</th>
+              <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+              @if (canWrite()) {
+                <th>{{ 'leaveManagement.actions' | translate }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of requests(); track r.id) {
+              <tr>
+                <td>{{ r.employee?.name }}</td>
+                <td>{{ r.branch?.location }}</td>
+                <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+                <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+                <td class="col-num">{{ r.days }}</td>
+                <td class="lm-reason">{{ r.reason || '—' }}</td>
+                <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="statusSeverity(r.status)" /></td>
+                @if (canWrite()) {
+                  <td class="lm-actions">
+                    @if (r.status === 'PENDING') {
+                      <button pButton type="button" icon="pi pi-check" class="p-button-sm p-button-success p-button-text" [pTooltip]="'leaveManagement.approve' | translate" (click)="openDecision(r, true)"></button>
+                      <button pButton type="button" icon="pi pi-times" class="p-button-sm p-button-danger p-button-text" [pTooltip]="'leaveManagement.reject' | translate" (click)="openDecision(r, false)"></button>
+                    } @else {
+                      <span class="lm-decided-note">{{ r.decisionNote }}</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (canWrite()) {
+    <section class="lm-section">
+      <div class="lm-section-header">
+        <div>
+          <h2>{{ 'leaveManagement.configTitle' | translate }}</h2>
+          <p class="lm-config-hint">{{ 'leaveManagement.configHint' | translate }}</p>
+        </div>
+        @if (!configLoading()) {
+          <div class="lm-config-actions">
+            @if (isConfigDirty()) {
+              <span class="lm-unsaved-hint">{{ 'leaveManagement.unsavedHint' | translate }}</span>
+            }
+            <button pButton type="button" class="p-button-text" [disabled]="!isConfigDirty() || savingConfig()" (click)="discardConfigChanges()">
+              {{ 'rolePermissions.discard' | translate }}
+            </button>
+            <button pButton type="button" [disabled]="!isConfigDirty() || savingConfig()" [loading]="savingConfig()" (click)="saveAllConfig()">
+              {{ 'leaveManagement.saveAllocation' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (configLoading()) {
+        <p class="loading-text">{{ 'common.loading' | translate }}</p>
+      } @else {
+        <div class="lm-config-table-wrap">
+          <table class="lm-config-table">
+            <thead>
+              <tr>
+                <th>{{ 'leaveManagement.roleColumn' | translate }}</th>
+                <th>{{ 'leaveManagement.leaveTypeColumn' | translate }}</th>
+                <th class="col-num">
+                  {{ 'leaveManagement.monthlyAllocation' | translate }}
+                  <i class="pi pi-info-circle lm-info-icon" [pTooltip]="'leaveManagement.monthlyAllocationTooltip' | translate"></i>
+                </th>
+                <th class="col-num">
+                  {{ 'leaveManagement.carryForwardCap' | translate }}
+                  <i class="pi pi-info-circle lm-info-icon" [pTooltip]="'leaveManagement.carryForwardCapTooltip' | translate"></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (role of leaveRoles; track role) {
+                @for (leaveType of leaveTypes; track leaveType) {
+                  <tr>
+                    <td>{{ ('rolePermissions.role.' + role) | translate }}</td>
+                    <td>{{ leaveTypeLabel(leaveType) }}</td>
+                    <td class="col-num">
+                      <p-inputnumber
+                        [ngModel]="configFor(role, leaveType).monthlyAllocation"
+                        (ngModelChange)="updateConfigDraft(role, leaveType, 'monthlyAllocation', $event)"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="1"
+                        [min]="0"
+                        styleClass="lm-config-input"
+                      />
+                    </td>
+                    <td class="col-num">
+                      <p-inputnumber
+                        [ngModel]="configFor(role, leaveType).carryForwardCap"
+                        (ngModelChange)="updateConfigDraft(role, leaveType, 'carryForwardCap', $event)"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="1"
+                        [min]="0"
+                        styleClass="lm-config-input"
+                      />
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  <p-dialog
+    [visible]="decisionDialogVisible()"
+    (visibleChange)="closeDecision()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '28rem' }"
+    [header]="(decisionApprove() ? 'leaveManagement.approveTitle' : 'leaveManagement.rejectTitle') | translate"
+  >
+    @if (decisionTarget(); as target) {
+      <p class="lm-decision-summary">
+        {{ target.employee?.name }} · {{ leaveTypeLabel(target.leaveType) }} · {{ target.days }} {{ 'leaveManagement.daysSuffix' | translate }}
+      </p>
+      <label for="lm-decision-note">{{ 'leaveManagement.decisionNoteLabel' | translate }}</label>
+      <textarea
+        pTextarea
+        id="lm-decision-note"
+        rows="3"
+        class="lm-decision-textarea"
+        [ngModel]="decisionNote()"
+        (ngModelChange)="decisionNote.set($event)"
+      ></textarea>
+      <div class="lm-decision-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeDecision()">{{ 'common.cancel' | translate }}</button>
+        <button
+          pButton
+          type="button"
+          [class.p-button-success]="decisionApprove()"
+          [class.p-button-danger]="!decisionApprove()"
+          [loading]="deciding()"
+          (click)="confirmDecision()"
+        >{{ (decisionApprove() ? 'leaveManagement.approve' : 'leaveManagement.reject') | translate }}</button>
+      </div>
+    }
+  </p-dialog>
+</div>
