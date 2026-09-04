@@ -139,7 +139,7 @@ export class ForgotPassword {
     this.resending.set(true);
     const { identifier } = this.identifierForm.getRawValue();
 
-    this.authApi.forgotPassword(identifier!).subscribe({
+    this.authApi.resendResetOtp(identifier!).subscribe({
       next: () => {
         this.resending.set(false);
         this.otpForm.reset();

@@ -10,6 +10,7 @@ import { Bars } from '@primeicons/angular/bars';
 
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { SettingsDialog } from '../settings-dialog/settings-dialog';
+import { VersionDialog } from '../version-dialog/version-dialog';
 import { NotificationBell } from '../notification-bell/notification-bell';
 import { TranslationService } from '../../core/i18n/translation.service';
 import { TokenStorage } from '../../core/auth/token-storage.service';
@@ -20,7 +21,7 @@ import { PermissionsService } from '../../core/roles/permissions.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ButtonModule, MenuModule, AvatarModule, ThemeToggle, SettingsDialog, NotificationBell, Bars, TooltipModule, TranslatePipe],
+  imports: [ButtonModule, MenuModule, AvatarModule, ThemeToggle, SettingsDialog, VersionDialog, NotificationBell, Bars, TooltipModule, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
 })
@@ -36,6 +37,7 @@ export class Header {
   notificationStore = inject(NotificationStore);
 
   settingsVisible = signal(false);
+  versionVisible = signal(false);
 
   get userEmail(): string {
     return this.tokenStorage.getEmail() ?? '';
@@ -67,6 +69,11 @@ export class Header {
         icon: 'pi pi-cog',
         command: () => this.openSettings(),
       },
+      {
+        label: this.i18n.t('common.deployedVersion'),
+        icon: 'pi pi-info-circle',
+        command: () => this.openVersion(),
+      },
       { separator: true },
       {
         label: this.i18n.t('common.logout'),
@@ -82,6 +89,10 @@ export class Header {
 
   openSettings(): void {
     this.settingsVisible.set(true);
+  }
+
+  openVersion(): void {
+    this.versionVisible.set(true);
   }
 
   openHelp(): void {

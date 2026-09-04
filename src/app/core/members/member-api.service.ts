@@ -43,6 +43,7 @@ export interface Member {
   name: string;
   phone: string;
   email: string | null;
+  photoUrl: string | null;
   source: string | null;
   planId: string | null;
   plan?: { id: string; name: string; price: string; duration: PlanDuration } | null;
@@ -84,6 +85,7 @@ export interface MemberPayload {
   name: string;
   phone: string;
   email?: string;
+  photoDataUrl?: string;
   source?: string;
   planId: string;
   offerId?: string;

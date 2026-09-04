@@ -67,6 +67,10 @@ export class AuthApiService {
     return this.http.post<{ message: string }>(`${this.base}/forgot-password`, { identifier });
   }
 
+  resendResetOtp(identifier: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/forgot-password/resend-otp`, { identifier });
+  }
+
   verifyResetOtp(identifier: string, otp: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.base}/forgot-password/verify-otp`, { identifier, otp });
   }

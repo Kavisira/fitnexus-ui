@@ -1,0 +1,57 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '26rem' }"
+  [breakpoints]="{ '640px': '95vw' }"
+  [header]="'versionDialog.title' | translate"
+  (onShow)="onShow()"
+>
+  <div class="version-block">
+    <div class="version-block-title">{{ 'versionDialog.frontend' | translate }}</div>
+    <div class="version-row">
+      <span class="version-label">{{ 'versionDialog.versionNumber' | translate }}</span>
+      <span class="version-value version-number">v{{ frontend.version }}</span>
+    </div>
+    <div class="version-row">
+      <span class="version-label">{{ 'versionDialog.builtAt' | translate }}</span>
+      <span class="version-value">{{ frontend.buildTime | date: 'medium' }}</span>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-block-title">
+      {{ 'versionDialog.backend' | translate }}
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="version-refresh-btn"
+        [disabled]="backendLoading()"
+        (click)="loadBackend()"
+        [pTooltip]="'versionDialog.refresh' | translate"
+      >
+        <i class="pi pi-refresh"></i>
+      </button>
+    </div>
+
+    @if (backendLoading()) {
+      <p class="version-hint">{{ 'common.loading' | translate }}</p>
+    } @else if (backendError()) {
+      <p class="version-error">{{ 'versionDialog.checkFailed' | translate }}</p>
+      <button pButton type="button" [outlined]="true" severity="secondary" (click)="loadBackend()">
+        {{ 'versionDialog.retry' | translate }}
+      </button>
+    } @else if (backend(); as b) {
+      <div class="version-row">
+        <span class="version-label">{{ 'versionDialog.versionNumber' | translate }}</span>
+        <span class="version-value version-number">v{{ b.version }}</span>
+      </div>
+      <div class="version-row">
+        <span class="version-label">{{ 'versionDialog.startedAt' | translate }}</span>
+        <span class="version-value">{{ b.startedAt | date: 'medium' }}</span>
+      </div>
+    }
+  </div>
+</p-dialog>

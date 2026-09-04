@@ -208,7 +208,46 @@ export class Members implements OnInit {
     );
   });
 
-  form = this.fb.group({
+  // ---- Profile photo (Add/Edit dialog) — separate from the reactive
+  // form since it's a file input + async compress step, not a plain
+  // value; same compressImageToDataUrl pipeline as the progress-photo
+  // check-in flow below. null = no photo selected/unchanged from
+  // whatever's already on the member; profilePhotoCleared distinguishes
+  // "leave the existing photo alone" from "the user explicitly removed
+  // it" when editing, since both look like "no new data URL" otherwise. ----
+  profilePhotoDataUrl = signal<string | null>(null);
+  profilePhotoProcessing = signal(false);
+  profilePhotoCleared = signal(false);
+
+  async onProfilePhotoSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      this.toast.error(this.i18n.t('members.invalidPhoto'));
+      return;
+    }
+    this.profilePhotoProcessing.set(true);
+    try {
+      const dataUrl = await compressImageToDataUrl(file);
+      this.profilePhotoDataUrl.set(dataUrl);
+      this.profilePhotoCleared.set(false);
+    } catch {
+      this.toast.error(this.i18n.t('members.invalidPhoto'));
+    } finally {
+      this.profilePhotoProcessing.set(false);
+      input.value = '';
+    }
+  }
+
+  clearProfilePhoto(): void {
+    this.profilePhotoDataUrl.set(null);
+    this.profilePhotoCleared.set(true);
+  }
+
+    form = this.fb.group({
     branchId: ['', [Validators.required]],
     name: ['', [Validators.required, Validators.minLength(2)]],
     phone: ['', [Validators.required]],
@@ -402,6 +441,8 @@ export class Members implements OnInit {
     });
     this.partnerForm.reset({ name: '', phone: '', email: '' });
     this.partnerMemberIdControl.reset(null);
+    this.profilePhotoDataUrl.set(null);
+    this.profilePhotoCleared.set(false);
     this.dialogVisible.set(true);
   }
 
@@ -428,6 +469,8 @@ export class Members implements OnInit {
       heightCm: member.heightCm !== null ? Number(member.heightCm) : null,
       goalWeightKg: member.goalWeightKg !== null ? Number(member.goalWeightKg) : null,
     });
+    this.profilePhotoDataUrl.set(member.photoUrl ?? null);
+    this.profilePhotoCleared.set(false);
     this.dialogVisible.set(true);
   }
 
@@ -465,6 +508,7 @@ export class Members implements OnInit {
       name: raw.name!,
       phone: raw.phone!,
       email: raw.email || undefined,
+      photoDataUrl: this.profilePhotoCleared() ? '' : (this.profilePhotoDataUrl() ?? undefined),
       source: raw.source ?? undefined,
       planId: raw.planId!,
       offerId: raw.offerId ?? undefined,

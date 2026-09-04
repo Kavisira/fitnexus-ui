@@ -86,9 +86,13 @@
       @for (member of filteredMembers(); track member.id) {
         <p-card styleClass="member-card" [class.member-card-inactive]="member.status === 'INACTIVE'">
           <div class="member-card-header">
+            @if (member.photoUrl) {
+              <img [src]="member.photoUrl" alt="" class="member-card-avatar" />
+            } @else {
+              <div class="member-card-avatar member-card-avatar-placeholder"><i class="pi pi-user"></i></div>
+            }
             <div class="member-card-heading">
               <div class="member-card-name">
-                <i class="pi pi-user"></i>
                 {{ member.name }}
                 @if (member.isTrial) {
                   <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
@@ -223,6 +227,27 @@
     [header]="(editingId() ? 'members.editMember' : 'members.addMember') | translate"
   >
     <form [formGroup]="form" (ngSubmit)="save()" class="member-form" novalidate>
+      <div class="field">
+        <label for="m-photo">{{ 'members.profilePhotoLabel' | translate }}</label>
+        @if (profilePhotoDataUrl()) {
+          <div class="checkin-photo-preview">
+            <img [src]="profilePhotoDataUrl()" alt="" />
+            <button pButton type="button" [text]="true" [rounded]="true" severity="danger" (click)="clearProfilePhoto()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        } @else {
+          <input
+            id="m-photo"
+            type="file"
+            accept="image/*"
+            (change)="onProfilePhotoSelected($event)"
+            [disabled]="profilePhotoProcessing()"
+          />
+        }
+        <small class="field-hint">{{ 'members.profilePhotoHint' | translate }}</small>
+      </div>
+
       <div class="field-row-2">
         <div class="field">
           <label for="m-branch">{{ 'members.branchLabel' | translate }} *</label>
