@@ -111,6 +111,15 @@ export interface MemberFilters {
   branchId?: string | null;
   status?: MemberStatus | null;
   search?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface MemberListResult {
+  data: Member[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 /** Thin wrapper over the NestJS `/api/members` endpoints — mirrors
@@ -122,12 +131,14 @@ export class MemberApiService {
   private http = inject(HttpClient);
   private base = `${API_BASE_URL}/members`;
 
-  list(filters?: MemberFilters): Observable<Member[]> {
+  list(filters?: MemberFilters): Observable<MemberListResult> {
     let params = new HttpParams();
     if (filters?.branchId) params = params.set('branchId', filters.branchId);
     if (filters?.status) params = params.set('status', filters.status);
     if (filters?.search) params = params.set('search', filters.search);
-    return this.http.get<Member[]>(this.base, { params });
+    if (filters?.page) params = params.set('page', String(filters.page));
+    if (filters?.pageSize) params = params.set('pageSize', String(filters.pageSize));
+    return this.http.get<MemberListResult>(this.base, { params });
   }
 
   get(id: string): Observable<Member> {

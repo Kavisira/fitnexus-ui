@@ -13,8 +13,8 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
-import { BranchApiService, Branch } from '../../../core/branches/branch-api.service';
-import { EmployeeApiService, Employee } from '../../../core/employees/employee-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
 import { API_BASE_URL } from '../../../core/config/api.config';
 import {
   AttendanceApiService,
@@ -71,8 +71,8 @@ interface CalendarCell {
 })
 export class Attendance implements OnInit, OnDestroy {
   private attendanceApi = inject(AttendanceApiService);
-  private branchApi = inject(BranchApiService);
-  private employeeApi = inject(EmployeeApiService);
+  private branchStore = inject(BranchStore);
+  private employeeStore = inject(EmployeeStore);
   private toast = inject(ToastService);
   private i18n = inject(TranslationService);
   private permissions = inject(PermissionsService);
@@ -94,8 +94,10 @@ export class Attendance implements OnInit, OnDestroy {
     this.activeTab.set(id);
   }
 
-  branches = signal<Branch[]>([]);
-  employees = signal<Employee[]>([]);
+  // Shared cache — see BranchStore; reads the full list (INACTIVE included) same as before.
+  branches = this.branchStore.branches;
+  // Shared cache — see EmployeeStore; reads the full list (INACTIVE included) same as before.
+  employees = this.employeeStore.employees;
 
   weekdayNames = WEEKDAY_NAMES;
   monthOptions = MONTH_NAMES.map((name, i) => ({ label: name, value: i + 1 }));
@@ -483,8 +485,8 @@ export class Attendance implements OnInit, OnDestroy {
 
   // ---- Shared ----
   ngOnInit(): void {
-    this.branchApi.list().subscribe({ next: (branches) => this.branches.set(branches), error: () => {} });
-    this.employeeApi.list().subscribe({ next: (employees) => this.employees.set(employees), error: () => {} });
+    this.branchStore.ensureLoaded();
+    this.employeeStore.ensureLoaded();
     this.loadStaffCalendar();
     this.loadMemberCalendar();
     this.loadAbsent();
@@ -493,16 +495,34 @@ export class Attendance implements OnInit, OnDestroy {
     this.loadHolidays();
 
     // Polling-based "live" refresh: only worth doing while looking at
-    // the current month, since past months never change.
+    // the current month, since past months never change. Also skipped
+    // while the tab is backgrounded (Page Visibility API) — no point
+    // hitting the API every 25s for a tab nobody's looking at; it picks
+    // back up (and does one immediate refresh) the moment the tab
+    // becomes visible again.
     this.livePollHandle = setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
       if (!this.isCurrentMonth()) return;
       if (this.activeTab() === 'staff') this.loadStaffCalendar();
       if (this.activeTab() === 'members') this.loadMemberCalendar();
     }, LIVE_POLL_MS);
+
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
+
+  // Bound as a property (not a method) so the exact same function
+  // reference can be passed to both addEventListener and
+  // removeEventListener in ngOnDestroy.
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState !== 'visible') return;
+    if (!this.isCurrentMonth()) return;
+    if (this.activeTab() === 'staff') this.loadStaffCalendar();
+    if (this.activeTab() === 'members') this.loadMemberCalendar();
+  };
 
   ngOnDestroy(): void {
     if (this.livePollHandle) clearInterval(this.livePollHandle);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   statusSeverity(status: string): 'success' | 'danger' | 'warn' | 'secondary' | 'info' {

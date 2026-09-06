@@ -1,7 +1,9 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime } from 'rxjs';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -27,10 +29,12 @@ import {
   MemberStatus,
   MetricEntryPayload,
 } from '../../../core/members/member-api.service';
+
 import { Plan, PlanApiService, PlanDuration } from '../../../core/plans/plan-api.service';
 import { Offer, OfferApiService } from '../../../core/offers/offer-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
-import { Employee, EmployeeApiService } from '../../../core/employees/employee-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
+import { MemberStore } from '../../../core/members/member-store.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
 import { currencySymbol } from '../../../core/constants/currencies';
 import { MEMBER_SOURCES } from '../../../core/constants/member-sources';
@@ -122,6 +126,7 @@ function addMonths(date: Date, months: number): Date {
     CardModule,
     TagModule,
     CheckboxModule,
+    PaginatorModule,
     TranslatePipe,
   ],
   templateUrl: './members.html',
@@ -130,10 +135,11 @@ function addMonths(date: Date, months: number): Date {
 export class Members implements OnInit {
   private fb = inject(FormBuilder);
   private memberApi = inject(MemberApiService);
+  private memberStore = inject(MemberStore);
   private planApi = inject(PlanApiService);
   private offerApi = inject(OfferApiService);
-  private branchApi = inject(BranchApiService);
-  private employeeApi = inject(EmployeeApiService);
+  private branchStore = inject(BranchStore);
+  private employeeStore = inject(EmployeeStore);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private i18n = inject(TranslationService);
@@ -149,17 +155,47 @@ export class Members implements OnInit {
   bmiStatusLabel = BMI_STATUS_LABEL;
   bmiStatusSeverity = BMI_STATUS_SEVERITY;
 
-  members = signal<Member[]>([]);
-  branches = signal<Branch[]>([]);
+  // Data now lives in MemberStore (see its doc comment) — this page
+  // still drives *when* to fetch (filters/page/search below), the
+  // store just holds the resulting state and does the actual API
+  // call, in case another page ever wants to reuse it.
+  members = this.memberStore.members;
+  // Full (unpaginated-ish, capped at 500) org roster — used ONLY for the
+  // couple-partner picker dropdown and its price preview, which need to
+  // search/select across every member, not just the currently-loaded
+  // page of `members`. Kept deliberately separate from `members` so the
+  // paginated list view is unaffected. Refreshed on init and after every
+  // successful save (a newly created/edited member should be pickable
+  // as a partner immediately).
+  allMembers = this.memberStore.allMembers;
+  // Shared cache — see BranchStore; this page only ever wants ACTIVE branches.
+  branches = this.branchStore.activeBranches;
   plans = signal<Plan[]>([]);
   offers = signal<Offer[]>([]);
-  employees = signal<Employee[]>([]);
-  loading = signal(false);
+  // Shared cache — see EmployeeStore; reads the full list (INACTIVE included) same as before.
+  employees = this.employeeStore.employees;
+  loading = this.memberStore.loading;
   saving = signal(false);
+
+  // ---- Pagination — Members used to fetch every member in the org in
+  // one request and filter/search entirely in the browser; that's fine
+  // for dozens of members but doesn't scale to a gym chain with
+  // thousands (see the perf audit). Filtering now happens server-side
+  // via loadMembers()'s query params, and the page only ever holds one
+  // page's worth of rows. ----
+  private readonly destroyRef = inject(DestroyRef);
+  page = signal(1);
+  readonly pageSize = 25;
+  total = this.memberStore.total;
 
   searchTerm = signal('');
   branchFilter = signal<string | null>(null);
   statusFilter = signal<MemberStatus | null>(null);
+
+  // Free-text search is debounced so every keystroke doesn't fire its
+  // own request — branch/status filters (a discrete pick, not typing)
+  // reload immediately instead, see onBranchFilterChange/onStatusFilterChange.
+  private searchInput$ = new Subject<string>();
 
   viewMode = signal<'grid' | 'list'>('grid');
   setViewMode(mode: 'grid' | 'list'): void {
@@ -186,27 +222,37 @@ export class Members implements OnInit {
     this.searchTerm.set('');
     this.branchFilter.set(null);
     this.statusFilter.set(null);
+    this.page.set(1);
+    this.loadMembers();
   }
 
-  filteredMembers = computed(() => {
-    const term = this.searchTerm().trim().toLowerCase();
-    const branchId = this.branchFilter();
-    const status = this.statusFilter();
+  // Called from the search input's (ngModelChange) — updates the
+  // signal immediately (so the box itself feels responsive) but only
+  // triggers a reload once typing pauses, via searchInput$'s debounce
+  // wired up in ngOnInit.
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value);
+    this.searchInput$.next(value);
+  }
 
-    let members = this.members();
-    if (branchId) {
-      members = members.filter((m) => m.branchId === branchId);
-    }
-    if (status) {
-      members = members.filter((m) => m.status === status);
-    }
-    if (!term) {
-      return members;
-    }
-    return members.filter((m) =>
-      [m.name, m.phone, m.email, m.branch?.location].filter(Boolean).some((v) => v!.toLowerCase().includes(term)),
-    );
-  });
+  onBranchFilterChange(branchId: string | null): void {
+    this.branchFilter.set(branchId);
+    this.page.set(1);
+    this.loadMembers();
+  }
+
+  onStatusFilterChange(status: MemberStatus | null): void {
+    this.statusFilter.set(status);
+    this.page.set(1);
+    this.loadMembers();
+  }
+
+  onPageChange(event: PaginatorState): void {
+    this.page.set((event.page ?? 0) + 1); // PrimeNG's page is 0-based
+    this.loadMembers();
+  }
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
 
   // ---- Profile photo (Add/Edit dialog) — separate from the reactive
   // form since it's a file input + async compress step, not a plain
@@ -304,7 +350,7 @@ export class Members implements OnInit {
   // other member not already paired with someone.
   existingMemberOptions = computed(() => {
     const editingId = this.editingId();
-    return this.members()
+    return this.allMembers()
       .filter((m) => m.id !== editingId && !m.partnerMemberId)
       .map((m) => ({ label: `${m.name} (${m.phone})`, value: m.id }));
   });
@@ -354,7 +400,7 @@ export class Members implements OnInit {
 
     if (this.partnerMode() === 'existing') {
       const partnerId = this.partnerMemberIdValue();
-      const existing = this.members().find((m) => m.id === partnerId);
+      const existing = this.allMembers().find((m) => m.id === partnerId);
       if (!existing) {
         return null;
       }
@@ -381,13 +427,16 @@ export class Members implements OnInit {
     this.loadOffers();
     this.loadEmployees();
     this.loadMembers();
+    this.loadAllMembers();
+
+    this.searchInput$.pipe(debounceTime(350), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.page.set(1);
+      this.loadMembers();
+    });
   }
 
   loadBranches(): void {
-    this.branchApi.list().subscribe({
-      next: (branches) => this.branches.set(branches.filter((b) => b.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('members.loadBranchesError')),
-    });
+    this.branchStore.ensureLoaded();
   }
 
   loadPlans(): void {
@@ -399,21 +448,26 @@ export class Members implements OnInit {
   }
 
   loadEmployees(): void {
-    this.employeeApi.list().subscribe({ next: (employees) => this.employees.set(employees) });
+    this.employeeStore.ensureLoaded();
   }
 
   loadMembers(): void {
-    this.loading.set(true);
-    this.memberApi.list().subscribe({
-      next: (members) => {
-        this.loading.set(false);
-        this.members.set(members);
+    this.memberStore.load(
+      {
+        branchId: this.branchFilter(),
+        status: this.statusFilter(),
+        search: this.searchTerm().trim() || undefined,
+        page: this.page(),
+        pageSize: this.pageSize,
       },
-      error: () => {
-        this.loading.set(false);
-        this.toast.error(this.i18n.t('members.loadError'));
-      },
-    });
+      () => this.toast.error(this.i18n.t('members.loadError')),
+    );
+  }
+
+  // Fetches the (capped) full org roster for the couple-partner picker —
+  // see the `allMembers` doc comment above.
+  loadAllMembers(): void {
+    this.memberStore.loadAll();
   }
 
   openCreate(): void {
@@ -544,6 +598,7 @@ export class Members implements OnInit {
         this.dialogVisible.set(false);
         this.toast.success(this.i18n.t(editingId ? 'members.updatedSuccess' : 'members.createdSuccess'));
         this.loadMembers();
+        this.loadAllMembers();
       },
       error: (err) => {
         this.saving.set(false);
@@ -617,6 +672,31 @@ export class Members implements OnInit {
       return { entry, index: idx, weightDelta, bmiDelta };
     });
   });
+
+  // Memoized per-page view model for the member cards — previously the
+  // template called age()/memberPrice()/latestEntry()/orDash() directly
+  // per member, per change-detection cycle (harmless at small scale, but
+  // real waste now that this page is doing more re-renders with
+  // pagination/search). This computed only re-derives when `members()`
+  // itself changes (i.e. once per page load), and the template reads
+  // the precomputed labels instead of calling methods inline.
+  memberCards = computed(() =>
+    this.members().map((member) => {
+      const latest = this.latestEntry(member);
+      return {
+        member,
+        ageLabel: this.age(member),
+        priceLabel: this.memberPrice(member),
+        latest,
+        branchLabel: this.orDash(member.branch?.location),
+        planLabel: this.orDash(member.plan?.name),
+        emailLabel: this.orDash(member.email),
+        sourceLabel: this.orDash(member.source),
+        paymentModeLabel: this.orDash(member.paymentMode),
+        bloodGroupLabel: this.orDash(member.bloodGroup),
+      };
+    }),
+  );
 
   age(member: Member): string {
     if (!member.dateOfBirth) {
@@ -755,8 +835,12 @@ export class Members implements OnInit {
         this.progressLoading.set(false);
         this.progressHistory.set(entries);
         // Keep the member (and its embedded "latest" entry) in sync too,
-        // in case this history load followed a brand-new check-in.
-        const refreshed = this.members().find((m) => m.id === memberId);
+        // in case this history load followed a brand-new check-in. The
+        // member being viewed is usually on the current page, but under
+        // pagination it may not be — fall back to the full roster fetch,
+        // and if neither has it (edge case), just leave progressMember
+        // as-is rather than clearing it.
+        const refreshed = this.members().find((m) => m.id === memberId) ?? this.allMembers().find((m) => m.id === memberId);
         if (refreshed) {
           this.progressMember.set(refreshed);
         }

@@ -19,7 +19,7 @@ import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
 import { Expense, ExpenseApiService, ExpensePayload } from '../../../core/expenses/expense-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_ICON, ExpenseCategory } from '../../../core/constants/expense-categories';
 import { currencySymbol } from '../../../core/constants/currencies';
 import { ThemeService } from '../../../core/theme/theme.service';
@@ -59,7 +59,7 @@ import { ThemeService } from '../../../core/theme/theme.service';
 export class Expenses implements OnInit {
   private fb = inject(FormBuilder);
   private expenseApi = inject(ExpenseApiService);
-  private branchApi = inject(BranchApiService);
+  private branchStore = inject(BranchStore);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private i18n = inject(TranslationService);
@@ -69,7 +69,8 @@ export class Expenses implements OnInit {
   canWrite = computed(() => this.permissions.canWrite('EXPENSES'));
 
   expenses = signal<Expense[]>([]);
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; full list including INACTIVE, same as before.
+  branches = this.branchStore.branches;
   loading = signal(false);
   saving = signal(false);
 
@@ -226,7 +227,7 @@ export class Expenses implements OnInit {
   }
 
   ngOnInit(): void {
-    this.branchApi.list().subscribe({ next: (branches) => this.branches.set(branches) });
+    this.branchStore.ensureLoaded();
     this.loadExpenses();
   }
 

@@ -20,10 +20,10 @@ import { TranslationService } from '../../../core/i18n/translation.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Lead, LeadActivity, LeadApiService, LeadPayload, LeadStatus } from '../../../core/leads/lead-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { LEAD_SOURCES } from '../../../core/constants/lead-sources';
 import { PermissionsService } from '../../../core/roles/permissions.service';
-import { Employee, EmployeeApiService } from '../../../core/employees/employee-api.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
 import { AuthApiService, MeResponse } from '../../../core/auth/auth-api.service';
 
 type StatusSeverity = 'info' | 'success' | 'warn' | 'danger' | 'secondary';
@@ -72,8 +72,8 @@ const STATUS_SEVERITY: Record<LeadStatus, StatusSeverity> = {
 export class Leads implements OnInit {
   private fb = inject(FormBuilder);
   private leadApi = inject(LeadApiService);
-  private branchApi = inject(BranchApiService);
-  private employeeApi = inject(EmployeeApiService);
+  private branchStore = inject(BranchStore);
+  private employeeStore = inject(EmployeeStore);
   private authApi = inject(AuthApiService);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
@@ -94,11 +94,13 @@ export class Leads implements OnInit {
   canReadEmployees = computed(() => this.permissions.canRead('EMPLOYEES'));
 
   leads = signal<Lead[]>([]);
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; this page only ever wants ACTIVE branches.
+  branches = this.branchStore.activeBranches;
   // Real employees to assign a lead to — "Assigned to" used to be a
   // free-text name field; now it's a real link to an Employee record
   // (see Lead.assignedToEmployeeId on the backend).
-  employees = signal<Employee[]>([]);
+  // Shared cache — see EmployeeStore; this page only ever wants ACTIVE employees.
+  employees = this.employeeStore.activeEmployees;
   // The logged-in user's own profile (name, branch, linked employee) —
   // used to default/lock "branch" and "assigned to" to themselves when
   // they can't browse the full Branches/Employees lists.
@@ -311,10 +313,7 @@ export class Leads implements OnInit {
     if (!this.canReadBranches()) {
       return;
     }
-    this.branchApi.list().subscribe({
-      next: (branches) => this.branches.set(branches.filter((b) => b.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('leads.loadBranchesError')),
-    });
+    this.branchStore.ensureLoaded();
   }
 
   loadEmployees(): void {
@@ -323,10 +322,7 @@ export class Leads implements OnInit {
     if (!this.canReadEmployees()) {
       return;
     }
-    this.employeeApi.list().subscribe({
-      next: (employees) => this.employees.set(employees.filter((e) => e.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('leads.loadEmployeesError')),
-    });
+    this.employeeStore.ensureLoaded();
   }
 
   loadLeads(): void {

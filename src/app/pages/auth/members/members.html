@@ -18,7 +18,7 @@
       type="text"
       [placeholder]="'members.searchPlaceholder' | translate"
       [ngModel]="searchTerm()"
-      (ngModelChange)="searchTerm.set($event)"
+      (ngModelChange)="onSearchChange($event)"
       class="search-field"
     />
     <div class="toolbar-right">
@@ -27,7 +27,7 @@
         optionLabel="label"
         optionValue="value"
         [ngModel]="branchFilter()"
-        (ngModelChange)="branchFilter.set($event)"
+        (ngModelChange)="onBranchFilterChange($event)"
         [placeholder]="'members.allBranches' | translate"
         styleClass="filter-select"
       />
@@ -36,7 +36,7 @@
         optionLabel="label"
         optionValue="value"
         [ngModel]="statusFilter()"
-        (ngModelChange)="statusFilter.set($event)"
+        (ngModelChange)="onStatusFilterChange($event)"
         [placeholder]="'members.allStatuses' | translate"
         styleClass="filter-select"
       />
@@ -45,7 +45,7 @@
           {{ 'common.clearFilters' | translate }}
         </button>
       }
-      <span class="result-count">{{ filteredMembers().length }} / {{ members().length }}</span>
+      <span class="result-count">{{ members().length }} / {{ total() }}</span>
       <div class="view-toggle">
         <button
           pButton
@@ -83,7 +83,8 @@
         <p-card styleClass="member-card member-card-skeleton"></p-card>
       }
     } @else {
-      @for (member of filteredMembers(); track member.id) {
+      @for (card of memberCards(); track card.member.id) {
+        @let member = card.member;
         <p-card styleClass="member-card" [class.member-card-inactive]="member.status === 'INACTIVE'">
           <div class="member-card-header">
             @if (member.photoUrl) {
@@ -109,11 +110,11 @@
           <div class="member-card-body">
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-building"></i> {{ 'members.branchLabel' | translate }}</span>
-              <span class="member-card-value">{{ orDash(member.branch?.location) }}</span>
+              <span class="member-card-value">{{ card.branchLabel }}</span>
             </div>
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-tag"></i> {{ 'members.planLabel' | translate }}</span>
-              <span class="member-card-value">{{ orDash(member.plan?.name) }}</span>
+              <span class="member-card-value">{{ card.planLabel }}</span>
             </div>
             @if (member.offer) {
               <div class="member-card-row">
@@ -129,7 +130,7 @@
             </div>
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-wallet"></i> {{ 'members.priceLabel' | translate }}</span>
-              <span class="member-card-value member-card-price">{{ memberPrice(member) }}</span>
+              <span class="member-card-value member-card-price">{{ card.priceLabel }}</span>
             </div>
             @if (member.assignedTrainerEmployee) {
               <div class="member-card-row">
@@ -140,26 +141,26 @@
             @if (viewMode() === 'list') {
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-envelope"></i> {{ 'members.emailLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.email) }}</span>
+                <span class="member-card-value">{{ card.emailLabel }}</span>
               </div>
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-sitemap"></i> {{ 'members.sourceLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.source) }}</span>
+                <span class="member-card-value">{{ card.sourceLabel }}</span>
               </div>
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-money-bill"></i> {{ 'members.paymentModeLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.paymentMode) }}</span>
+                <span class="member-card-value">{{ card.paymentModeLabel }}</span>
               </div>
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-heart"></i> {{ 'members.bloodGroupLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.bloodGroup) }}</span>
+                <span class="member-card-value">{{ card.bloodGroupLabel }}</span>
               </div>
             }
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-user"></i> {{ 'members.ageLabel' | translate }}</span>
-              <span class="member-card-value">{{ age(member) }}</span>
+              <span class="member-card-value">{{ card.ageLabel }}</span>
             </div>
-            @if (latestEntry(member); as latest) {
+            @if (card.latest; as latest) {
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-chart-line"></i> {{ 'members.bmiLabel' | translate }}</span>
                 <span class="member-card-value">
@@ -218,6 +219,15 @@
       }
     }
   </div>
+
+  @if (!loading() && total() > pageSize) {
+    <p-paginator
+      [first]="(page() - 1) * pageSize"
+      [rows]="pageSize"
+      [totalRecords]="total()"
+      (onPageChange)="onPageChange($event)"
+    ></p-paginator>
+  }
 
   <p-dialog
     [(visible)]="dialogVisible"

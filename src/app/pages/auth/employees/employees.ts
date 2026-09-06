@@ -29,7 +29,8 @@ import {
   EmploymentStatus,
   GeneratedLogin,
 } from '../../../core/employees/employee-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { TokenStorage } from '../../../core/auth/token-storage.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
 
@@ -75,7 +76,8 @@ const STATUS_SEVERITY: Record<EmploymentStatus, StatusSeverity> = {
 export class Employees implements OnInit {
   private fb = inject(FormBuilder);
   private employeeApi = inject(EmployeeApiService);
-  private branchApi = inject(BranchApiService);
+  private employeeStore = inject(EmployeeStore);
+  private branchStore = inject(BranchStore);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private i18n = inject(TranslationService);
@@ -93,9 +95,14 @@ export class Employees implements OnInit {
   // this just keeps the UI from offering actions that would 403.
   canWrite = computed(() => this.permissions.canWrite('EMPLOYEES'));
 
-  employees = signal<Employee[]>([]);
-  branches = signal<Branch[]>([]);
-  loading = signal(false);
+  // Reads straight from the shared store now instead of keeping a
+  // local copy — this page is also the one place that mutates employee
+  // data, so its own load/reload calls (below) keep the store current
+  // for every other page reading it too (Attendance, Leads, Members).
+  employees = this.employeeStore.employees;
+  // Shared cache — see BranchStore; this page only ever wants ACTIVE branches.
+  branches = this.branchStore.activeBranches;
+  loading = this.employeeStore.loading;
   saving = signal(false);
   savingNote = signal(false);
 
@@ -244,24 +251,11 @@ export class Employees implements OnInit {
   }
 
   loadBranches(): void {
-    this.branchApi.list().subscribe({
-      next: (branches) => this.branches.set(branches.filter((b) => b.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('employees.loadBranchesError')),
-    });
+    this.branchStore.ensureLoaded();
   }
 
   loadEmployees(): void {
-    this.loading.set(true);
-    this.employeeApi.list().subscribe({
-      next: (employees) => {
-        this.loading.set(false);
-        this.employees.set(employees);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.error(this.i18n.t('employees.loadError'));
-      },
-    });
+    this.employeeStore.reload(() => this.toast.error(this.i18n.t('employees.loadError')));
   }
 
   // ---- Create ----

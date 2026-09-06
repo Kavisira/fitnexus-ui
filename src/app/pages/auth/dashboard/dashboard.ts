@@ -20,7 +20,7 @@ import {
   OpsSummary,
 } from '../../../core/dashboard/dashboard-api.service';
 import { currencySymbol } from '../../../core/constants/currencies';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { TokenStorage } from '../../../core/auth/token-storage.service';
 import {
   LeaveApiService,
@@ -73,7 +73,7 @@ const CHART_COLORS = [PALETTE.blue, PALETTE.purple, PALETTE.green, PALETTE.amber
 })
 export class Dashboard implements OnInit {
   private dashboardApi = inject(DashboardApiService);
-  private branchApi = inject(BranchApiService);
+  private branchStore = inject(BranchStore);
   private leaveApi = inject(LeaveApiService);
   private tokenStorage = inject(TokenStorage);
   private i18n = inject(TranslationService);
@@ -144,7 +144,8 @@ export class Dashboard implements OnInit {
   // to choose from (a staff login is already pinned to their own
   // branch server-side regardless, so this only ever matters for an
   // Owner/Branch Manager looking across the whole org). ----
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; full list including INACTIVE, same as before.
+  branches = this.branchStore.branches;
   selectedBranchId = signal<string | null>(null);
   showBranchFilter = computed(() => this.isAnalytics() && this.branches().length > 1);
   branchOptions = computed(() => [
@@ -172,7 +173,7 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    this.branchApi.list().subscribe({ next: (branches) => this.branches.set(branches) });
+    this.branchStore.ensureLoaded();
     this.load();
     if (!this.isOwnerAccount()) {
       this.loadLeaveData();

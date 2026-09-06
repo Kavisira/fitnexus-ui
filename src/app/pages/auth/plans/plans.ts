@@ -19,7 +19,7 @@ import { TranslationService } from '../../../core/i18n/translation.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Plan, PlanApiService, PlanDuration, PlanPayload } from '../../../core/plans/plan-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
 import { currencySymbol } from '../../../core/constants/currencies';
 
@@ -61,7 +61,7 @@ import { currencySymbol } from '../../../core/constants/currencies';
 export class Plans implements OnInit {
   private fb = inject(FormBuilder);
   private planApi = inject(PlanApiService);
-  private branchApi = inject(BranchApiService);
+  private branchStore = inject(BranchStore);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private i18n = inject(TranslationService);
@@ -75,7 +75,8 @@ export class Plans implements OnInit {
   currencySymbol = currencySymbol;
 
   plans = signal<Plan[]>([]);
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; this page only ever wants ACTIVE branches.
+  branches = this.branchStore.activeBranches;
   loading = signal(false);
   saving = signal(false);
 
@@ -171,10 +172,7 @@ export class Plans implements OnInit {
   }
 
   loadBranches(): void {
-    this.branchApi.list().subscribe({
-      next: (branches) => this.branches.set(branches.filter((b) => b.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('plans.loadBranchesError')),
-    });
+    this.branchStore.ensureLoaded();
   }
 
   loadPlans(): void {
