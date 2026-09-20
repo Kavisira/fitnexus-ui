@@ -8,5 +8,5 @@
 // `api` prefix in main.ts.
 export const environment = {
   production: true,
-  apiBaseUrl: 'fitnexus-api-pqj7.vercel.app', //'https://fitnexus-api.onrender.com/api', 
+  apiBaseUrl: 'https://fitnexus-api-pqj7.vercel.app/api',
 };
