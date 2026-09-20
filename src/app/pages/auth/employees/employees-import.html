@@ -1,0 +1,142 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: step() === 'review' || step() === 'result' ? '85vw' : '32rem' }"
+  [maximizable]="step() === 'review'"
+  header="Import Employees from CSV"
+  (onHide)="close()"
+>
+  <!-- Step 1: pick branch -->
+  @if (step() === 'branch') {
+    <div class="import-step">
+      <p class="import-hint">Choose the branch these employees will be imported into. The CSV file itself doesn't need a Branch column.</p>
+      <label class="import-label" for="import-branch">Branch</label>
+      <p-select
+        inputId="import-branch"
+        [options]="branchOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedBranchId"
+        placeholder="Select a branch"
+        [style]="{ width: '100%' }"
+      ></p-select>
+    </div>
+    <div class="import-actions">
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="close()"></p-button>
+      <p-button label="Continue" (onClick)="continueToUpload()"></p-button>
+    </div>
+  }
+
+  <!-- Step 2: download template / upload file -->
+  @if (step() === 'upload') {
+    <div class="import-step">
+      <p class="import-hint">Download the CSV template, fill in one row per employee, then upload it here.</p>
+      <p-button label="Download CSV template" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="downloadTemplate()"></p-button>
+
+      <div class="import-upload-row">
+        <label class="import-upload-btn" [class.import-upload-btn--disabled]="uploading()">
+          <i class="pi pi-upload"></i>
+          <span>{{ uploading() ? 'Reading file…' : 'Choose CSV file' }}</span>
+          <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" [disabled]="uploading()" hidden />
+        </label>
+      </div>
+      <p class="import-hint import-hint--muted">Up to 1000 rows per file. Logins aren't created for imported employees — create one individually afterward if needed.</p>
+    </div>
+    <div class="import-actions">
+      <p-button label="Back" severity="secondary" [text]="true" (onClick)="step.set('branch')"></p-button>
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="close()"></p-button>
+    </div>
+  }
+
+  <!-- Step 3: review parsed rows, deselect any unwanted, save -->
+  @if (step() === 'review') {
+    <div class="import-step import-step--review">
+      <div class="import-summary">
+        <span>{{ rows().length }} rows parsed, {{ selectedRows().length }} selected</span>
+        @if (errorRowCount() > 0) {
+          <p-tag severity="danger" [value]="errorRowCount() + ' row(s) with errors — will be skipped'"></p-tag>
+        }
+      </div>
+
+      <p-table
+        [value]="rows()"
+        [(selection)]="selectedRows"
+        dataKey="rowNumber"
+        [paginator]="true"
+        [rows]="20"
+        [rowsPerPageOptions]="[20, 50, 100]"
+        [scrollable]="true"
+        scrollHeight="50vh"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template #header>
+          <tr>
+            <th style="width: 3rem"><p-table-header-checkbox></p-table-header-checkbox></th>
+            <th>#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Join Date</th>
+            <th>Basic Pay</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr [class.import-row--error]="row.errors.length > 0">
+            <td>
+              <p-table-checkbox [value]="row"></p-table-checkbox>
+            </td>
+            <td>{{ row.rowNumber }}</td>
+            <td>{{ row.data.name }}</td>
+            <td>{{ row.data.phone }}</td>
+            <td>{{ row.data.email }}</td>
+            <td>{{ row.data.role }}</td>
+            <td>{{ row.data.joinDate }}</td>
+            <td>{{ row.data.basicPay }}</td>
+            <td>
+              @if (row.errors.length > 0) {
+                <p-tag severity="danger" value="Error"></p-tag>
+              } @else {
+                <p-tag severity="success" value="Ready"></p-tag>
+              }
+            </td>
+          </tr>
+          @if (row.errors.length > 0) {
+            <tr class="import-row--error">
+              <td></td>
+              <td colspan="8">
+                <p-message severity="error" styleClass="w-full">{{ row.errors.join('; ') }}</p-message>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="import-actions">
+      <p-button label="Back" severity="secondary" [text]="true" (onClick)="step.set('upload')"></p-button>
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="close()"></p-button>
+      <p-button label="Save {{ selectedRows().length }} employee(s)" [disabled]="!canSave()" [loading]="committing()" (onClick)="save()"></p-button>
+    </div>
+  }
+
+  <!-- Step 4: result -->
+  @if (step() === 'result') {
+    <div class="import-step">
+      <p-message severity="success" styleClass="w-full">{{ successCount() }} employee(s) imported successfully.</p-message>
+      @if (failureCount() > 0) {
+        <p-message severity="error" styleClass="w-full">{{ failureCount() }} employee(s) failed to import.</p-message>
+        <ul class="import-result-errors">
+          @for (r of results(); track r.rowNumber) {
+            @if (!r.success) {
+              <li>Row {{ r.rowNumber }}: {{ r.error }}</li>
+            }
+          }
+        </ul>
+      }
+    </div>
+    <div class="import-actions">
+      <p-button label="Done" (onClick)="finish()"></p-button>
+    </div>
+  }
+</p-dialog>

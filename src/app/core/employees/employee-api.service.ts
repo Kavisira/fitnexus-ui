@@ -4,8 +4,30 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config/api.config';
 
-export type EmployeeRole = 'MANAGER' | 'TRAINER' | 'FRONT_DESK' | 'OTHER';
+// Free-form now — matched against the org's managed job title list
+// (see JobTitle below) rather than a fixed set of values.
+export type EmployeeRole = string;
 export type EmploymentStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface JobTitle {
+  id: string;
+  organizationId: string;
+  name: string;
+  createdAt: string;
+}
+
+export type SalaryComponentType = 'EARNING' | 'DEDUCTION';
+
+// One configurable line in an employee's salary structure — always a
+// percentage of basicPay (see the backend SalaryComponent model
+// comment for why: no per-component base, no shared template by role
+// or branch — every employee's structure is entirely their own).
+export interface SalaryComponent {
+  id?: string;
+  name: string;
+  type: SalaryComponentType;
+  percent: number | string;
+}
 
 export interface EmployeeActivity {
   id: string;
@@ -35,6 +57,9 @@ export interface Employee {
   activities?: EmployeeActivity[];
   // Present once this employee has a login (see EmployeesService).
   user?: { id: string; email: string } | null;
+  // Only present on the single-employee detail response (findOne) — see
+  // SalaryComponent above.
+  salaryComponents?: SalaryComponent[];
 }
 
 export interface EmployeePayload {
@@ -51,6 +76,9 @@ export interface EmployeePayload {
   // "Create login" checkbox on the create form — see EmployeesService
   // for the username/password auto-generation this triggers.
   createLogin?: boolean;
+  // Full replace-set on every save — omit on create to start blank, omit
+  // on update to leave the existing list untouched, send [] to clear it.
+  components?: SalaryComponent[];
 }
 
 export interface GeneratedLogin {
@@ -68,6 +96,31 @@ export interface EmployeeListFilters {
   role?: string | null;
   status?: string | null;
   search?: string | null;
+}
+
+// ---- Bulk import (CSV) — see the Employees page's import dialog. ----
+
+export interface ImportedEmployeeRowData {
+  name: string;
+  phone: string;
+  email?: string;
+  role?: string;
+  joinDate?: string;
+  dateOfBirth?: string;
+  basicPay?: string;
+}
+
+export interface ImportedEmployeeRow {
+  rowNumber: number;
+  data: ImportedEmployeeRowData;
+  errors: string[];
+}
+
+export interface EmployeeImportCommitResultRow {
+  rowNumber: number;
+  success: boolean;
+  employeeId?: string;
+  error?: string;
 }
 
 /** Thin wrapper over the NestJS `/api/employees` endpoints — mirrors
@@ -128,5 +181,25 @@ export class EmployeeApiService {
 
   addActivity(id: string, note: string): Observable<EmployeeActivity> {
     return this.http.post<EmployeeActivity>(`${this.base}/${id}/activities`, { note });
+  }
+
+  // ---- Job titles (managed per-org list backing the role dropdown) ----
+
+  listJobTitles(): Observable<JobTitle[]> {
+    return this.http.get<JobTitle[]>(`${this.base}/job-titles`);
+  }
+
+  createJobTitle(name: string): Observable<JobTitle> {
+    return this.http.post<JobTitle>(`${this.base}/job-titles`, { name });
+  }
+
+  // ---- Bulk import (CSV) ----
+
+  parseImportCsv(branchId: string, csvContent: string): Observable<{ rows: ImportedEmployeeRow[] }> {
+    return this.http.post<{ rows: ImportedEmployeeRow[] }>(`${this.base}/import/parse`, { branchId, csvContent });
+  }
+
+  commitImport(rows: EmployeePayload[]): Observable<{ results: EmployeeImportCommitResultRow[] }> {
+    return this.http.post<{ results: EmployeeImportCommitResultRow[] }>(`${this.base}/import/commit`, { rows });
   }
 }

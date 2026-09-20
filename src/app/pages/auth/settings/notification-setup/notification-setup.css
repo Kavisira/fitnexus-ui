@@ -5,16 +5,6 @@
   max-width: 42rem;
 }
 
-.page-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
 ::ng-deep .setup-card .p-card-body {
   display: flex;
   flex-direction: column;

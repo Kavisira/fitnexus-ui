@@ -1,30 +1,4 @@
 <div class="dashboard-page">
-  <div class="page-header">
-    <div>
-      <h1>{{ 'dashboard.title' | translate }}</h1>
-      <p class="subtitle">
-        @if (analytics(); as org) {
-          {{ org.organization.name }} · {{ 'dashboard.subtitle' | translate }}
-        } @else {
-          {{ 'dashboard.subtitle' | translate }}
-        }
-      </p>
-    </div>
-    @if (showBranchFilter()) {
-      <div class="branch-filter">
-        <label>{{ 'dashboard.branchFilterLabel' | translate }}</label>
-        <p-select
-          [options]="branchOptions()"
-          optionLabel="label"
-          optionValue="value"
-          [ngModel]="selectedBranchId()"
-          (ngModelChange)="onBranchChange($event)"
-          styleClass="branch-filter-select"
-        />
-      </div>
-    }
-  </div>
-
   @if (loading()) {
     <p class="loading-text">{{ 'common.loading' | translate }}</p>
   } @else if (errorMessage()) {
@@ -32,12 +6,27 @@
   } @else if (analytics(); as data) {
     <!-- ---- Owner / Branch Manager: full analytics, split into tabs ---- -->
 
-    <div class="dash-tab-bar">
-      @for (tab of tabs(); track tab.id) {
-        <button type="button" class="dash-tab-btn" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
-          <i class="pi pi-{{ tab.icon }}"></i>
-          {{ tab.labelKey | translate }}
-        </button>
+    <div class="dash-tab-row">
+      <div class="dash-tab-bar">
+        @for (tab of tabs(); track tab.id) {
+          <button type="button" class="dash-tab-btn" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
+            <i class="pi pi-{{ tab.icon }}"></i>
+            {{ tab.labelKey | translate }}
+          </button>
+        }
+      </div>
+      @if (showBranchFilter()) {
+        <div class="branch-filter">
+          <label>{{ 'dashboard.branchFilterLabel' | translate }}</label>
+          <p-select
+            [options]="branchOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedBranchId()"
+            (ngModelChange)="onBranchChange($event)"
+            styleClass="branch-filter-select"
+          />
+        </div>
       }
     </div>
 
@@ -241,64 +230,6 @@
         </div>
       </div>
     }
-
-    @if (activeTab() === 'employeePortal') {
-      <div class="ep-balance-grid">
-        @for (row of leaveBalance(); track row.leaveType) {
-          <div class="ep-balance-card">
-            <span class="ep-balance-type">{{ leaveTypeLabel(row.leaveType) }}</span>
-            <span class="ep-balance-value">{{ row.balance }}</span>
-            <span class="ep-balance-label">{{ 'dashboard.leave.daysAvailable' | translate }}</span>
-          </div>
-        }
-      </div>
-
-      <div class="ep-header">
-        <h2>{{ 'dashboard.leave.myRequestsTitle' | translate }}</h2>
-        <button pButton type="button" (click)="openApplyDialog()"><i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'dashboard.leave.apply' | translate }}</button>
-      </div>
-
-      @if (leaveLoading()) {
-        <p class="loading-text">{{ 'common.loading' | translate }}</p>
-      } @else if (!myLeaveRequests().length) {
-        <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
-      } @else {
-        <div class="ep-table-wrap">
-          <table class="ep-table">
-            <thead>
-              <tr>
-                <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
-                <th>{{ 'leaveManagement.dates' | translate }}</th>
-                <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
-                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (r of myLeaveRequests(); track r.id) {
-                <tr>
-                  <td>{{ leaveTypeLabel(r.leaveType) }}</td>
-                  <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
-                  <td class="col-num">{{ r.days }}</td>
-                  <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
-                  <td>
-                    @if (r.status === 'PENDING') {
-                      <button
-                        pButton
-                        type="button"
-                        class="p-button-sm p-button-text p-button-danger"
-                        [loading]="cancellingId() === r.id"
-                        (click)="cancelLeaveRequest(r.id)"
-                      >{{ 'dashboard.leave.cancel' | translate }}</button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    }
   } @else if (ops(); as data) {
     <!-- ---- Trainer / Front Desk: day-to-day ops, no money figures ---- -->
 
@@ -371,113 +302,7 @@
         </div>
       </div>
     }
-
-    @if (activeTab() === 'employeePortal') {
-      <div class="ep-balance-grid">
-        @for (row of leaveBalance(); track row.leaveType) {
-          <div class="ep-balance-card">
-            <span class="ep-balance-type">{{ leaveTypeLabel(row.leaveType) }}</span>
-            <span class="ep-balance-value">{{ row.balance }}</span>
-            <span class="ep-balance-label">{{ 'dashboard.leave.daysAvailable' | translate }}</span>
-          </div>
-        }
-      </div>
-
-      <div class="ep-header">
-        <h2>{{ 'dashboard.leave.myRequestsTitle' | translate }}</h2>
-        <button pButton type="button" (click)="openApplyDialog()"><i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'dashboard.leave.apply' | translate }}</button>
-      </div>
-
-      @if (leaveLoading()) {
-        <p class="loading-text">{{ 'common.loading' | translate }}</p>
-      } @else if (!myLeaveRequests().length) {
-        <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
-      } @else {
-        <div class="ep-table-wrap">
-          <table class="ep-table">
-            <thead>
-              <tr>
-                <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
-                <th>{{ 'leaveManagement.dates' | translate }}</th>
-                <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
-                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (r of myLeaveRequests(); track r.id) {
-                <tr>
-                  <td>{{ leaveTypeLabel(r.leaveType) }}</td>
-                  <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
-                  <td class="col-num">{{ r.days }}</td>
-                  <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
-                  <td>
-                    @if (r.status === 'PENDING') {
-                      <button
-                        pButton
-                        type="button"
-                        class="p-button-sm p-button-text p-button-danger"
-                        [loading]="cancellingId() === r.id"
-                        (click)="cancelLeaveRequest(r.id)"
-                      >{{ 'dashboard.leave.cancel' | translate }}</button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    }
   }
-
-  <p-dialog
-    [visible]="applyDialogVisible()"
-    (visibleChange)="closeApplyDialog()"
-    [modal]="true"
-    [dismissableMask]="true"
-    [style]="{ width: '28rem' }"
-    [header]="'dashboard.leave.applyTitle' | translate"
-  >
-    <div class="ep-apply-form">
-      <label>{{ 'leaveManagement.typeColumn' | translate }}</label>
-      <p-select
-        [options]="leaveTypeOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="applyLeaveType()"
-        (ngModelChange)="applyLeaveType.set($event)"
-      />
-
-      <label>{{ 'dashboard.leave.startDate' | translate }}</label>
-      <p-datepicker
-        [ngModel]="applyStartDate()"
-        (ngModelChange)="applyStartDate.set($event)"
-        dateFormat="M d, yy"
-        [showIcon]="true"
-      />
-
-      <label>{{ 'dashboard.leave.endDate' | translate }}</label>
-      <p-datepicker
-        [ngModel]="applyEndDate()"
-        (ngModelChange)="applyEndDate.set($event)"
-        dateFormat="M d, yy"
-        [showIcon]="true"
-      />
-
-      <label>{{ 'dashboard.leave.reasonLabel' | translate }}</label>
-      <textarea pTextarea rows="3" class="ep-apply-textarea" [ngModel]="applyReason()" (ngModelChange)="applyReason.set($event)"></textarea>
-
-      @if (applyError()) {
-        <p class="ep-apply-error">{{ applyError() }}</p>
-      }
-
-      <div class="ep-apply-actions">
-        <button pButton type="button" class="p-button-text" (click)="closeApplyDialog()">{{ 'common.cancel' | translate }}</button>
-        <button pButton type="button" [loading]="applySaving()" (click)="submitLeaveApplication()">{{ 'dashboard.leave.submit' | translate }}</button>
-      </div>
-    </div>
-  </p-dialog>
 
   <p-dialog
     [visible]="!!expandedChart()"

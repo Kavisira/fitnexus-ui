@@ -1,0 +1,363 @@
+.topnav {
+  /* Sticky, directly under the header — the header is already sticky
+     (see header.css), so this stacks right below it and both hold in
+     place while only .app-content scrolls (see layout.css). */
+  position: sticky;
+  top: 0;
+  z-index: 39;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* Bold, solid dark bar (approved mockup: no gradient) — same color in
+     light and dark app modes so the nav reads as one consistent surface,
+     with a subtle glowing seam along the bottom edge for depth. */
+  background: #0f172a;
+  border-bottom: none;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.35);
+}
+
+.topnav::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.55), transparent);
+}
+
+:host-context(.my-app-dark) .topnav {
+  background: #0f172a;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Three-column row: an empty spacer on the left balances the actions
+   cluster on the right, so the nav-list's own flex centering (below)
+   lands it in the true visual middle of the bar, not just the middle
+   of the leftover space after the icons. */
+.topnav-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
+.topnav-spacer {
+  min-width: 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  /* Kept intentionally short — this strip now costs every page the same
+     vertical space it used to save horizontally, so it stays a single
+     compact row instead of a taller, more spacious bar. Grouping the
+     13 real screens under 4 categories (+ Dashboard) is what keeps this
+     row from ever needing to scroll, even at laptop widths. */
+  padding: 0.35rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  grid-column: 2;
+}
+
+.topnav-actions {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-right: 0.85rem;
+}
+
+.profile-btn {
+  padding: 0.25rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.profile-caret {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* The profile / help buttons and theme toggle use PrimeNG's default
+   styling, designed for a light background — override so they read
+   clearly on this dark bar, same treatment the app header used to
+   give them before they moved here. */
+.topnav ::ng-deep .profile-btn,
+.topnav ::ng-deep .help-btn {
+  color: #ffffff !important;
+}
+
+.topnav ::ng-deep .profile-btn:hover,
+.topnav ::ng-deep .help-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.topnav ::ng-deep .theme-toggle-btn {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+.topnav ::ng-deep .theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.topnav ::ng-deep .p-avatar {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ---- Profile dropdown header block (email + role) ---- */
+
+::ng-deep .profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.75rem;
+}
+
+::ng-deep .profile-menu-header .p-avatar {
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+::ng-deep .profile-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+::ng-deep .profile-menu-email {
+  font-size: 0.85rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .profile-menu-role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+:host-context(.my-app-dark) .nav-link {
+  color: #94a3b8;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+:host-context(.my-app-dark) .nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+/* Active state: a glass-style pill (border + soft blue fill) plus a
+   glowing gradient-free underline in solid brand blue — bold without
+   blending colors in the bar itself, per the approved mockup. */
+.nav-link.active,
+.nav-link.active.nav-toggle {
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #ffffff;
+}
+
+:host-context(.my-app-dark) .nav-link.active {
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #ffffff;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: -0.35rem;
+  height: 2.5px;
+  border-radius: 3px 3px 0 0;
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.7);
+}
+
+.nav-link.active .nav-icon {
+  color: #ffffff;
+}
+
+:host-context(.my-app-dark) .nav-link.active .nav-icon {
+  color: #ffffff;
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.nav-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.nav-icon .pi {
+  font-size: 0.9rem;
+}
+
+.nav-label {
+  white-space: nowrap;
+}
+
+.nav-caret {
+  font-size: 0.7rem;
+  margin-left: 0.1rem;
+  transition: transform 0.15s ease;
+}
+
+.nav-toggle.open .nav-caret {
+  transform: rotate(180deg);
+}
+
+/* ---- Group dropdown: opens on hover (desktop) via (mouseenter) on the
+   whole .nav-item — including the dropdown itself, since it's a DOM
+   descendant, so moving the pointer down into it doesn't close it even
+   though it renders below the button — or on click/tap (touch, and any
+   device generally, since hover alone doesn't exist on touch). ---- */
+
+.submenu {
+  /* Flush against the button (top: 100%, no gap) rather than floating
+     a few pixels below it — a real gap there is dead space outside
+     every element's hit box, so moving the pointer straight down from
+     the button into the dropdown crosses it and fires (mouseleave) on
+     .nav-item before ever reaching the dropdown, closing it instantly.
+     The visual breathing room below the button comes from padding-top
+     instead, which is still "inside" the hoverable area. */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 0.35rem 0.35rem;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+  z-index: 41;
+}
+
+:host-context(.my-app-dark) .submenu {
+  background: #1f2937;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 7px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+:host-context(.my-app-dark) .submenu-link {
+  color: #94a3b8;
+}
+
+.submenu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.submenu-icon svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: currentColor;
+}
+
+.submenu-icon .pi {
+  font-size: 0.85rem;
+}
+
+.submenu-link:hover {
+  background: #f1f5f9;
+  color: #1d4ed8;
+}
+
+:host-context(.my-app-dark) .submenu-link:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
+.submenu-link.active {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+}
+
+:host-context(.my-app-dark) .submenu-link.active {
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+}
+
+@media (max-width: 768px) {
+  .nav-list {
+    padding: 0.3rem 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.78rem;
+  }
+}

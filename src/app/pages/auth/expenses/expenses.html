@@ -1,60 +1,29 @@
 <div class="expenses-page">
   <div class="page-header">
-    <div>
-      <h1>{{ 'common.expenses' | translate }}</h1>
-      <p class="subtitle">{{ 'expensesPage.subtitle' | translate }}</p>
-    </div>
-    @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
-        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
-        {{ 'expensesPage.addExpense' | translate }}
-      </button>
-    }
-  </div>
-
-  <div class="filters-bar">
-    <div class="filter-field">
-      <label>{{ 'expensesPage.branchFilterLabel' | translate }}</label>
-      <p-select
-        [options]="branchOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="branchFilter()"
-        (ngModelChange)="branchFilter.set($event); applyFilters()"
-        styleClass="filter-select"
-      />
-    </div>
-    <div class="filter-field">
-      <label>{{ 'expensesPage.categoryFilterLabel' | translate }}</label>
-      <p-select
-        [options]="categoryOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="categoryFilter()"
-        (ngModelChange)="categoryFilter.set($event); applyFilters()"
-        styleClass="filter-select"
-      />
-    </div>
-    <div class="filter-field">
-      <label>{{ 'expensesPage.fromLabel' | translate }}</label>
-      <p-datepicker
-        [ngModel]="fromFilter()"
-        (ngModelChange)="fromFilter.set($event); applyFilters()"
-        dateFormat="M d, yy"
-        [showIcon]="true"
-        [showButtonBar]="true"
-      />
-    </div>
-    <div class="filter-field">
-      <label>{{ 'expensesPage.toLabel' | translate }}</label>
-      <p-datepicker
-        [ngModel]="toFilter()"
-        (ngModelChange)="toFilter.set($event); applyFilters()"
-        dateFormat="M d, yy"
-        [showIcon]="true"
-        [showButtonBar]="true"
-      />
-    </div>
+    <app-filter-panel
+      [sections]="filterSections()"
+      [value]="filterPanelValue()"
+      (apply)="onFiltersApply($event)"
+      (clear)="clearFilters()"
+    ></app-filter-panel>
+    <p-datepicker
+      class="filter-date"
+      [ngModel]="fromFilter()"
+      (ngModelChange)="fromFilter.set($event); applyFilters()"
+      dateFormat="M d, yy"
+      [showIcon]="true"
+      [showButtonBar]="true"
+      [placeholder]="'expensesPage.fromLabel' | translate"
+    />
+    <p-datepicker
+      class="filter-date"
+      [ngModel]="toFilter()"
+      (ngModelChange)="toFilter.set($event); applyFilters()"
+      dateFormat="M d, yy"
+      [showIcon]="true"
+      [showButtonBar]="true"
+      [placeholder]="'expensesPage.toLabel' | translate"
+    />
     @if (hasActiveFilters()) {
       <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
         <i class="pi pi-filter-slash" style="margin-right: 0.35rem"></i>
@@ -62,10 +31,12 @@
       </button>
     }
 
-    <div class="total-chip">
-      <span class="total-chip-label">{{ 'expensesPage.totalLabel' | translate }}</span>
-      <span class="total-chip-value">{{ totalAmountLabel() }}</span>
-    </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'expensesPage.addExpense' | translate }}
+      </button>
+    }
   </div>
 
   <!-- @if (!loading() && expenses().length) {
@@ -150,6 +121,13 @@
         </tr>
       </ng-template>
     </p-table>
+  </div>
+
+  <div class="table-footer-bar">
+    <div class="total-chip">
+      <span class="total-chip-label">{{ 'expensesPage.totalLabel' | translate }}</span>
+      <span class="total-chip-value">{{ totalAmountLabel() }}</span>
+    </div>
   </div>
 
   <p-dialog

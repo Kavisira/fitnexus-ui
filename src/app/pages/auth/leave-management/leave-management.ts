@@ -1,56 +1,47 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
-import { DialogModule } from 'primeng/dialog';
-import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
-import { TokenStorage } from '../../../core/auth/token-storage.service';
-import {
-  LeaveApiService,
-  LeaveAllocationConfig,
-  LeaveRequest,
-  LeaveRole,
-  LeaveStatus,
-  LeaveType,
-} from '../../../core/leave/leave-api.service';
+import { LeaveApiService, LeaveAllocationConfig, LeaveRole, LeaveType } from '../../../core/leave/leave-api.service';
 
 const LEAVE_TYPES: LeaveType[] = ['CASUAL', 'SICK', 'EARNED'];
 const LEAVE_ROLES: LeaveRole[] = ['BRANCH_MANAGER', 'TRAINER', 'FRONT_DESK'];
 
+interface AllocationDraftEntry {
+  monthlyAllocation: number;
+  // Only meaningful (and only shown in the UI) for Earned — that's the
+  // one leave type that carries forward across years instead of
+  // expiring, so it's the only one with anything to cap. For Casual
+  // and Sick this always mirrors monthlyAllocation: they're wiped to 0
+  // every January 1st (see the backend's yearly expiry job) rather
+  // than being limited by a monthly cap.
+  carryForwardCap: number;
+}
+
 /**
- * The approver-facing half of leave management: reviewing a team's
- * leave requests (approve/reject) and, for whoever has LEAVES write
- * access, configuring how many days each role accrues per month. The
- * employee-facing half (my balance, apply, my history) lives on the
- * Dashboard's Employee Portal tab instead — this screen is reached via
- * the sidenav and gated the normal way by the LEAVES permission.
+ * Leave allocation setup. Casual and Sick are simple: one number —
+ * days credited per month — because unused balance is forfeited at
+ * the start of each year. Earned is different by policy (accrues
+ * across years, and in some organizations gets cashed out), so it
+ * alone gets a second field for the maximum balance it can carry
+ * forward to. Showing that second field only where it's actually
+ * meaningful keeps Casual/Sick as simple as possible without hiding a
+ * real distinction for Earned.
  */
 @Component({
   selector: 'app-leave-management',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    TagModule,
-    SelectModule,
-    DialogModule,
-    TextareaModule,
-    InputNumberModule,
-    TooltipModule,
-    TranslatePipe,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputNumberModule, TooltipModule, TranslatePipe],
   templateUrl: './leave-management.html',
   styleUrls: ['./leave-management.css'],
 })
@@ -58,56 +49,56 @@ export class LeaveManagement implements OnInit {
   private leaveApi = inject(LeaveApiService);
   private toast = inject(ToastService);
   private i18n = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
   private permissions = inject(PermissionsService);
-  private tokenStorage = inject(TokenStorage);
 
   canWrite = computed(() => this.permissions.canWrite('LEAVES'));
 
   leaveTypes = LEAVE_TYPES;
   leaveRoles = LEAVE_ROLES;
 
-  loading = signal(true);
-  requests = signal<LeaveRequest[]>([]);
-  statusFilter = signal<LeaveStatus | null>('PENDING');
-
-  statusFilterOptions = computed(() => [
-    { label: this.i18n.t('leaveManagement.allStatuses'), value: null },
-    { label: this.i18n.t('leaveManagement.status.PENDING'), value: 'PENDING' as LeaveStatus },
-    { label: this.i18n.t('leaveManagement.status.APPROVED'), value: 'APPROVED' as LeaveStatus },
-    { label: this.i18n.t('leaveManagement.status.REJECTED'), value: 'REJECTED' as LeaveStatus },
-    { label: this.i18n.t('leaveManagement.status.CANCELLED'), value: 'CANCELLED' as LeaveStatus },
-  ]);
-
-  decisionDialogVisible = signal(false);
-  decisionTarget = signal<LeaveRequest | null>(null);
-  decisionApprove = signal(true);
-  decisionNote = signal('');
-  deciding = signal(false);
-
-  // ---- Allocation config (Owner / anyone with LEAVES write) ----
-  // Edits are staged locally in configDraft and only sent to the
-  // server when "Save changes" is clicked (same pattern as Roles &
-  // Permissions) — saving row-by-row and reloading after every single
-  // save was wiping out whatever you'd already typed into the OTHER
-  // rows, which read as the cap "not clearing"/resetting itself.
+  // Edits are staged locally and only sent to the server on "Save
+  // changes" (same pattern as Roles & Permissions) — saving cell-by-cell
+  // and reloading after every save was wiping out whatever was typed
+  // into the OTHER cells in between.
   configLoading = signal(true);
-  config = signal<LeaveAllocationConfig[]>([]);
-  configDraft = signal<Record<string, { monthlyAllocation: number; carryForwardCap: number }>>({});
-  configSavedSnapshot = signal<Record<string, { monthlyAllocation: number; carryForwardCap: number }>>({});
+  configDraft = signal<Record<string, AllocationDraftEntry>>({});
+  configSavedSnapshot = signal<Record<string, AllocationDraftEntry>>({});
   savingConfig = signal(false);
+
+  isCarryForwardType(leaveType: LeaveType): boolean {
+    return leaveType === 'EARNED';
+  }
 
   configKey(role: LeaveRole, leaveType: LeaveType): string {
     return `${role}:${leaveType}`;
   }
 
-  configFor(role: LeaveRole, leaveType: LeaveType) {
-    const key = this.configKey(role, leaveType);
-    return this.configDraft()[key] ?? { monthlyAllocation: 0, carryForwardCap: 0 };
+  configFor(role: LeaveRole, leaveType: LeaveType): AllocationDraftEntry {
+    return this.configDraft()[this.configKey(role, leaveType)] ?? { monthlyAllocation: 0, carryForwardCap: 0 };
   }
 
-  updateConfigDraft(role: LeaveRole, leaveType: LeaveType, field: 'monthlyAllocation' | 'carryForwardCap', value: number): void {
+  updateMonthlyAllocation(role: LeaveRole, leaveType: LeaveType, value: number): void {
     const key = this.configKey(role, leaveType);
-    this.configDraft.update((draft) => ({ ...draft, [key]: { ...this.configFor(role, leaveType), [field]: value } }));
+    const monthlyAllocation = value ?? 0;
+    this.configDraft.update((draft) => {
+      const entry = this.configFor(role, leaveType);
+      // Casual/Sick have no independent cap — keep it locked to the
+      // monthly amount so there's nothing extra to remember to update.
+      const carryForwardCap = this.isCarryForwardType(leaveType) ? Math.max(entry.carryForwardCap, monthlyAllocation) : monthlyAllocation;
+      return { ...draft, [key]: { monthlyAllocation, carryForwardCap } };
+    });
+  }
+
+  updateCarryForwardCap(role: LeaveRole, leaveType: LeaveType, value: number): void {
+    const key = this.configKey(role, leaveType);
+    this.configDraft.update((draft) => {
+      const entry = this.configFor(role, leaveType);
+      // Can't go below the monthly amount — the DTO rejects that combination.
+      const carryForwardCap = Math.max(value ?? 0, entry.monthlyAllocation);
+      return { ...draft, [key]: { ...entry, carryForwardCap } };
+    });
   }
 
   isConfigDirty = computed(() => {
@@ -130,16 +121,12 @@ export class LeaveManagement implements OnInit {
     );
     if (!changedEntries.length) return;
 
-    const invalid = changedEntries.find(([, value]) => value.carryForwardCap < value.monthlyAllocation);
-    if (invalid) {
-      this.toast.error(this.i18n.t('leaveManagement.capBelowAllocationError'));
-      return;
-    }
-
     this.savingConfig.set(true);
     const calls = changedEntries.map(([key, value]) => {
       const [role, leaveType] = key.split(':') as [LeaveRole, LeaveType];
-      return this.leaveApi.upsertConfig({ role, leaveType, ...value }).pipe(catchError(() => of(null)));
+      return this.leaveApi
+        .upsertConfig({ role, leaveType, monthlyAllocation: value.monthlyAllocation, carryForwardCap: value.carryForwardCap })
+        .pipe(catchError(() => of(null)));
     });
 
     forkJoin(calls).subscribe((results) => {
@@ -154,43 +141,23 @@ export class LeaveManagement implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadRequests();
+    this.pageHeader.setTitleKey('leaveManagement.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadConfig();
-  }
-
-  loadRequests(): void {
-    this.loading.set(true);
-    this.leaveApi.teamRequests({ status: this.statusFilter() ?? undefined }).subscribe({
-      next: (requests) => {
-        this.loading.set(false);
-        this.requests.set(requests);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.error(this.i18n.t('leaveManagement.loadError'));
-      },
-    });
-  }
-
-  onStatusFilterChange(status: LeaveStatus | null): void {
-    this.statusFilter.set(status);
-    this.loadRequests();
   }
 
   loadConfig(): void {
     this.configLoading.set(true);
     this.leaveApi.listConfig().subscribe({
-      next: (rows) => {
+      next: (rows: LeaveAllocationConfig[]) => {
         this.configLoading.set(false);
-        this.config.set(rows);
-        const draft: Record<string, { monthlyAllocation: number; carryForwardCap: number }> = {};
+        const draft: Record<string, AllocationDraftEntry> = {};
         for (const role of LEAVE_ROLES) {
           for (const leaveType of LEAVE_TYPES) {
             const row = rows.find((r) => r.role === role && r.leaveType === leaveType);
-            draft[this.configKey(role, leaveType)] = {
-              monthlyAllocation: row ? Number(row.monthlyAllocation) : 0,
-              carryForwardCap: row ? Number(row.carryForwardCap) : 0,
-            };
+            const monthlyAllocation = row ? Number(row.monthlyAllocation) : 0;
+            const carryForwardCap = row ? Number(row.carryForwardCap) : 0;
+            draft[this.configKey(role, leaveType)] = { monthlyAllocation, carryForwardCap };
           }
         }
         this.configDraft.set(draft);
@@ -202,46 +169,11 @@ export class LeaveManagement implements OnInit {
     });
   }
 
-  openDecision(request: LeaveRequest, approve: boolean): void {
-    this.decisionTarget.set(request);
-    this.decisionApprove.set(approve);
-    this.decisionNote.set('');
-    this.decisionDialogVisible.set(true);
-  }
-
-  closeDecision(): void {
-    this.decisionDialogVisible.set(false);
-  }
-
-  confirmDecision(): void {
-    const target = this.decisionTarget();
-    if (!target) return;
-    this.deciding.set(true);
-    const call = this.decisionApprove()
-      ? this.leaveApi.approve(target.id, this.decisionNote() || undefined)
-      : this.leaveApi.reject(target.id, this.decisionNote() || undefined);
-    call.subscribe({
-      next: () => {
-        this.deciding.set(false);
-        this.decisionDialogVisible.set(false);
-        this.toast.success(this.i18n.t(this.decisionApprove() ? 'leaveManagement.approvedSuccess' : 'leaveManagement.rejectedSuccess'));
-        this.loadRequests();
-      },
-      error: (err) => {
-        this.deciding.set(false);
-        this.toast.error(err?.error?.message ?? this.i18n.t('leaveManagement.decisionError'));
-      },
-    });
-  }
-
-  statusSeverity(status: LeaveStatus): 'success' | 'danger' | 'warn' | 'secondary' {
-    if (status === 'APPROVED') return 'success';
-    if (status === 'REJECTED') return 'danger';
-    if (status === 'CANCELLED') return 'secondary';
-    return 'warn';
-  }
-
   leaveTypeLabel(type: LeaveType): string {
     return this.i18n.t(`leaveManagement.type.${type}`);
+  }
+
+  roleLabel(role: LeaveRole): string {
+    return this.i18n.t(`rolePermissions.role.${role}`);
   }
 }

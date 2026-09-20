@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -20,15 +20,8 @@ import {
   OpsSummary,
 } from '../../../core/dashboard/dashboard-api.service';
 import { currencySymbol } from '../../../core/constants/currencies';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
-import { TokenStorage } from '../../../core/auth/token-storage.service';
-import {
-  LeaveApiService,
-  LeaveBalanceRow,
-  LeaveRequest,
-  LeaveStatus,
-  LeaveType,
-} from '../../../core/leave/leave-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 
 const PALETTE = {
   blue: '#3b82f6',
@@ -73,17 +66,9 @@ const CHART_COLORS = [PALETTE.blue, PALETTE.purple, PALETTE.green, PALETTE.amber
 })
 export class Dashboard implements OnInit {
   private dashboardApi = inject(DashboardApiService);
-  private branchApi = inject(BranchApiService);
-  private leaveApi = inject(LeaveApiService);
-  private tokenStorage = inject(TokenStorage);
+  private branchStore = inject(BranchStore);
   private i18n = inject(TranslationService);
   private theme = inject(ThemeService);
-
-  // The Owner has no Employee record and doesn't apply for leave
-  // through this system, so the Employee Portal tab is hidden for
-  // Owner logins entirely rather than showing an empty/erroring self-
-  // service panel.
-  isOwnerAccount = computed(() => this.tokenStorage.isOwner());
 
   loading = signal(true);
   errorMessage = signal<string | null>(null);
@@ -96,11 +81,11 @@ export class Dashboard implements OnInit {
   // ---- Tabs — the dashboard was one long scrolling page; it's now
   // split into focused tabs so each category (overview, finance,
   // members, leads, branches) can be read on its own instead of all at
-  // once. "Employee Portal" is self-service leave (balance + apply +
-  // my history) for any staff login — hidden for the Owner, who has no
-  // Employee record. Available tabs depend on which view (analytics
-  // vs. ops) the signed-in role gets, and the Branches tab only shows
-  // up when there's actually a breakdown to show (org-wide, multi-branch).
+  // once. Self-service (leave, attendance, payslips, ...) lives in My
+  // Workspace now, not here. Available tabs depend on which view
+  // (analytics vs. ops) the signed-in role gets, and the Branches tab
+  // only shows up when there's actually a breakdown to show (org-wide,
+  // multi-branch).
   activeTab = signal<string>('overview');
 
   analyticsTabs = computed(() => {
@@ -113,22 +98,15 @@ export class Dashboard implements OnInit {
     if (this.analytics()?.branchBreakdown.length) {
       tabs.push({ id: 'branches', labelKey: 'dashboard.tabs.branches', icon: 'sitemap' });
     }
-    if (!this.isOwnerAccount()) {
-      tabs.push({ id: 'employeePortal', labelKey: 'dashboard.tabs.employeePortal', icon: 'id-card' });
-    }
     return tabs;
   });
 
   opsTabs = computed(() => {
-    const tabs = [
+    return [
       { id: 'overview', labelKey: 'dashboard.tabs.overview', icon: 'home' },
       { id: 'bmi', labelKey: 'dashboard.tabs.bmiAlerts', icon: 'heart' },
       { id: 'followUps', labelKey: 'dashboard.tabs.followUps', icon: 'phone' },
     ];
-    if (!this.isOwnerAccount()) {
-      tabs.push({ id: 'employeePortal', labelKey: 'dashboard.tabs.employeePortal', icon: 'id-card' });
-    }
-    return tabs;
   });
 
   tabs = computed(() => (this.isAnalytics() ? this.analyticsTabs() : this.opsTabs()));
@@ -144,7 +122,8 @@ export class Dashboard implements OnInit {
   // to choose from (a staff login is already pinned to their own
   // branch server-side regardless, so this only ever matters for an
   // Owner/Branch Manager looking across the whole org). ----
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; full list including INACTIVE, same as before.
+  branches = this.branchStore.branches;
   selectedBranchId = signal<string | null>(null);
   showBranchFilter = computed(() => this.isAnalytics() && this.branches().length > 1);
   branchOptions = computed(() => [
@@ -171,114 +150,14 @@ export class Dashboard implements OnInit {
     this.expandedChart.set(null);
   }
 
+  private pageHeader = inject(PageHeaderService);
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit(): void {
-    this.branchApi.list().subscribe({ next: (branches) => this.branches.set(branches) });
+    this.pageHeader.setTitleKey('dashboard.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
+    this.branchStore.ensureLoaded();
     this.load();
-    if (!this.isOwnerAccount()) {
-      this.loadLeaveData();
-    }
-  }
-
-  // ---- Employee Portal tab: self-service leave balance + apply.
-  // Available to any staff login (not the Owner — see isOwnerAccount).
-  // Approving requests and configuring allocation happens on the
-  // separate Leave Management screen, gated by the LEAVES permission;
-  // this tab only ever touches the caller's own data. ----
-
-  leaveBalance = signal<LeaveBalanceRow[]>([]);
-  myLeaveRequests = signal<LeaveRequest[]>([]);
-  leaveLoading = signal(false);
-
-  applyDialogVisible = signal(false);
-  applyLeaveType = signal<LeaveType>('CASUAL');
-  applyStartDate = signal<Date | null>(null);
-  applyEndDate = signal<Date | null>(null);
-  applyReason = signal('');
-  applySaving = signal(false);
-  applyError = signal<string | null>(null);
-
-  cancellingId = signal<string | null>(null);
-
-  loadLeaveData(): void {
-    this.leaveLoading.set(true);
-    this.leaveApi.myBalance().subscribe({ next: (rows) => this.leaveBalance.set(rows) });
-    this.leaveApi.myRequests().subscribe({
-      next: (rows) => {
-        this.leaveLoading.set(false);
-        this.myLeaveRequests.set(rows);
-      },
-      error: () => this.leaveLoading.set(false),
-    });
-  }
-
-  openApplyDialog(): void {
-    this.applyLeaveType.set('CASUAL');
-    this.applyStartDate.set(null);
-    this.applyEndDate.set(null);
-    this.applyReason.set('');
-    this.applyError.set(null);
-    this.applyDialogVisible.set(true);
-  }
-
-  closeApplyDialog(): void {
-    this.applyDialogVisible.set(false);
-  }
-
-  submitLeaveApplication(): void {
-    const start = this.applyStartDate();
-    const end = this.applyEndDate();
-    if (!start || !end) {
-      this.applyError.set(this.i18n.t('dashboard.leave.datesRequired'));
-      return;
-    }
-    this.applySaving.set(true);
-    this.applyError.set(null);
-    this.leaveApi
-      .apply({
-        leaveType: this.applyLeaveType(),
-        startDate: start.toISOString().slice(0, 10),
-        endDate: end.toISOString().slice(0, 10),
-        reason: this.applyReason() || undefined,
-      })
-      .subscribe({
-        next: () => {
-          this.applySaving.set(false);
-          this.applyDialogVisible.set(false);
-          this.loadLeaveData();
-        },
-        error: (err) => {
-          this.applySaving.set(false);
-          this.applyError.set(err?.error?.message ?? this.i18n.t('dashboard.leave.applyError'));
-        },
-      });
-  }
-
-  cancelLeaveRequest(id: string): void {
-    this.cancellingId.set(id);
-    this.leaveApi.cancelMine(id).subscribe({
-      next: () => {
-        this.cancellingId.set(null);
-        this.loadLeaveData();
-      },
-      error: () => this.cancellingId.set(null),
-    });
-  }
-
-  leaveStatusSeverity(status: LeaveStatus): 'success' | 'danger' | 'warn' | 'secondary' {
-    if (status === 'APPROVED') return 'success';
-    if (status === 'REJECTED') return 'danger';
-    if (status === 'CANCELLED') return 'secondary';
-    return 'warn';
-  }
-
-  leaveTypeOptions = computed(() => [
-    { label: this.i18n.t('leaveManagement.type.CASUAL'), value: 'CASUAL' as LeaveType },
-    { label: this.i18n.t('leaveManagement.type.SICK'), value: 'SICK' as LeaveType },
-    { label: this.i18n.t('leaveManagement.type.EARNED'), value: 'EARNED' as LeaveType },
-  ]);
-
-  leaveTypeLabel(type: LeaveType): string {
-    return this.i18n.t(`leaveManagement.type.${type}`);
   }
 
   load(): void {

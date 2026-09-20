@@ -108,9 +108,49 @@ export interface MemberPayload {
 }
 
 export interface MemberFilters {
-  branchId?: string | null;
-  status?: MemberStatus | null;
+  // Multi-select filter panel — 0+ branches/statuses; empty/undefined = no filter.
+  branchIds?: string[] | null;
+  statuses?: MemberStatus[] | null;
   search?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface MemberListResult {
+  data: Member[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+// ---- Bulk import (CSV) — see the Members page's import dialog. ----
+
+export interface ImportedMemberRowData {
+  name: string;
+  phone: string;
+  email?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  bloodGroup?: string;
+  heightCm?: number;
+  goalWeightKg?: number;
+  startDate?: string;
+  status?: string;
+  source?: string;
+  paymentMode?: string;
+}
+
+export interface ImportedMemberRow {
+  rowNumber: number;
+  data: ImportedMemberRowData;
+  errors: string[];
+}
+
+export interface ImportCommitResultRow {
+  rowNumber: number;
+  success: boolean;
+  memberId?: string;
+  error?: string;
 }
 
 /** Thin wrapper over the NestJS `/api/members` endpoints — mirrors
@@ -122,12 +162,14 @@ export class MemberApiService {
   private http = inject(HttpClient);
   private base = `${API_BASE_URL}/members`;
 
-  list(filters?: MemberFilters): Observable<Member[]> {
+  list(filters?: MemberFilters): Observable<MemberListResult> {
     let params = new HttpParams();
-    if (filters?.branchId) params = params.set('branchId', filters.branchId);
-    if (filters?.status) params = params.set('status', filters.status);
+    if (filters?.branchIds && filters.branchIds.length > 0) params = params.set('branchId', filters.branchIds.join(','));
+    if (filters?.statuses && filters.statuses.length > 0) params = params.set('status', filters.statuses.join(','));
     if (filters?.search) params = params.set('search', filters.search);
-    return this.http.get<Member[]>(this.base, { params });
+    if (filters?.page) params = params.set('page', String(filters.page));
+    if (filters?.pageSize) params = params.set('pageSize', String(filters.pageSize));
+    return this.http.get<MemberListResult>(this.base, { params });
   }
 
   get(id: string): Observable<Member> {
@@ -152,5 +194,15 @@ export class MemberApiService {
 
   listMetricEntries(memberId: string): Observable<MemberMetricEntry[]> {
     return this.http.get<MemberMetricEntry[]>(`${this.base}/${memberId}/metrics`);
+  }
+
+  // ---- Bulk import (CSV) ----
+
+  parseImportCsv(branchId: string, csvContent: string): Observable<{ rows: ImportedMemberRow[] }> {
+    return this.http.post<{ rows: ImportedMemberRow[] }>(`${this.base}/import/parse`, { branchId, csvContent });
+  }
+
+  commitImport(rows: MemberPayload[]): Observable<{ results: ImportCommitResultRow[] }> {
+    return this.http.post<{ results: ImportCommitResultRow[] }>(`${this.base}/import/commit`, { rows });
   }
 }

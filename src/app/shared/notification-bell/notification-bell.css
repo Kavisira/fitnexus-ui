@@ -2,9 +2,18 @@
   position: relative;
 }
 
+/* Matches the header's own nav-toggle-btn treatment (see header.css) —
+   the header bar is a light surface (white in light mode, dark slate
+   in dark mode), not the old blue bar this was originally styled for.
+   It used to be a flat #fff, which was invisible against the white
+   header until something else's hover state happened to change it. */
 .bell-btn {
   position: relative;
-  color: #ffffff;
+  color: #475569 !important;
+}
+
+:host-context(.my-app-dark) .bell-btn {
+  color: #cbd5e1 !important;
 }
 
 .bell-btn i {
@@ -39,7 +48,8 @@
   font-weight: 700;
   line-height: 1.05rem;
   text-align: center;
-  box-shadow: 0 0 0 2px #1d4ed8;
+  /* Ring matches the header bar's own background (white / dark navy — see header.css) so the badge reads as sitting on the bar, not floating with a stray blue edge left over from the old blue header. */
+  box-shadow: 0 0 0 2px #ffffff;
   animation: bell-badge-pop 0.3s ease-out;
 }
 
@@ -260,6 +270,10 @@
 }
 
 /* ---- Dark mode ---- */
+
+:host-context(.my-app-dark) .bell-badge {
+  box-shadow: 0 0 0 2px #111827;
+}
 
 :host-context(.my-app-dark) .notification-panel {
   background: #111827;

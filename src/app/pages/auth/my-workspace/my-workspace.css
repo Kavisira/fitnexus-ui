@@ -1,0 +1,495 @@
+.loading-text,
+.error-text {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+/* ---- Stat cards ---- */
+
+.ep-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.ep-balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.ep-balance-type {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ep-balance-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--p-text-color, #111827);
+}
+
+.ep-balance-label {
+  font-size: 0.76rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.ep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.ep-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.ep-table-wrap {
+  overflow-x: auto;
+}
+
+.ep-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.ep-table th,
+.ep-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  font-size: 0.86rem;
+}
+
+.ep-table thead th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.ep-apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ep-apply-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.6rem;
+}
+
+.ep-apply-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+/* ---- Minimal rich-text editor (p-editor / Quill) replacing plain
+   textareas for review notes and reply threads — a compact 5-button
+   toolbar (bold, italic, underline, bullet/numbered list) instead of
+   Quill's full default toolbar, so it still reads as a lightweight
+   field rather than a heavy document editor. ---- */
+.mini-editor {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mini-editor ::ng-deep .p-editor-toolbar {
+  border-radius: 8px 8px 0 0;
+  padding: 0.35rem 0.5rem;
+}
+
+.mini-editor ::ng-deep .p-editor-toolbar .ql-formats {
+  margin-right: 0;
+}
+
+.mini-editor ::ng-deep .p-editor-content {
+  border-radius: 0 0 8px 8px;
+}
+
+.mini-editor ::ng-deep .ql-editor {
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.mini-editor ::ng-deep .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: #94a3b8;
+}
+
+:host-context(.my-app-dark) .mini-editor ::ng-deep .ql-editor.ql-blank::before {
+  color: #64748b;
+}
+
+
+.ep-apply-error {
+  color: #dc2626;
+  font-size: 0.82rem;
+  margin: 0.4rem 0 0;
+}
+
+.ep-apply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+:host-context(.my-app-dark) .ep-balance-card {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.22);
+}
+
+:host-context(.my-app-dark) .ep-table th,
+:host-context(.my-app-dark) .ep-table td {
+  border-color: #1f2937;
+}
+
+.mw-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+}
+
+.mw-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mw-tab-btn:hover {
+  background: #f1f5f9;
+  color: #1d4ed8;
+}
+
+.mw-tab-btn.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+:host-context(.my-app-dark) .mw-tab-bar {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .mw-tab-btn:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
+:host-context(.my-app-dark) .mw-tab-btn.active {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 0.85rem;
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* ---- My Workspace–specific chrome ---- */
+
+.mw-owner-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  background: rgba(100, 116, 139, 0.08);
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.88rem;
+}
+
+:host-context(.my-app-dark) .mw-owner-notice {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mw-tab-bar {
+  margin-bottom: 1.25rem;
+}
+
+.mw-attendance-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.mw-period-select {
+  min-width: 9rem;
+}
+
+.mw-coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3.5rem 1rem;
+  border-radius: 12px;
+  background: var(--p-content-background, #ffffff);
+  border: 1px dashed var(--p-content-border-color, #e5e7eb);
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.mw-coming-soon i {
+  font-size: 1.8rem;
+  opacity: 0.6;
+}
+
+.mw-coming-soon p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+:host-context(.my-app-dark) .mw-coming-soon {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+/* ---- Payslips — collapsible list, one card per generated month ---- */
+
+.mw-payslip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mw-payslip-card {
+  border-radius: 10px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  overflow: hidden;
+}
+
+.mw-payslip-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  background: var(--p-content-background, #ffffff);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.mw-payslip-month {
+  flex: 1 1 auto;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--p-text-color, #111827);
+}
+
+.mw-payslip-net {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.mw-payslip-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.25rem 1.1rem 0.9rem;
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.mw-payslip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #475569);
+}
+
+.mw-payslip-negative {
+  color: #dc2626;
+}
+
+.mw-payslip-total {
+  margin-top: 0.3rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(15, 23, 42, 0.12);
+  font-weight: 700;
+  color: var(--p-text-color, #111827);
+}
+
+:host-context(.my-app-dark) .mw-payslip-summary {
+  background: #111827;
+}
+
+:host-context(.my-app-dark) .mw-payslip-card {
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .mw-payslip-detail {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+:host-context(.my-app-dark) .mw-payslip-total {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- Reviews list ---- */
+
+.mw-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mw-review-card {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  background: var(--p-content-background, #ffffff);
+}
+
+.mw-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.mw-review-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.mw-review-stars {
+  color: #d97706;
+  letter-spacing: 0.05em;
+}
+
+.mw-review-notes {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--p-text-color, #111827);
+  white-space: pre-wrap;
+}
+
+:host-context(.my-app-dark) .mw-review-card {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+/* ---- Appraisal letter body (reuses .mw-payslip-* card chrome) ---- */
+
+.mw-appraisal-letter {
+  white-space: pre-wrap;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+/* ---- Review conversation thread + employee reply/sign-off ---- */
+
+.review-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed rgba(15, 23, 42, 0.12);
+}
+
+.review-thread-item {
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.review-thread-item-employee {
+  background: rgba(217, 119, 6, 0.08);
+}
+
+.review-thread-author {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+  margin-bottom: 0.15rem;
+}
+
+.review-thread-message {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--p-text-color, #111827);
+  white-space: pre-wrap;
+}
+
+.review-reply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.review-reply-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.review-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+:host-context(.my-app-dark) .review-thread {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+:host-context(.my-app-dark) .review-thread-item {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+:host-context(.my-app-dark) .review-thread-item-employee {
+  background: rgba(217, 119, 6, 0.14);
+}
+
+.mw-payslip-download-btn {
+  margin-top: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}

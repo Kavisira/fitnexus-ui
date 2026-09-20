@@ -1,89 +1,188 @@
 <div class="members-page">
   <div class="page-header">
-    <div>
-      <h1>{{ 'common.members' | translate }}</h1>
-      <p class="subtitle">{{ 'members.subtitle' | translate }}</p>
-    </div>
-    @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
-        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
-        {{ 'members.addMember' | translate }}
-      </button>
-    }
-  </div>
-
-  <div class="grid-toolbar">
+    <app-filter-panel
+      [sections]="filterSections()"
+      [value]="filterPanelValue()"
+      (apply)="onFiltersApply($event)"
+      (clear)="clearFilters()"
+    ></app-filter-panel>
     <input
       pInputText
       type="text"
       [placeholder]="'members.searchPlaceholder' | translate"
       [ngModel]="searchTerm()"
-      (ngModelChange)="searchTerm.set($event)"
+      (ngModelChange)="onSearchChange($event)"
       class="search-field"
     />
-    <div class="toolbar-right">
-      <p-select
-        [options]="branchFilterOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="branchFilter()"
-        (ngModelChange)="branchFilter.set($event)"
-        [placeholder]="'members.allBranches' | translate"
-        styleClass="filter-select"
-      />
-      <p-select
-        [options]="statusFilterOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="statusFilter()"
-        (ngModelChange)="statusFilter.set($event)"
-        [placeholder]="'members.allStatuses' | translate"
-        styleClass="filter-select"
-      />
-      @if (hasActiveFilters()) {
-        <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
-          {{ 'common.clearFilters' | translate }}
-        </button>
-      }
-      <span class="result-count">{{ filteredMembers().length }} / {{ members().length }}</span>
-      <div class="view-toggle">
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'grid'"
-          [pTooltip]="'branches.gridView' | translate"
-          (click)="setViewMode('grid')"
-        >
-          <i class="pi pi-th-large"></i>
-        </button>
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'list'"
-          [pTooltip]="'branches.listView' | translate"
-          (click)="setViewMode('list')"
-        >
-          <i class="pi pi-bars"></i>
-        </button>
-      </div>
+    @if (hasActiveFilters()) {
+      <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
+        {{ 'common.clearFilters' | translate }}
+      </button>
+    }
+
+    @if (canWrite()) {
+      <button pButton type="button" class="p-button-outlined" (click)="membersImport.open()">
+        <i class="pi pi-upload" style="margin-right: 0.4rem"></i>
+        Import CSV
+      </button>
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'members.addMember' | translate }}
+      </button>
+    }
+
+    <div class="view-toggle">
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'table'"
+        [pTooltip]="'branches.tableView' | translate"
+        (click)="setViewMode('table')"
+      >
+        <i class="pi pi-table"></i>
+      </button>
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'list'"
+        [pTooltip]="'branches.listView' | translate"
+        (click)="setViewMode('list')"
+      >
+        <i class="pi pi-bars"></i>
+      </button>
     </div>
   </div>
 
-  <div class="member-grid" [class.member-grid-list]="viewMode() === 'list'">
+  <p-menu #rowMenu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
+
+  @if (viewMode() === 'table') {
+  <div class="member-table-panel">
+  <p-table
+    [value]="sortedCards()"
+    [loading]="loading()"
+    [(selection)]="selectedMembers"
+    dataKey="member.id"
+    [paginator]="true"
+    [lazy]="true"
+    [rows]="pageSize"
+    [totalRecords]="total()"
+    [first]="(page() - 1) * pageSize"
+    (onLazyLoad)="onLazyLoad($event)"
+    [scrollable]="true"
+    [stripedRows]="true"
+    [rowHover]="true"
+    styleClass="p-datatable-sm member-table"
+  >
+    <ng-template #header>
+      <tr>
+        <th style="width: 3rem"><p-table-header-checkbox></p-table-header-checkbox></th>
+        <th class="member-table-sortable" (click)="toggleSort('name')">
+          {{ 'members.nameLabel' | translate }}
+          <i
+            class="pi member-sort-icon"
+            [class.pi-sort-alt]="sortField() !== 'name'"
+            [class.pi-sort-amount-up]="sortField() === 'name' && sortOrder() === 1"
+            [class.pi-sort-amount-down]="sortField() === 'name' && sortOrder() === -1"
+          ></i>
+        </th>
+        <th class="member-table-sortable" (click)="toggleSort('plan')">
+          {{ 'members.planLabel' | translate }}
+          <i
+            class="pi member-sort-icon"
+            [class.pi-sort-alt]="sortField() !== 'plan'"
+            [class.pi-sort-amount-up]="sortField() === 'plan' && sortOrder() === 1"
+            [class.pi-sort-amount-down]="sortField() === 'plan' && sortOrder() === -1"
+          ></i>
+        </th>
+        <th class="member-table-sortable" (click)="toggleSort('trainer')">
+          {{ 'members.trainerLabel' | translate }}
+          <i
+            class="pi member-sort-icon"
+            [class.pi-sort-alt]="sortField() !== 'trainer'"
+            [class.pi-sort-amount-up]="sortField() === 'trainer' && sortOrder() === 1"
+            [class.pi-sort-amount-down]="sortField() === 'trainer' && sortOrder() === -1"
+          ></i>
+        </th>
+        <th class="member-table-sortable" (click)="toggleSort('status')">
+          {{ 'members.statusLabel' | translate }}
+          <i
+            class="pi member-sort-icon"
+            [class.pi-sort-alt]="sortField() !== 'status'"
+            [class.pi-sort-amount-up]="sortField() === 'status' && sortOrder() === 1"
+            [class.pi-sort-amount-down]="sortField() === 'status' && sortOrder() === -1"
+          ></i>
+        </th>
+        <th style="width: 3.5rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-card>
+      @let member = card.member;
+      <tr [class.member-row-inactive]="member.status === 'INACTIVE'">
+        <td><p-table-checkbox [value]="card"></p-table-checkbox></td>
+        <td>
+          <div class="member-table-name">
+            @if (member.photoUrl) {
+              <img [src]="member.photoUrl" alt="" class="member-table-avatar" />
+            } @else {
+              <div class="member-table-avatar member-table-avatar-placeholder"><i class="pi pi-user"></i></div>
+            }
+            <div>
+              <div class="member-table-name-line">
+                {{ member.name }}
+                @if (member.isTrial) {
+                  <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
+                }
+              </div>
+              <div class="member-table-sub">{{ member.phone }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ card.planLabel }}</td>
+        <td>{{ member.assignedTrainerEmployee?.name ?? '-' }}</td>
+        <td>
+          <p-tag
+            [value]="member.status === 'ACTIVE' ? ('members.active' | translate) : ('members.inactive' | translate)"
+            [severity]="member.status === 'ACTIVE' ? 'success' : 'secondary'"
+          />
+        </td>
+        <td>
+          <button pButton type="button" [text]="true" [rounded]="true" size="small" severity="secondary" (click)="activeCard.set(card); rowMenu.toggle($event)">
+            <i class="pi pi-ellipsis-v"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="6">
+          <div class="member-grid-empty">
+            <i class="pi pi-users"></i>
+            <p>{{ 'members.empty' | translate }}</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  </div>
+  }
+
+  @if (viewMode() === 'list') {
+  <div class="member-list">
     @if (loading()) {
       @for (i of [1, 2, 3, 4]; track i) {
         <p-card styleClass="member-card member-card-skeleton"></p-card>
       }
     } @else {
-      @for (member of filteredMembers(); track member.id) {
+      @for (card of sortedCards(); track card.member.id) {
+        @let member = card.member;
         <p-card styleClass="member-card" [class.member-card-inactive]="member.status === 'INACTIVE'">
           <div class="member-card-header">
             @if (member.photoUrl) {
@@ -109,11 +208,11 @@
           <div class="member-card-body">
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-building"></i> {{ 'members.branchLabel' | translate }}</span>
-              <span class="member-card-value">{{ orDash(member.branch?.location) }}</span>
+              <span class="member-card-value">{{ card.branchLabel }}</span>
             </div>
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-tag"></i> {{ 'members.planLabel' | translate }}</span>
-              <span class="member-card-value">{{ orDash(member.plan?.name) }}</span>
+              <span class="member-card-value">{{ card.planLabel }}</span>
             </div>
             @if (member.offer) {
               <div class="member-card-row">
@@ -129,7 +228,7 @@
             </div>
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-wallet"></i> {{ 'members.priceLabel' | translate }}</span>
-              <span class="member-card-value member-card-price">{{ memberPrice(member) }}</span>
+              <span class="member-card-value member-card-price">{{ card.priceLabel }}</span>
             </div>
             @if (member.assignedTrainerEmployee) {
               <div class="member-card-row">
@@ -137,34 +236,32 @@
                 <span class="member-card-value">{{ member.assignedTrainerEmployee.name }}</span>
               </div>
             }
-            @if (viewMode() === 'list') {
-              <div class="member-card-row">
-                <span class="member-card-label"><i class="pi pi-envelope"></i> {{ 'members.emailLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.email) }}</span>
-              </div>
-              <div class="member-card-row">
-                <span class="member-card-label"><i class="pi pi-sitemap"></i> {{ 'members.sourceLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.source) }}</span>
-              </div>
-              <div class="member-card-row">
-                <span class="member-card-label"><i class="pi pi-money-bill"></i> {{ 'members.paymentModeLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.paymentMode) }}</span>
-              </div>
-              <div class="member-card-row">
-                <span class="member-card-label"><i class="pi pi-heart"></i> {{ 'members.bloodGroupLabel' | translate }}</span>
-                <span class="member-card-value">{{ orDash(member.bloodGroup) }}</span>
-              </div>
-            }
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-envelope"></i> {{ 'members.emailLabel' | translate }}</span>
+              <span class="member-card-value">{{ card.emailLabel }}</span>
+            </div>
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-sitemap"></i> {{ 'members.sourceLabel' | translate }}</span>
+              <span class="member-card-value">{{ card.sourceLabel }}</span>
+            </div>
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-money-bill"></i> {{ 'members.paymentModeLabel' | translate }}</span>
+              <span class="member-card-value">{{ card.paymentModeLabel }}</span>
+            </div>
+            <div class="member-card-row">
+              <span class="member-card-label"><i class="pi pi-heart"></i> {{ 'members.bloodGroupLabel' | translate }}</span>
+              <span class="member-card-value">{{ card.bloodGroupLabel }}</span>
+            </div>
             <div class="member-card-row">
               <span class="member-card-label"><i class="pi pi-user"></i> {{ 'members.ageLabel' | translate }}</span>
-              <span class="member-card-value">{{ age(member) }}</span>
+              <span class="member-card-value">{{ card.ageLabel }}</span>
             </div>
-            @if (latestEntry(member); as latest) {
+            @if (card.latest; as latest) {
               <div class="member-card-row">
                 <span class="member-card-label"><i class="pi pi-chart-line"></i> {{ 'members.bmiLabel' | translate }}</span>
                 <span class="member-card-value">
                   {{ latest.bmi }}
-                  <p-tag [value]="('members.bmiStatus.' + latest.bmiStatus) | translate" [severity]="bmiStatusSeverity[latest.bmiStatus]" />
+                  <p-tag [value]="('members.bmiStatus.' + latest.bmiStatus) | translate" [severity]="bmiSeverity(latest.bmiStatus)" />
                 </span>
               </div>
             }
@@ -183,8 +280,11 @@
             </button>
           </div>
 
-          @if (canWrite()) {
-            <div class="member-card-footer">
+          <div class="member-card-footer">
+            <button pButton type="button" [text]="true" [rounded]="true" severity="secondary" [pTooltip]="'members.detailsLabel' | translate" (click)="openDetails(card)">
+              <i class="pi pi-info-circle"></i>
+            </button>
+            @if (canWrite()) {
               <button
                 pButton
                 type="button"
@@ -207,8 +307,8 @@
               >
                 <i class="pi pi-trash"></i>
               </button>
-            </div>
-          }
+            }
+          </div>
         </p-card>
       } @empty {
         <div class="member-grid-empty">
@@ -218,6 +318,102 @@
       }
     }
   </div>
+
+  @if (!loading() && total() > pageSize) {
+    <p-paginator
+      [first]="(page() - 1) * pageSize"
+      [rows]="pageSize"
+      [totalRecords]="total()"
+      (onPageChange)="onListPageChange($event)"
+    ></p-paginator>
+  }
+  }
+
+  <div class="table-footer-bar">
+    <span class="result-count">{{ members().length }} / {{ total() }}</span>
+  </div>
+
+  <p-dialog [(visible)]="detailsDialogVisible" [modal]="true" [style]="{ width: '28rem' }" [header]="'members.detailsLabel' | translate">
+    @if (activeCard(); as card) {
+      @let member = card.member;
+      <div class="member-details">
+        <div class="member-details-header">
+          @if (member.photoUrl) {
+            <img [src]="member.photoUrl" alt="" class="member-table-avatar" />
+          } @else {
+            <div class="member-table-avatar member-table-avatar-placeholder"><i class="pi pi-user"></i></div>
+          }
+          <div>
+            <div class="member-table-name-line">
+              {{ member.name }}
+              @if (member.isTrial) {
+                <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
+              }
+            </div>
+            <div class="member-table-sub">{{ member.phone }}</div>
+          </div>
+        </div>
+
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.branchLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.branchLabel }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.planLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.planLabel }}</span>
+        </div>
+        @if (member.offer) {
+          <div class="member-details-row">
+            <span class="member-card-label">{{ 'members.offerLabel' | translate }}</span>
+            <span class="member-card-value">{{ member.offer.name }}</span>
+          </div>
+        }
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.durationLabel' | translate }}</span>
+          <span class="member-card-value">{{ member.startDate | date: 'MMM d, y' }} - {{ member.endDate | date: 'MMM d, y' }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.priceLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.priceLabel }}</span>
+        </div>
+        @if (member.assignedTrainerEmployee) {
+          <div class="member-details-row">
+            <span class="member-card-label">{{ 'members.trainerLabel' | translate }}</span>
+            <span class="member-card-value">{{ member.assignedTrainerEmployee.name }}</span>
+          </div>
+        }
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.emailLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.emailLabel }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.sourceLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.sourceLabel }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.paymentModeLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.paymentModeLabel }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.bloodGroupLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.bloodGroupLabel }}</span>
+        </div>
+        <div class="member-details-row">
+          <span class="member-card-label">{{ 'members.ageLabel' | translate }}</span>
+          <span class="member-card-value">{{ card.ageLabel }}</span>
+        </div>
+        @if (card.latest; as latest) {
+          <div class="member-details-row">
+            <span class="member-card-label">{{ 'members.bmiLabel' | translate }}</span>
+            <span class="member-card-value">
+              {{ latest.bmi }}
+              <p-tag [value]="('members.bmiStatus.' + latest.bmiStatus) | translate" [severity]="bmiSeverity(latest.bmiStatus)" />
+            </span>
+          </div>
+        }
+      </div>
+    }
+  </p-dialog>
 
   <p-dialog
     [(visible)]="dialogVisible"
@@ -710,4 +906,5 @@
       </button>
     </div>
   </p-dialog>
+  <app-members-import #membersImport (imported)="loadMembers()"></app-members-import>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { SelectModule } from 'primeng/select';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { AlertsApiService, Alert, AlertAudienceType, AssignableTargets } from '../../../core/alerts/alerts-api.service';
 
@@ -54,7 +55,12 @@ export class Alerts implements OnInit {
     { label: 'One specific user', value: 'USER' },
   ];
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('alerts.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.load();
     this.alertsApi.assignableTargets().subscribe({ next: (t) => this.assignableTargets.set(t), error: () => {} });
   }

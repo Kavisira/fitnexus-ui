@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 
 /**
  * Shell for the Notifications section — Setup and Configuration are two
@@ -15,4 +16,12 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
   templateUrl: './notification-settings-layout.html',
   styleUrls: ['./notification-settings-layout.css'],
 })
-export class NotificationSettingsLayout {}
+export class NotificationSettingsLayout implements OnInit {
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
+  ngOnInit(): void {
+    this.pageHeader.setTitleKey('common.notifications');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
+  }
+}

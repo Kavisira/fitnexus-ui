@@ -33,8 +33,9 @@ export interface ExpensePayload {
 }
 
 export interface ExpenseFilters {
-  branchId?: string;
-  category?: ExpenseCategory;
+  // Multi-select filter panel — 0+ branches/categories; empty/undefined = no filter.
+  branchIds?: string[];
+  categories?: ExpenseCategory[];
   from?: string;
   to?: string;
 }
@@ -50,8 +51,8 @@ export class ExpenseApiService {
 
   list(filters: ExpenseFilters = {}): Observable<Expense[]> {
     let params = new HttpParams();
-    if (filters.branchId) params = params.set('branchId', filters.branchId);
-    if (filters.category) params = params.set('category', filters.category);
+    if (filters.branchIds && filters.branchIds.length > 0) params = params.set('branchId', filters.branchIds.join(','));
+    if (filters.categories && filters.categories.length > 0) params = params.set('category', filters.categories.join(','));
     if (filters.from) params = params.set('from', filters.from);
     if (filters.to) params = params.set('to', filters.to);
     return this.http.get<Expense[]>(this.base, { params });

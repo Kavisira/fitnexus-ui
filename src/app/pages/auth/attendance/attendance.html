@@ -1,11 +1,4 @@
 <div class="att-page">
-  <div class="page-header">
-    <div>
-      <h1>{{ 'attendance.title' | translate }}</h1>
-      <p class="subtitle">{{ 'attendance.subtitle' | translate }}</p>
-    </div>
-  </div>
-
   <div class="att-tab-bar">
     @for (tab of tabs; track tab.id) {
       <button
@@ -262,11 +255,11 @@
       </div>
       <div class="att-form-field">
         <label>{{ 'attendance.devices.branch' | translate }}</label>
-        <p-select [options]="branches()" optionLabel="location" optionValue="id" [ngModel]="newDeviceBranchId()" (ngModelChange)="newDeviceBranchId.set($event)" [style]="{ width: '100%' }" />
+        <p-select [options]="branches()" optionLabel="location" optionValue="id" [ngModel]="newDeviceBranchId()" (ngModelChange)="newDeviceBranchId.set($event)" [style]="{ width: '100%' }" appendTo="body" />
       </div>
       <div class="att-form-field">
         <label>{{ 'attendance.devices.vendorType' | translate }}</label>
-        <p-select [options]="vendorOptions" optionLabel="label" optionValue="value" [ngModel]="newDeviceVendorType()" (ngModelChange)="newDeviceVendorType.set($event)" [style]="{ width: '100%' }" />
+        <p-select [options]="vendorOptions" optionLabel="label" optionValue="value" [ngModel]="newDeviceVendorType()" (ngModelChange)="newDeviceVendorType.set($event)" [style]="{ width: '100%' }" appendTo="body" />
       </div>
       @if (newDeviceVendorType() === 'ADMS_PUSH') {
         <div class="att-form-field">
@@ -292,9 +285,14 @@
               @for (e of enrollments(); track e.id) {
                 <li>
                   <span><strong>{{ e.biometricUserId }}</strong> → {{ e.personType === 'EMPLOYEE' ? e.employee?.name : e.member?.name }}</span>
-                  @if (canWrite()) {
-                    <button pButton type="button" class="p-button-text p-button-sm p-button-danger" (click)="removeEnrollment(e)"><i class="pi pi-trash"></i></button>
-                  }
+                  <span class="att-enrollment-actions">
+                    @if (canWrite()) {
+                      <button pButton type="button" class="p-button-text p-button-sm" (click)="openSimulatePunch(e)">
+                        <i class="pi pi-bolt" style="margin-right: 0.35rem"></i>{{ 'attendance.devices.simulatePunch' | translate }}
+                      </button>
+                      <button pButton type="button" class="p-button-text p-button-sm p-button-danger" (click)="removeEnrollment(e)"><i class="pi pi-trash"></i></button>
+                    }
+                  </span>
                 </li>
               }
             </ul>
@@ -308,23 +306,73 @@
               </div>
               <div class="att-form-field">
                 <label>{{ 'attendance.devices.personType' | translate }}</label>
-                <p-select [options]="personTypeOptions" optionLabel="label" optionValue="value" [ngModel]="newEnrollmentPersonType()" (ngModelChange)="newEnrollmentPersonType.set($event)" [style]="{ width: '100%' }" />
+                <p-select [options]="personTypeOptions" optionLabel="label" optionValue="value" [ngModel]="newEnrollmentPersonType()" (ngModelChange)="newEnrollmentPersonType.set($event)" [style]="{ width: '100%' }" appendTo="body" />
               </div>
               @if (newEnrollmentPersonType() === 'EMPLOYEE') {
                 <div class="att-form-field">
                   <label>{{ 'attendance.devices.employee' | translate }}</label>
-                  <p-select [options]="employees()" optionLabel="name" optionValue="id" [ngModel]="newEnrollmentEmployeeId()" (ngModelChange)="newEnrollmentEmployeeId.set($event)" [style]="{ width: '100%' }" />
+                  <p-select
+                    [options]="employees()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [filter]="true"
+                    filterBy="name"
+                    [placeholder]="'attendance.devices.searchPlaceholder' | translate"
+                    [ngModel]="newEnrollmentEmployeeId()"
+                    (ngModelChange)="newEnrollmentEmployeeId.set($event)"
+                    [style]="{ width: '100%' }"
+                    appendTo="body"
+                    [panelStyle]="{ width: '24rem', maxHeight: '20rem' }"
+                  />
                 </div>
               } @else {
                 <div class="att-form-field">
-                  <label>{{ 'attendance.devices.memberId' | translate }}</label>
-                  <input pInputText type="text" [ngModel]="newEnrollmentMemberId()" (ngModelChange)="newEnrollmentMemberId.set($event)" />
+                  <label>{{ 'attendance.devices.member' | translate }}</label>
+                  <p-select
+                    [options]="members()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [filter]="true"
+                    filterBy="name"
+                    [placeholder]="'attendance.devices.searchPlaceholder' | translate"
+                    [ngModel]="newEnrollmentMemberId()"
+                    (ngModelChange)="newEnrollmentMemberId.set($event)"
+                    [style]="{ width: '100%' }"
+                    appendTo="body"
+                    [panelStyle]="{ width: '24rem', maxHeight: '20rem' }"
+                  />
                 </div>
               }
               <button pButton type="button" [disabled]="savingEnrollment()" (click)="addEnrollment()">{{ 'attendance.devices.addEnrollment' | translate }}</button>
             </div>
           }
         }
+      </p-dialog>
+    }
+
+    @if (simulatePunchTarget(); as target) {
+      <p-dialog [visible]="true" (visibleChange)="closeSimulatePunch()" [modal]="true" [style]="{ width: '36rem' }" [breakpoints]="{ '640px': '94vw' }" [header]="'attendance.devices.simulatePunch' | translate">
+        <p class="att-hint">{{ 'attendance.devices.simulatePunchHint' | translate }}: <strong>{{ target.personType === 'EMPLOYEE' ? target.employee?.name : target.member?.name }}</strong></p>
+        <div class="att-form-field">
+          <label>{{ 'attendance.devices.punchTime' | translate }}</label>
+          <p-datepicker
+            [ngModel]="simulatePunchAt()"
+            (ngModelChange)="simulatePunchAt.set($event)"
+            dateFormat="d M yy"
+            [showTime]="true"
+            [showIcon]="true"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+          />
+        </div>
+        <div class="att-form-field">
+          <label>{{ 'attendance.devices.direction' | translate }}</label>
+          <p-select [options]="directionOptions" optionLabel="label" optionValue="value" [ngModel]="simulatePunchDirection()" (ngModelChange)="simulatePunchDirection.set($event)" [style]="{ width: '100%' }" appendTo="body" />
+        </div>
+        <div class="att-dialog-actions">
+          <button pButton type="button" class="p-button-text" (click)="closeSimulatePunch()">{{ 'common.cancel' | translate }}</button>
+          <button pButton type="button" [loading]="sendingSimulatePunch()" (click)="sendSimulatePunch()">{{ 'attendance.devices.sendPunch' | translate }}</button>
+        </div>
       </p-dialog>
     }
   }

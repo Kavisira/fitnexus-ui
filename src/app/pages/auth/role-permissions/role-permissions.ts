@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -6,6 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import {
   PermissionScreen,
@@ -56,6 +57,8 @@ export class RolePermissions implements OnInit {
   private api = inject(RolePermissionApiService);
   private toast = inject(ToastService);
   private i18n = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
 
   loading = signal(false);
   saving = signal(false);
@@ -88,6 +91,8 @@ export class RolePermissions implements OnInit {
   });
 
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('rolePermissions.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.load();
   }
 

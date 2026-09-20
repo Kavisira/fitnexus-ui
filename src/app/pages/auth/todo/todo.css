@@ -1,0 +1,117 @@
+.todo-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.todo-section {
+  background: var(--p-content-background, #ffffff);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+}
+
+.todo-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.todo-section h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.todo-section-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.loading-text,
+.empty-text {
+  color: var(--p-text-muted-color, #6b7280);
+  padding: 1rem 0;
+}
+
+.todo-table-wrap {
+  overflow-x: auto;
+}
+
+.todo-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.todo-table th,
+.todo-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  font-size: 0.86rem;
+}
+
+.todo-table thead th {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.col-num {
+  text-align: right;
+}
+
+.todo-reason {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.todo-decided-note {
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.todo-decision-summary {
+  margin: 0 0 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.todo-decision-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.4rem;
+  resize: vertical;
+}
+
+.todo-decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+:host-context(.my-app-dark) .todo-section {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .todo-table th,
+:host-context(.my-app-dark) .todo-table td {
+  border-color: #1f2937;
+}

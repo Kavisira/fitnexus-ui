@@ -1,0 +1,54 @@
+.filter-panel-trigger {
+  position: relative;
+}
+
+.filter-panel-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+::ng-deep .filter-panel-overlay .p-popover-content {
+  padding: 1rem;
+}
+
+.filter-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 16rem;
+  max-width: 22rem;
+}
+
+.filter-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-panel-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.filter-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+}

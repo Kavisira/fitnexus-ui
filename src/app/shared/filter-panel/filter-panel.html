@@ -1,0 +1,41 @@
+<button
+  pButton
+  type="button"
+  [text]="true"
+  [rounded]="true"
+  severity="secondary"
+  class="filter-panel-trigger"
+  [pTooltip]="label"
+  (click)="toggle($event)"
+>
+  <i class="pi pi-filter"></i>
+  @if (activeCount() > 0) {
+    <span class="filter-panel-badge">{{ activeCount() }}</span>
+  }
+</button>
+
+<p-popover #panel styleClass="filter-panel-overlay">
+  <div class="filter-panel-body">
+    @for (section of sections; track section.key) {
+      <div class="filter-panel-section">
+        <label class="filter-panel-label">{{ section.label }}</label>
+        <p-multiselect
+          [options]="section.options"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="stagedFor(section.key)"
+          (ngModelChange)="setStagedFor(section.key, $event)"
+          [placeholder]="section.placeholder ?? ('Any ' + section.label)"
+          [showToggleAll]="true"
+          display="chip"
+          [style]="{ width: '100%' }"
+          appendTo="body"
+        ></p-multiselect>
+      </div>
+    }
+  </div>
+  <div class="filter-panel-actions">
+    <button pButton type="button" [text]="true" severity="secondary" (click)="onClear()">Clear</button>
+    <button pButton type="button" (click)="onApply()">Apply</button>
+  </div>
+</p-popover>

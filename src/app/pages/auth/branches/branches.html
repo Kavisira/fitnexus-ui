@@ -1,18 +1,5 @@
 <div class="branches-page">
   <div class="page-header">
-    <div>
-      <h1>{{ 'branches.title' | translate }}</h1>
-      <p class="subtitle">{{ 'branches.subtitle' | translate }}</p>
-    </div>
-    @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
-        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
-        {{ 'branches.addBranch' | translate }}
-      </button>
-    }
-  </div>
-
-  <div class="grid-toolbar">
     <p-iconfield iconPosition="left" class="search-field">
       <p-inputicon styleClass="pi pi-search" />
       <input
@@ -24,36 +11,40 @@
       />
     </p-iconfield>
 
-    <div class="toolbar-right">
-      <span class="result-count">{{ filteredBranches().length }} / {{ branches().length }}</span>
-      <div class="view-toggle">
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'grid'"
-          [pTooltip]="'branches.gridView' | translate"
-          (click)="setViewMode('grid')"
-        >
-          <i class="pi pi-th-large"></i>
-        </button>
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'list'"
-          [pTooltip]="'branches.listView' | translate"
-          (click)="setViewMode('list')"
-        >
-          <i class="pi pi-bars"></i>
-        </button>
-      </div>
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'branches.addBranch' | translate }}
+      </button>
+    }
+
+    <div class="view-toggle">
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'grid'"
+        [pTooltip]="'branches.gridView' | translate"
+        (click)="setViewMode('grid')"
+      >
+        <i class="pi pi-th-large"></i>
+      </button>
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'list'"
+        [pTooltip]="'branches.listView' | translate"
+        (click)="setViewMode('list')"
+      >
+        <i class="pi pi-bars"></i>
+      </button>
     </div>
   </div>
 
@@ -171,6 +162,10 @@
         </div>
       }
     }
+  </div>
+
+  <div class="table-footer-bar">
+    <span class="result-count">{{ filteredBranches().length }} / {{ branches().length }}</span>
   </div>
 
   <p-dialog

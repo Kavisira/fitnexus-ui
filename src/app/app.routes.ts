@@ -5,6 +5,8 @@ import { Signup } from './pages/noauth/signup/signup';
 import { VerifyOtp } from './pages/noauth/verify-otp/verify-otp';
 import { Layout } from './pages/auth/layout/layout';
 import { Dashboard } from './pages/auth/dashboard/dashboard';
+import { MyWorkspace } from './pages/auth/my-workspace/my-workspace';
+import { Payroll } from './pages/auth/payroll/payroll';
 import { Branches } from './pages/auth/branches/branches';
 import { Plans } from './pages/auth/plans/plans';
 import { Offers } from './pages/auth/offers/offers';
@@ -18,6 +20,7 @@ import { NotificationConfiguration } from './pages/auth/settings/notification-co
 import { RolePermissions } from './pages/auth/role-permissions/role-permissions';
 import { Help } from './pages/auth/help/help';
 import { LeaveManagement } from './pages/auth/leave-management/leave-management';
+import { Todo } from './pages/auth/todo/todo';
 import { Attendance } from './pages/auth/attendance/attendance';
 import { Alerts } from './pages/auth/alerts/alerts';
 import { Placeholder } from './shared/placeholder/placeholder';
@@ -140,11 +143,31 @@ export const routes: Routes = [
         title: 'Login Alerts · FitNexus',
       },
       {
+        // Running payroll is a financial action gated Owner-only in
+        // the service itself (see PayrollService.requireOwner), same
+        // reasoning as Alerts/Roles & Permissions above — so this uses
+        // ownerGuard rather than a permission-matrix screen too.
+        path: 'payroll',
+        component: Payroll,
+        canActivate: [ownerGuard],
+        title: 'Payroll · FitNexus',
+      },
+      {
+        // The pending-decision queue (approve/reject) — the To-Do
+        // page. Leave Management below is now allocation *setup*
+        // only.
+        path: 'todo',
+        component: Todo,
+        canActivate: [permissionGuard],
+        data: { labelKey: 'common.todo', screen: 'LEAVES' },
+        title: 'To-Do · FitNexus',
+      },
+      {
         path: 'leave-management',
         component: LeaveManagement,
         canActivate: [permissionGuard],
         data: { screen: 'LEAVES' },
-        title: 'Leave Management · FitNexus',
+        title: 'Leave Settings · FitNexus',
       },
       {
         // Help is reference documentation, not a data screen — every
@@ -153,6 +176,18 @@ export const routes: Routes = [
         path: 'help',
         component: Help,
         title: 'Help & Guide · FitNexus',
+      },
+      {
+        // Self-service home for any logged-in employee (Apply Leave,
+        // Attendance Tracker, Payslips, Reviews, Appraisal Letters) —
+        // not part of the permission matrix, same as Help, since it
+        // only ever shows the caller's own data. The Owner has no
+        // Employee record, so the component itself shows a notice
+        // instead of the tabs when isOwnerAccount() is true (see
+        // MyWorkspace.isOwnerAccount).
+        path: 'my-workspace',
+        component: MyWorkspace,
+        title: 'My Workspace · FitNexus',
       },
       {
         // Setup and Configuration are two tabs of one page, each with

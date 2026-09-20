@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -18,9 +18,11 @@ import { AvatarModule } from 'primeng/avatar';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Branch, BranchApiService, BranchPayload } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { CURRENCIES } from '../../../core/constants/currencies';
 import { PermissionsService } from '../../../core/roles/permissions.service';
 
@@ -67,6 +69,7 @@ import { PermissionsService } from '../../../core/roles/permissions.service';
 export class Branches implements OnInit {
   private fb = inject(FormBuilder);
   private branchApi = inject(BranchApiService);
+  private branchStore = inject(BranchStore);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private i18n = inject(TranslationService);
@@ -78,8 +81,13 @@ export class Branches implements OnInit {
   // that would 403.
   canWrite = computed(() => this.permissions.canWrite('BRANCHES'));
 
-  branches = signal<Branch[]>([]);
-  loading = signal(false);
+  // Reads straight from the shared store now instead of keeping a
+  // local copy — this page is also the one place that mutates branch
+  // data, so its own load/reload calls (below) keep the store current
+  // for every other page reading it too (Plans, Leads, Members,
+  // Attendance, Expenses, Dashboard, Employees).
+  branches = this.branchStore.branches;
+  loading = this.branchStore.loading;
   saving = signal(false);
   dialogVisible = signal(false);
   editingId = signal<string | null>(null);
@@ -146,22 +154,17 @@ export class Branches implements OnInit {
     return this.form.controls;
   }
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('branches.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadBranches();
   }
 
   loadBranches(): void {
-    this.loading.set(true);
-    this.branchApi.list().subscribe({
-      next: (branches) => {
-        this.loading.set(false);
-        this.branches.set(branches);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.error(this.i18n.t('branches.loadError'));
-      },
-    });
+    this.branchStore.reload(() => this.toast.error(this.i18n.t('branches.loadError')));
   }
 
   openCreate(): void {

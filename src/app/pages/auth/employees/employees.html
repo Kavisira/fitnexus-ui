@@ -1,18 +1,11 @@
 <div class="employees-page">
   <div class="page-header">
-    <div>
-      <h1>{{ 'employees.title' | translate }}</h1>
-      <p class="subtitle">{{ 'employees.subtitle' | translate }}</p>
-    </div>
-    @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
-        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
-        {{ 'employees.addEmployee' | translate }}
-      </button>
-    }
-  </div>
-
-  <div class="grid-toolbar">
+    <app-filter-panel
+      [sections]="filterSections()"
+      [value]="filterPanelValue()"
+      (apply)="onFiltersApply($event)"
+      (clear)="clearFilters()"
+    ></app-filter-panel>
     <p-iconfield iconPosition="left" class="search-field">
       <p-inputicon styleClass="pi pi-search" />
       <input
@@ -23,158 +16,171 @@
         (ngModelChange)="searchTerm.set($event)"
       />
     </p-iconfield>
-
-    <div class="toolbar-right">
-      <span class="result-count">{{ filteredEmployees().length }} / {{ employees().length }}</span>
-      <div class="view-toggle">
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'grid'"
-          [pTooltip]="'branches.gridView' | translate"
-          (click)="setViewMode('grid')"
-        >
-          <i class="pi pi-th-large"></i>
-        </button>
-        <button
-          pButton
-          type="button"
-          [text]="true"
-          [rounded]="true"
-          severity="secondary"
-          class="view-toggle-btn"
-          [class.active]="viewMode() === 'list'"
-          [pTooltip]="'branches.listView' | translate"
-          (click)="setViewMode('list')"
-        >
-          <i class="pi pi-bars"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="filter-toolbar">
-    <p-select
-      class="filter-field"
-      [options]="branchFilterOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="branchFilter()"
-      (ngModelChange)="branchFilter.set($event)"
-      [placeholder]="'employees.allBranches' | translate"
-    />
-    <p-select
-      class="filter-field"
-      [options]="roleFilterOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="roleFilter()"
-      (ngModelChange)="roleFilter.set($event)"
-      [placeholder]="'employees.allRoles' | translate"
-    />
-    <p-select
-      class="filter-field"
-      [options]="statusFilterOptions()"
-      optionLabel="label"
-      optionValue="value"
-      [ngModel]="statusFilter()"
-      (ngModelChange)="statusFilter.set($event)"
-      [placeholder]="'employees.allStatuses' | translate"
-    />
     @if (hasActiveFilters()) {
       <button pButton type="button" [text]="true" severity="secondary" class="filter-clear" (click)="clearFilters()">
         <i class="pi pi-filter-slash" style="margin-right: 0.35rem"></i>
         {{ 'leads.clearFilters' | translate }}
       </button>
     }
+
+    @if (canWrite()) {
+      <button pButton type="button" class="p-button-outlined" (click)="employeesImport.open()">
+        <i class="pi pi-upload" style="margin-right: 0.4rem"></i>
+        Import CSV
+      </button>
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'employees.addEmployee' | translate }}
+      </button>
+    }
+
+    <div class="view-toggle">
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'table'"
+        [pTooltip]="'branches.tableView' | translate"
+        (click)="setViewMode('table')"
+      >
+        <i class="pi pi-table"></i>
+      </button>
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        class="view-toggle-btn"
+        [class.active]="viewMode() === 'list'"
+        [pTooltip]="'branches.listView' | translate"
+        (click)="setViewMode('list')"
+      >
+        <i class="pi pi-bars"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="employee-grid" [class.employee-grid-list]="viewMode() === 'list'">
+  <p-menu #rowMenu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
+
+  @if (viewMode() === 'table') {
+  <div class="employee-table-panel">
+  <p-table
+    [value]="filteredEmployees()"
+    [loading]="loading()"
+    [(selection)]="selectedEmployees"
+    dataKey="id"
+    [paginator]="true"
+    [rows]="15"
+    [rowsPerPageOptions]="[15, 25, 50]"
+    [scrollable]="true"
+    [stripedRows]="true"
+    [rowHover]="true"
+    styleClass="p-datatable-sm employee-table"
+  >
+    <ng-template #header>
+      <tr>
+        <th style="width: 3rem"><p-table-header-checkbox></p-table-header-checkbox></th>
+        <th pSortableColumn="name">{{ 'employees.nameLabel' | translate }} <p-sort-icon field="name" /></th>
+        <th pSortableColumn="branch.location">{{ 'employees.branchLabel' | translate }} <p-sort-icon field="branch.location" /></th>
+        <th pSortableColumn="role">{{ 'employees.roleLabel' | translate }} <p-sort-icon field="role" /></th>
+        <th pSortableColumn="status">{{ 'employees.statusLabel' | translate }} <p-sort-icon field="status" /></th>
+        <th style="width: 3.5rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-employee>
+      <tr (click)="openDetail(employee)" class="employee-table-row">
+        <td (click)="$event.stopPropagation()"><p-table-checkbox [value]="employee"></p-table-checkbox></td>
+        <td>
+          <div class="employee-table-name">
+            <p-avatar [label]="initials(employee)" shape="circle" class="employee-avatar" />
+            <div>
+              <div class="employee-table-name-line">{{ orDash(employee.name) }}</div>
+              <div class="employee-table-sub">{{ orDash(employee.phone) }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ orDash(employee.branch?.location) }}</td>
+        <td>{{ roleLabel(employee.role) }}</td>
+        <td><p-tag [value]="statusLabel(employee.status)" [severity]="statusSeverity(employee.status)" /></td>
+        <td (click)="$event.stopPropagation()">
+          <button pButton type="button" [text]="true" [rounded]="true" size="small" severity="secondary" (click)="activeEmployee.set(employee); rowMenu.toggle($event)">
+            <i class="pi pi-ellipsis-v"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="6">
+          <div class="employee-grid-empty">
+            <i class="pi pi-id-card"></i>
+            <p>{{ 'employees.empty' | translate }}</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  </div>
+  }
+
+  @if (viewMode() === 'list') {
+  <div class="employee-list">
     @if (loading()) {
-      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      @for (i of [1, 2, 3, 4]; track i) {
         <p-card styleClass="employee-card employee-card-skeleton"></p-card>
       }
     } @else {
       @for (employee of filteredEmployees(); track employee.id) {
-        <p-card styleClass="employee-card" (click)="openDetail(employee)">
+        <p-card styleClass="employee-card">
           <div class="employee-card-header">
-            <p-avatar [label]="initials(employee)" shape="circle" size="large" class="employee-avatar" />
+            <p-avatar [label]="initials(employee)" shape="circle" class="employee-avatar" />
             <div class="employee-card-heading">
-              <div class="employee-card-name">
-                {{ orDash(employee.name) }}
-              </div>
-              <p class="employee-card-line">
-                <i class="pi pi-building"></i>
-                {{ orDash(employee.branch?.location) }}
-              </p>
-              <p class="employee-card-line">
-                <i class="pi pi-phone"></i>
-                {{ orDash(employee.phone) }}
-              </p>
-              <p class="employee-card-line">
-                <i class="pi pi-envelope"></i>
-                {{ orDash(employee.email) }}
-              </p>
+              <div class="employee-card-name">{{ orDash(employee.name) }}</div>
             </div>
             <p-tag [value]="statusLabel(employee.status)" [severity]="statusSeverity(employee.status)" styleClass="employee-status-tag" />
           </div>
 
-          <div class="employee-card-split">
-            <div class="employee-card-meta">
-              <div class="employee-meta-row">
-                <span class="employee-meta-label"><i class="pi pi-id-card"></i> {{ 'employees.roleLabel' | translate }}</span>
-                <span class="employee-meta-value">{{ roleLabel(employee.role) }}</span>
-              </div>
-              <div class="employee-meta-row">
-                <span class="employee-meta-label"><i class="pi pi-calendar"></i> {{ 'employees.joinDateLabel' | translate }}</span>
-                <span class="employee-meta-value">{{ employee.joinDate | date: 'MMM d, y' }}</span>
-              </div>
-              @if (viewMode() === 'list') {
-                <div class="employee-meta-row">
-                  <span class="employee-meta-label"><i class="pi pi-wallet"></i> {{ 'employees.basicPayLabel' | translate }}</span>
-                  <span class="employee-meta-value">{{ orDash(employee.basicPay) }}</span>
-                </div>
-                <div class="employee-meta-row">
-                  <span class="employee-meta-label"><i class="pi pi-gift"></i> {{ 'employees.dobLabel' | translate }}</span>
-                  <span class="employee-meta-value">{{ employee.dateOfBirth ? (employee.dateOfBirth | date: 'MMM d, y') : '-' }}</span>
-                </div>
+          <div class="employee-card-meta">
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-building"></i> {{ 'employees.branchLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ orDash(employee.branch?.location) }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-id-card"></i> {{ 'employees.roleLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ roleLabel(employee.role) }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-phone"></i> {{ 'employees.phoneLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ orDash(employee.phone) }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-envelope"></i> {{ 'employees.emailLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ orDash(employee.email) }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-calendar"></i> {{ 'employees.joinDateLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ employee.joinDate | date: 'MMM d, y' }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-wallet"></i> {{ 'employees.basicPayLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ orDash(employee.basicPay) }}</span>
+            </div>
+            <div class="employee-meta-row">
+              <span class="employee-meta-label"><i class="pi pi-gift"></i> {{ 'employees.dobLabel' | translate }}</span>
+              <span class="employee-meta-value">{{ employee.dateOfBirth ? (employee.dateOfBirth | date: 'MMM d, y') : '-' }}</span>
+            </div>
+            <div class="employee-meta-row employee-meta-row-note">
+              <span class="employee-meta-label"><i class="pi pi-comment"></i> {{ 'employees.lastNoteLabel' | translate }}</span>
+              @if (lastNote(employee); as note) {
+                <span class="employee-meta-value">{{ note }}</span>
+              } @else {
+                <span class="employee-meta-value employee-lastnote-empty">{{ 'employees.noNotesYet' | translate }}</span>
               }
             </div>
-
-            @if (viewMode() === 'list') {
-              <div class="employee-card-notes-col">
-                <span class="employee-notes-col-label">{{ 'employees.recentNotesLabel' | translate }}</span>
-                @if (recentNotes(employee).length) {
-                  <ul class="employee-card-notes-list">
-                    @for (activity of recentNotes(employee); track activity.id) {
-                      <li class="employee-card-notes-item">
-                        <span class="employee-card-notes-text">{{ activity.note }}</span>
-                        <span class="employee-card-notes-date">
-                          <i class="pi pi-calendar"></i>
-                          {{ activity.createdAt | date: 'MMM d, y · h:mm a' }}
-                        </span>
-                      </li>
-                    }
-                  </ul>
-                } @else {
-                  <span class="employee-lastnote-empty">{{ 'employees.noNotesYet' | translate }}</span>
-                }
-              </div>
-            } @else {
-              <div class="employee-card-lastnote">
-                <i class="pi pi-comment"></i>
-                <span class="employee-lastnote-label">{{ 'employees.lastNoteLabel' | translate }}:</span>
-                @if (lastNote(employee); as note) {
-                  <span class="employee-lastnote-text">{{ note }}</span>
-                } @else {
-                  <span class="employee-lastnote-empty">{{ 'employees.noNotesYet' | translate }}</span>
-                }
-              </div>
-            }
           </div>
 
           <div class="employee-card-footer">
@@ -185,7 +191,7 @@
               [rounded]="true"
               severity="secondary"
               [pTooltip]="(canWrite() ? 'leads.viewEdit' : 'common.view') | translate"
-              (click)="$event.stopPropagation(); openDetail(employee)"
+              (click)="openDetail(employee)"
             >
               <i class="pi" [class.pi-pencil]="canWrite()" [class.pi-eye]="!canWrite()"></i>
             </button>
@@ -197,7 +203,7 @@
                 [rounded]="true"
                 severity="danger"
                 [pTooltip]="'common.delete' | translate"
-                (click)="$event.stopPropagation(); deleteEmployee(employee)"
+                (click)="deleteEmployee(employee)"
               >
                 <i class="pi pi-trash"></i>
               </button>
@@ -211,6 +217,11 @@
         </div>
       }
     }
+  </div>
+  }
+
+  <div class="table-footer-bar">
+    <span class="result-count">{{ filteredEmployees().length }} / {{ employees().length }}</span>
   </div>
 
   <!-- Create dialog -->
@@ -265,9 +276,14 @@
           <p-select
             inputId="c-role"
             formControlName="role"
-            [options]="roleOptions"
+            [options]="roleOptions()"
             optionLabel="label"
             optionValue="value"
+            [editable]="true"
+            [filter]="true"
+            filterBy="label"
+            [pTooltip]="'employees.roleEditableHint' | translate"
+            tooltipPosition="top"
             styleClass="w-full"
           />
         </div>
@@ -308,6 +324,63 @@
           />
         </div>
         <div class="field"></div>
+      </div>
+
+      <div class="salary-components">
+        <div class="salary-components-header">
+          <span class="salary-components-title">{{ 'employees.salaryComponentsLabel' | translate }}</span>
+          <button pButton type="button" [text]="true" size="small" (click)="addComponent('create')">
+            <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
+            {{ 'employees.addComponentAction' | translate }}
+          </button>
+        </div>
+        @if (createComponents().length === 0) {
+          <small class="salary-components-empty">{{ 'employees.noComponentsHint' | translate }}</small>
+        } @else {
+          @for (component of createComponents(); track $index) {
+            <div class="salary-component-row">
+              <input
+                type="text"
+                class="salary-component-name"
+                [placeholder]="'employees.componentNamePlaceholder' | translate"
+                [value]="component.name"
+                (input)="updateComponentField('create', $index, 'name', $any($event.target).value)"
+              />
+              <select
+                class="salary-component-type"
+                [value]="component.type"
+                (change)="updateComponentField('create', $index, 'type', $any($event.target).value)"
+              >
+                <option value="EARNING">{{ 'employees.earningOption' | translate }}</option>
+                <option value="DEDUCTION">{{ 'employees.deductionOption' | translate }}</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                class="salary-component-percent"
+                [value]="component.percent"
+                (input)="updateComponentField('create', $index, 'percent', $any($event.target).value)"
+              />
+              <span class="salary-component-percent-sign">%</span>
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                severity="danger"
+                size="small"
+                (click)="removeComponent('create', $index)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+        }
+        <div class="salary-net-preview">
+          <span>{{ 'employees.netPayPreviewLabel' | translate }}</span>
+          <strong>{{ netPayPreview('create') | number: '1.0-2' }}</strong>
+        </div>
       </div>
 
       <div class="employee-login-field">
@@ -430,9 +503,14 @@
             <p-select
               inputId="d-role"
               formControlName="role"
-              [options]="roleOptions"
+              [options]="roleOptions()"
               optionLabel="label"
               optionValue="value"
+              [editable]="true"
+              [filter]="true"
+              filterBy="label"
+              [pTooltip]="'employees.roleEditableHint' | translate"
+              tooltipPosition="top"
               styleClass="w-full"
             />
           </div>
@@ -484,115 +562,349 @@
             />
           </div>
         </div>
+
+        <div class="salary-components">
+          <div class="salary-components-header">
+            <span class="salary-components-title">{{ 'employees.salaryComponentsLabel' | translate }}</span>
+            <button pButton type="button" [text]="true" size="small" (click)="addComponent('detail')">
+              <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
+              {{ 'employees.addComponentAction' | translate }}
+            </button>
+          </div>
+          @if (detailComponents().length === 0) {
+            <small class="salary-components-empty">{{ 'employees.noComponentsHint' | translate }}</small>
+          } @else {
+            @for (component of detailComponents(); track $index) {
+              <div class="salary-component-row">
+                <input
+                  type="text"
+                  class="salary-component-name"
+                  [placeholder]="'employees.componentNamePlaceholder' | translate"
+                  [value]="component.name"
+                  (input)="updateComponentField('detail', $index, 'name', $any($event.target).value)"
+                />
+                <select
+                  class="salary-component-type"
+                  [value]="component.type"
+                  (change)="updateComponentField('detail', $index, 'type', $any($event.target).value)"
+                >
+                  <option value="EARNING">{{ 'employees.earningOption' | translate }}</option>
+                  <option value="DEDUCTION">{{ 'employees.deductionOption' | translate }}</option>
+                </select>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  class="salary-component-percent"
+                  [value]="component.percent"
+                  (input)="updateComponentField('detail', $index, 'percent', $any($event.target).value)"
+                />
+                <span class="salary-component-percent-sign">%</span>
+                <button
+                  pButton
+                  type="button"
+                  [text]="true"
+                  severity="danger"
+                  size="small"
+                  (click)="removeComponent('detail', $index)"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            }
+          }
+          <div class="salary-net-preview">
+            <span>{{ 'employees.netPayPreviewLabel' | translate }}</span>
+            <strong>{{ netPayPreview('detail') | number: '1.0-2' }}</strong>
+          </div>
+        </div>
       </form>
       }
 
-      <div class="employee-login-status">
-        @if (employee.user) {
-          @if (isOwner) {
-            <!-- Owner-only, always-visible credentials — not just the
-                 one-time reveal at creation. -->
-            <div class="employee-login-credentials-block">
-              <span class="employee-login-active">
-                <i class="pi pi-check-circle"></i>
-                {{ 'employees.loginActiveLabel' | translate }}
-              </span>
-              @if (loadingCredentials()) {
-                <span class="employee-credentials-loading">{{ 'employees.credentialsLoading' | translate }}</span>
-              } @else if (employeeCredentials(); as creds) {
-                <div class="employee-login-credential">
-                  <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
-                  <span class="employee-login-credential-value">{{ creds.username }}</span>
-                </div>
-                <div class="employee-login-credential">
-                  <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
-                  <span class="employee-login-credential-value">{{ creds.password }}</span>
-                </div>
-              } @else if (credentialsError()) {
-                <span class="employee-credentials-error">{{ credentialsError() }}</span>
-              }
-            </div>
-          } @else {
-            <span class="employee-login-active">
-              <i class="pi pi-check-circle"></i>
-              {{ 'employees.loginActiveLabel' | translate }}: {{ employee.user.email }}
-            </span>
+      <div class="employee-login-accordion">
+        <button
+          type="button"
+          pButton
+          [text]="true"
+          severity="secondary"
+          class="employee-details-toggle"
+          (click)="loginSectionExpanded.set(!loginSectionExpanded())"
+        >
+          <i class="pi" [class.pi-chevron-right]="!loginSectionExpanded()" [class.pi-chevron-down]="loginSectionExpanded()"></i>
+          {{ 'employees.loginSectionTitle' | translate }}
+          @if (employee.user) {
+            <i class="pi pi-check-circle employee-login-accordion-badge"></i>
           }
-        } @else if (canWrite() && isLoginEligibleRole(employee.role)) {
-          <button
-            pButton
-            type="button"
-            [text]="true"
-            [loading]="creatingLogin()"
-            (click)="createLoginForEmployee(employee)"
-          >
-            <i class="pi pi-key" style="margin-right: 0.4rem"></i>
-            {{ 'employees.createLoginAction' | translate }}
-          </button>
-        } @else {
-          <span class="employee-login-ineligible">{{ 'employees.loginNeedsEligibleRole' | translate }}</span>
-        }
-      </div>
-
-      @if (errorMessage()) {
-        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
-      }
-
-      <div class="dialog-actions">
-        <button pButton type="button" severity="secondary" [text]="true" (click)="closeDetail()">
-          {{ 'common.close' | translate }}
         </button>
-        @if (canWrite()) {
-          <button pButton type="button" [loading]="saving()" (click)="saveDetail()">{{ 'employees.save' | translate }}</button>
-        }
-      </div>
 
-      <div class="employee-timeline-section">
-        <h3>{{ 'employees.timelineTitle' | translate }}</h3>
-
-        @if (canWrite()) {
-          <div class="employee-note-form">
-            <textarea
-              pTextarea
-              rows="2"
-              class="w-full"
-              [placeholder]="'employees.notePlaceholder' | translate"
-              [ngModel]="noteText()"
-              (ngModelChange)="noteText.set($event)"
-            ></textarea>
-            <button
-              pButton
-              type="button"
-              [disabled]="!noteText().trim()"
-              [loading]="savingNote()"
-              (click)="addNote()"
-            >
-              {{ 'employees.addNote' | translate }}
-            </button>
+        @if (loginSectionExpanded()) {
+          <div class="employee-login-status">
+            @if (employee.user) {
+              @if (isOwner) {
+                <!-- Owner-only, always-visible credentials — not just the
+                     one-time reveal at creation. Laid out as a single
+                     horizontal row (label:value, label:value) instead of
+                     stacked blocks, to stay compact. -->
+                <div class="employee-login-credentials-row">
+                  <span class="employee-login-active">
+                    <i class="pi pi-check-circle"></i>
+                    {{ 'employees.loginActiveLabel' | translate }}
+                  </span>
+                  @if (loadingCredentials()) {
+                    <span class="employee-credentials-loading">{{ 'employees.credentialsLoading' | translate }}</span>
+                  } @else if (employeeCredentials(); as creds) {
+                    <span class="employee-login-credential">
+                      <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
+                      <span class="employee-login-credential-value">{{ creds.username }}</span>
+                    </span>
+                    <span class="employee-login-credential">
+                      <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
+                      <span class="employee-login-credential-value">{{ creds.password }}</span>
+                    </span>
+                  } @else if (credentialsError()) {
+                    <span class="employee-credentials-error">{{ credentialsError() }}</span>
+                  }
+                   <div class="dialog-actions">
+          <button pButton type="button" severity="secondary" [text]="true" (click)="closeDetail()">
+            {{ 'common.close' | translate }}
+          </button>
+          @if (canWrite()) {
+            <button pButton type="button" [loading]="saving()" (click)="saveDetail()">{{ 'employees.save' | translate }}</button>
+          }
+        </div>
+                </div>
+              } @else {
+                <span class="employee-login-active">
+                  <i class="pi pi-check-circle"></i>
+                  {{ 'employees.loginActiveLabel' | translate }}: {{ employee.user.email }}
+                </span>
+              }
+            } @else if (canWrite() && isLoginEligibleRole(employee.role)) {
+              <button
+                pButton
+                type="button"
+                [text]="true"
+                [loading]="creatingLogin()"
+                (click)="createLoginForEmployee(employee)"
+              >
+                <i class="pi pi-key" style="margin-right: 0.4rem"></i>
+                {{ 'employees.createLoginAction' | translate }}
+              </button>
+            } @else {
+              <span class="employee-login-ineligible">{{ 'employees.loginNeedsEligibleRole' | translate }}</span>
+            }
           </div>
         }
 
-        @if (employee.activities && employee.activities.length) {
-          <ul class="employee-timeline">
-            @for (activity of employee.activities; track activity.id) {
-              <li class="employee-timeline-item">
-                <span class="employee-timeline-dot"></span>
-                <div class="employee-timeline-content">
-                  <p class="employee-timeline-note">{{ activity.note }}</p>
-                  <div class="employee-timeline-meta">
-                    <span class="employee-timeline-date">
-                      <i class="pi pi-calendar"></i>
-                      {{ 'employees.noteLoggedLabel' | translate }}: {{ activity.createdAt | date: 'MMM d, y · h:mm a' }}
-                    </span>
+        @if (errorMessage()) {
+          <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+        }
+      </div>
+
+
+      <div class="employee-performance-section">
+        <h3>{{ 'employees.performance.title' | translate }}</h3>
+        <div class="employee-performance-actions">
+          <button pButton type="button" [text]="true" (click)="openReviewsList()">
+            <i class="pi pi-star" style="margin-right: 0.4rem"></i>
+            {{ 'employees.performance.reviewsSubtitle' | translate }} ({{ reviews().length }})
+          </button>
+          <button pButton type="button" [text]="true" (click)="openAppraisalsList()">
+            <i class="pi pi-file" style="margin-right: 0.4rem"></i>
+            {{ 'employees.performance.appraisalsSubtitle' | translate }} ({{ appraisals().length }})
+          </button>
+        </div>
+      </div>
+    }
+  </p-dialog>
+
+  <!-- Reviews — its own popup, separate from Appraisals, so each stays
+       clean rather than both scrolling together in one section. -->
+  <p-dialog
+    [visible]="reviewsListDialogVisible()"
+    (visibleChange)="closeReviewsList()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '70vw', maxWidth: '56rem' }"
+    [breakpoints]="{ '900px': '94vw' }"
+    [header]="'employees.performance.reviewsSubtitle' | translate"
+  >
+    @if (canWrite()) {
+      <div class="employee-performance-actions" style="margin-bottom: 1rem">
+        <button pButton type="button" [text]="true" (click)="openReviewDialog()">
+          <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'employees.performance.addReview' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (!reviews().length) {
+      <p class="employee-timeline-empty">{{ 'employees.performance.noReviews' | translate }}</p>
+    } @else {
+      <div class="mw-review-list">
+        @for (review of reviews(); track trackReview($index, review)) {
+          <div class="mw-review-card">
+            <div class="mw-review-header">
+              <span class="mw-review-date">{{ review.reviewDate | date: 'mediumDate' }}</span>
+              @if (review.rating != null) {
+                <span class="mw-review-stars">{{ ratingStars(review.rating) }}</span>
+              }
+              <p-tag [value]="('employees.performance.status.' + review.status) | translate" [severity]="reviewStatusSeverity(review.status)" />
+            </div>
+            <p class="mw-review-notes" [innerHTML]="review.notes"></p>
+
+            @if (review.responses.length) {
+              <div class="review-thread">
+                @for (response of review.responses; track trackResponse($index, response)) {
+                  <div class="review-thread-item" [class.review-thread-item-employee]="response.authorType === 'EMPLOYEE'">
+                    <span class="review-thread-author">{{ ('employees.performance.author.' + response.authorType) | translate }}</span>
+                    <p class="review-thread-message" [innerHTML]="response.message"></p>
                   </div>
-                </div>
-              </li>
+                }
+              </div>
             }
-          </ul>
-        } @else {
-          <p class="employee-timeline-empty">{{ 'employees.timelineEmpty' | translate }}</p>
+
+            @if (canWrite() && review.status !== 'SIGNED_OFF') {
+              <div class="review-reply-form">
+                <p-editor
+                  class="mini-editor"
+                  [style]="{ height: '110px' }"
+                  [placeholder]="'employees.performance.replyPlaceholder' | translate"
+                  [ngModel]="reviewReplyDraft(review.id)"
+                  (ngModelChange)="setReviewReplyDraft(review.id, $event)"
+                >
+                  <ng-template #header>
+                    <span class="ql-formats">
+                      <button type="button" class="ql-bold" aria-label="Bold"></button>
+                      <button type="button" class="ql-italic" aria-label="Italic"></button>
+                      <button type="button" class="ql-underline" aria-label="Underline"></button>
+                      <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+                      <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
+                    </span>
+                  </ng-template>
+                </p-editor>
+                <button
+                  pButton
+                  type="button"
+                  [disabled]="richTextIsBlank(reviewReplyDraft(review.id))"
+                  [loading]="sendingReplyReviewId() === review.id"
+                  (click)="sendManagementReply(review)"
+                >
+                  {{ 'employees.performance.sendReply' | translate }}
+                </button>
+              </div>
+            }
+          </div>
         }
       </div>
     }
   </p-dialog>
+
+  <!-- Appraisals — its own popup, separate from Reviews. -->
+  <p-dialog
+    [visible]="appraisalsListDialogVisible()"
+    (visibleChange)="closeAppraisalsList()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '30rem' }"
+    [header]="'employees.performance.appraisalsSubtitle' | translate"
+  >
+    @if (canWrite()) {
+      <div class="employee-performance-actions" style="margin-bottom: 1rem">
+        <button pButton type="button" [text]="true" (click)="openAppraisalDialog()">
+          <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'employees.performance.addAppraisal' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (!appraisals().length) {
+      <p class="employee-timeline-empty">{{ 'employees.performance.noAppraisals' | translate }}</p>
+    } @else {
+      <div class="mw-payslip-list">
+        @for (appraisal of appraisals(); track trackAppraisal($index, appraisal)) {
+          <div class="mw-payslip-card">
+            <button type="button" class="mw-payslip-summary" (click)="toggleAppraisal(appraisal.id)">
+              <span class="mw-payslip-month">{{ appraisal.effectiveDate | date: 'mediumDate' }}</span>
+              <span class="mw-payslip-net">{{ appraisal.newBasicPay | number: '1.0-2' }}</span>
+              <i class="pi" [class.pi-chevron-down]="expandedAppraisalId() !== appraisal.id" [class.pi-chevron-up]="expandedAppraisalId() === appraisal.id"></i>
+            </button>
+            @if (expandedAppraisalId() === appraisal.id) {
+              <div class="mw-payslip-detail mw-appraisal-letter">{{ appraisal.letterContent }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </p-dialog>
+
+  <p-dialog
+    [visible]="reviewDialogVisible()"
+    (visibleChange)="closeReviewDialog()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '26rem' }"
+    [header]="'employees.performance.addReview' | translate"
+  >
+    <div class="ep-apply-form">
+      <label>{{ 'employees.performance.reviewDateLabel' | translate }}</label>
+      <p-datepicker [ngModel]="reviewDate()" (ngModelChange)="reviewDate.set($event)" dateFormat="M d, yy" [showIcon]="true" />
+
+      <label>{{ 'employees.performance.ratingLabel' | translate }}</label>
+      <p-select [options]="ratingOptions" optionLabel="label" optionValue="value" [ngModel]="reviewRating()" (ngModelChange)="reviewRating.set($event)" [showClear]="true" />
+
+      <label>{{ 'employees.performance.notesLabel' | translate }}</label>
+      <p-editor class="mini-editor" [style]="{ height: '120px' }" [ngModel]="reviewNotes()" (ngModelChange)="reviewNotes.set($event)">
+        <ng-template #header>
+          <span class="ql-formats">
+            <button type="button" class="ql-bold" aria-label="Bold"></button>
+            <button type="button" class="ql-italic" aria-label="Italic"></button>
+            <button type="button" class="ql-underline" aria-label="Underline"></button>
+            <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+            <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
+          </span>
+        </ng-template>
+      </p-editor>
+
+      <div class="ep-apply-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeReviewDialog()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [loading]="savingReview()" [disabled]="richTextIsBlank(reviewNotes())" (click)="submitReview()">{{ 'common.save' | translate }}</button>
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog
+    [visible]="appraisalDialogVisible()"
+    (visibleChange)="closeAppraisalDialog()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '26rem' }"
+    [header]="'employees.performance.addAppraisal' | translate"
+  >
+    <div class="ep-apply-form">
+      <label>{{ 'employees.performance.effectiveDateLabel' | translate }}</label>
+      <p-datepicker [ngModel]="appraisalDate()" (ngModelChange)="appraisalDate.set($event)" dateFormat="M d, yy" [showIcon]="true" />
+
+      <label>{{ 'employees.performance.newBasicPayLabel' | translate }}</label>
+      <p-inputnumber [ngModel]="appraisalNewBasicPay()" (ngModelChange)="appraisalNewBasicPay.set($event)" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2" />
+
+      <label>{{ 'employees.performance.notesLabel' | translate }}</label>
+      <p-editor class="mini-editor" [style]="{ height: '120px' }" [ngModel]="appraisalNote()" (ngModelChange)="appraisalNote.set($event)">
+        <ng-template #header>
+          <span class="ql-formats">
+            <button type="button" class="ql-bold" aria-label="Bold"></button>
+            <button type="button" class="ql-italic" aria-label="Italic"></button>
+            <button type="button" class="ql-underline" aria-label="Underline"></button>
+            <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+            <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
+          </span>
+        </ng-template>
+      </p-editor>
+
+      <div class="ep-apply-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeAppraisalDialog()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [loading]="savingAppraisal()" [disabled]="appraisalNewBasicPay() == null" (click)="submitAppraisal()">{{ 'common.save' | translate }}</button>
+      </div>
+    </div>
+  </p-dialog>
+<app-employees-import #employeesImport (imported)="loadEmployees()"></app-employees-import>
 </div>

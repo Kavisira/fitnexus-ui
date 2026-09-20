@@ -1,0 +1,400 @@
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+  transition: width 0.18s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 64px;
+}
+
+/* Fixed height, matching .app-header exactly (see header.css) — the
+   sidebar-brand row and the top bar sit edge-to-edge at the same
+   corner, so they need to line up as one continuous strip rather than
+   each sizing off its own padding/content. */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 60px;
+  box-sizing: border-box;
+  padding: 0 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 12px rgba(59, 130, 246, 0.45);
+}
+
+.brand-mark i {
+  font-size: 1.05rem;
+}
+
+.brand-text {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.65rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+.nav-link.active {
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #ffffff;
+}
+
+.nav-link.active .nav-icon {
+  color: #ffffff;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 0.55rem;
+}
+
+/* Group headers are a plain (non-interactive) label row now — every
+   group's items are always visible below it, no click-to-expand. */
+.nav-group-label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .nav-group-label {
+  justify-content: center;
+  padding: 0.55rem;
+}
+
+.nav-group-label.active {
+  color: #93c5fd;
+}
+
+.nav-group-label .nav-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.nav-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.submenu {
+  list-style: none;
+  margin: 0.15rem 0 0.3rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.65rem 0.45rem 2.1rem;
+  border-radius: 7px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.submenu-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+.submenu-link.active {
+  background: rgba(59, 130, 246, 0.18);
+  color: #ffffff;
+}
+
+.submenu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.submenu-icon svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: currentColor;
+}
+
+.submenu-icon .pi {
+  font-size: 0.85rem;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.sidebar-footer:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar.collapsed .sidebar-footer {
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+}
+
+.sidebar-footer ::ng-deep .p-avatar {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.footer-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.footer-who b {
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer-who span {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Profile dropdown header block (email + role) ---- */
+
+::ng-deep .profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.75rem;
+}
+
+::ng-deep .profile-menu-header .p-avatar {
+  background: var(--p-primary-500, #3b82f6);
+  color: #ffffff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+::ng-deep .profile-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+::ng-deep .profile-menu-email {
+  font-size: 0.85rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .profile-menu-role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Mobile: off-canvas drawer instead of a rail ---- */
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Hidden by default and taken out of the flex flow (fixed instead of
+     a flex child) — .app-shell no longer needs to reserve space for
+     it, and it overlays the content column when opened instead of
+     pushing it aside. Always shows full labels here regardless of the
+     desktop `collapsed` state (see showLabels() in sidebar.ts) — a
+     64px icon-only drawer isn't usable as a phone tap target. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    transform: translateX(-100%);
+    z-index: 100;
+    transition: transform 0.2s ease;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar.collapsed {
+    width: 240px;
+  }
+
+  .sidebar.collapsed .sidebar-brand,
+  .sidebar.collapsed .nav-link,
+  .sidebar.collapsed .nav-group-label,
+  .sidebar.collapsed .sidebar-footer {
+    justify-content: flex-start;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop.visible {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 99;
+  }
+}
+
+/* ---- To-Do badge (pending-count) ---- */
+
+.nav-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Collapsed rail has no room for the pill — a small dot on the icon
+   itself is enough to say "something needs attention". */
+.nav-icon-dot {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.15rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px #0f172a;
+}
+
+.nav-icon {
+  position: relative;
+}

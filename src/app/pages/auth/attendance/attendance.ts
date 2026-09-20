@@ -11,10 +11,12 @@ import { DatePickerModule } from 'primeng/datepicker';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
-import { BranchApiService, Branch } from '../../../core/branches/branch-api.service';
-import { EmployeeApiService, Employee } from '../../../core/employees/employee-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
+import { MemberStore } from '../../../core/members/member-store.service';
 import { API_BASE_URL } from '../../../core/config/api.config';
 import {
   AttendanceApiService,
@@ -24,6 +26,7 @@ import {
   UnmatchedPunch,
   BiometricVendorType,
   PunchPersonType,
+  PunchDirection,
   StaffCalendarDay,
   MemberCalendarDay,
   DayDetail,
@@ -42,8 +45,17 @@ const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // with no new backend dependencies).
 const LIVE_POLL_MS = 25_000;
 
+// IMPORTANT: build the key from the Date's LOCAL calendar fields, not
+// toISOString() -- toISOString() converts to UTC first, which silently
+// shifts the date by a day in any timezone ahead of UTC (e.g. IST).
+// That mismatch was the root cause of calendar cells showing a count
+// for one date while clicking them requested day-detail for a
+// different date (which had no punches, so the dialog came up empty).
 function toDateKey(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 interface CalendarCell {
@@ -71,10 +83,12 @@ interface CalendarCell {
 })
 export class Attendance implements OnInit, OnDestroy {
   private attendanceApi = inject(AttendanceApiService);
-  private branchApi = inject(BranchApiService);
-  private employeeApi = inject(EmployeeApiService);
+  private branchStore = inject(BranchStore);
+  private employeeStore = inject(EmployeeStore);
+  private memberStore = inject(MemberStore);
   private toast = inject(ToastService);
   private i18n = inject(TranslationService);
+  private pageHeader = inject(PageHeaderService);
   private permissions = inject(PermissionsService);
 
   canWrite = computed(() => this.permissions.canWrite('ATTENDANCE'));
@@ -94,8 +108,16 @@ export class Attendance implements OnInit, OnDestroy {
     this.activeTab.set(id);
   }
 
-  branches = signal<Branch[]>([]);
-  employees = signal<Employee[]>([]);
+  // Shared cache — see BranchStore; reads the full list (INACTIVE included) same as before.
+  branches = this.branchStore.branches;
+  // Shared cache — see EmployeeStore; reads the full list (INACTIVE included) same as before.
+  employees = this.employeeStore.employees;
+
+  // Capped (500) full roster from MemberStore — same picker pattern as
+  // `employees` above, just from the Members side (see MemberStore's
+  // doc comment on why it's a capped snapshot rather than a live
+  // cache). Used for the enrollment dialog's searchable member picker.
+  members = this.memberStore.allMembers;
 
   weekdayNames = WEEKDAY_NAMES;
   monthOptions = MONTH_NAMES.map((name, i) => ({ label: name, value: i + 1 }));
@@ -345,7 +367,10 @@ export class Attendance implements OnInit, OnDestroy {
   newEnrollmentBioId = signal('');
   newEnrollmentPersonType = signal<PunchPersonType>('EMPLOYEE');
   newEnrollmentEmployeeId = signal<string | null>(null);
-  newEnrollmentMemberId = signal('');
+  // Selected via a searchable p-select (see manageEnrollments/template),
+  // same picker pattern as newEnrollmentEmployeeId — a raw member ID
+  // isn't something anyone can type from memory the way a bio ID is.
+  newEnrollmentMemberId = signal<string | null>(null);
   savingEnrollment = signal(false);
 
   personTypeOptions: { label: string; value: PunchPersonType }[] = [
@@ -359,7 +384,7 @@ export class Attendance implements OnInit, OnDestroy {
     this.newEnrollmentBioId.set('');
     this.newEnrollmentPersonType.set('EMPLOYEE');
     this.newEnrollmentEmployeeId.set(this.employees()[0]?.id ?? null);
-    this.newEnrollmentMemberId.set('');
+    this.newEnrollmentMemberId.set(this.members()[0]?.id ?? null);
     this.attendanceApi.listEnrollments(device.id).subscribe({
       next: (rows) => {
         this.enrollmentsLoading.set(false);
@@ -389,7 +414,7 @@ export class Attendance implements OnInit, OnDestroy {
       this.toast.error(this.i18n.t('attendance.devices.validationError'));
       return;
     }
-    if (personType === 'MEMBER' && !this.newEnrollmentMemberId().trim()) {
+    if (personType === 'MEMBER' && !this.newEnrollmentMemberId()) {
       this.toast.error(this.i18n.t('attendance.devices.validationError'));
       return;
     }
@@ -399,7 +424,7 @@ export class Attendance implements OnInit, OnDestroy {
         biometricUserId: bioId,
         personType,
         employeeId: personType === 'EMPLOYEE' ? this.newEnrollmentEmployeeId()! : undefined,
-        memberId: personType === 'MEMBER' ? this.newEnrollmentMemberId().trim() : undefined,
+        memberId: personType === 'MEMBER' ? this.newEnrollmentMemberId()! : undefined,
       })
       .subscribe({
         next: () => {
@@ -425,6 +450,63 @@ export class Attendance implements OnInit, OnDestroy {
       },
       error: () => this.toast.error(this.i18n.t('attendance.devices.enrollRemoveError')),
     });
+  }
+
+  // ---- Simulate punch: test the whole attendance pipeline (recording,
+  // nightly aggregation, calendars, absentee detection) without a
+  // physical biometric machine. Fires a real punch against the
+  // enrolled person through the same recording logic a real device
+  // uses — see AttendanceDevicesService.simulatePunch on the backend. ----
+  simulatePunchTarget = signal<BiometricEnrollment | null>(null);
+  simulatePunchAt = signal<Date | null>(null);
+  simulatePunchDirection = signal<PunchDirection>('IN');
+  sendingSimulatePunch = signal(false);
+
+  directionOptions: { label: string; value: PunchDirection }[] = [
+    { label: 'Check-in', value: 'IN' },
+    { label: 'Check-out', value: 'OUT' },
+    { label: 'Unknown', value: 'UNKNOWN' },
+  ];
+
+  openSimulatePunch(enrollment: BiometricEnrollment): void {
+    this.simulatePunchTarget.set(enrollment);
+    this.simulatePunchAt.set(new Date());
+    this.simulatePunchDirection.set('IN');
+  }
+
+  closeSimulatePunch(): void {
+    this.simulatePunchTarget.set(null);
+  }
+
+  sendSimulatePunch(): void {
+    const deviceId = this.enrollmentDeviceId();
+    const enrollment = this.simulatePunchTarget();
+    if (!deviceId || !enrollment) {
+      return;
+    }
+    const at = this.simulatePunchAt() ?? new Date();
+    this.sendingSimulatePunch.set(true);
+    this.attendanceApi
+      .simulatePunch(deviceId, {
+        biometricUserId: enrollment.biometricUserId,
+        timestamp: at.toISOString(),
+        direction: this.simulatePunchDirection(),
+      })
+      .subscribe({
+        next: () => {
+          this.sendingSimulatePunch.set(false);
+          this.toast.success(this.i18n.t('attendance.devices.simulatePunchSuccess'));
+          this.closeSimulatePunch();
+          this.loadUnmatched();
+          // The Staff/Members calendars and "today" counts poll on
+          // their own interval already (see LIVE_POLL_MS) — no need to
+          // force-refresh them here just for a simulated punch.
+        },
+        error: (err) => {
+          this.sendingSimulatePunch.set(false);
+          this.toast.error(err?.error?.message ?? this.i18n.t('attendance.devices.simulatePunchError'));
+        },
+      });
   }
 
   // ---- Holidays ----
@@ -483,8 +565,10 @@ export class Attendance implements OnInit, OnDestroy {
 
   // ---- Shared ----
   ngOnInit(): void {
-    this.branchApi.list().subscribe({ next: (branches) => this.branches.set(branches), error: () => {} });
-    this.employeeApi.list().subscribe({ next: (employees) => this.employees.set(employees), error: () => {} });
+    this.pageHeader.setTitleKey('attendance.title');
+    this.branchStore.ensureLoaded();
+    this.employeeStore.ensureLoaded();
+    this.memberStore.loadAll();
     this.loadStaffCalendar();
     this.loadMemberCalendar();
     this.loadAbsent();
@@ -493,16 +577,35 @@ export class Attendance implements OnInit, OnDestroy {
     this.loadHolidays();
 
     // Polling-based "live" refresh: only worth doing while looking at
-    // the current month, since past months never change.
+    // the current month, since past months never change. Also skipped
+    // while the tab is backgrounded (Page Visibility API) — no point
+    // hitting the API every 25s for a tab nobody's looking at; it picks
+    // back up (and does one immediate refresh) the moment the tab
+    // becomes visible again.
     this.livePollHandle = setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
       if (!this.isCurrentMonth()) return;
       if (this.activeTab() === 'staff') this.loadStaffCalendar();
       if (this.activeTab() === 'members') this.loadMemberCalendar();
     }, LIVE_POLL_MS);
+
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
+  // Bound as a property (not a method) so the exact same function
+  // reference can be passed to both addEventListener and
+  // removeEventListener in ngOnDestroy.
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState !== 'visible') return;
+    if (!this.isCurrentMonth()) return;
+    if (this.activeTab() === 'staff') this.loadStaffCalendar();
+    if (this.activeTab() === 'members') this.loadMemberCalendar();
+  };
+
   ngOnDestroy(): void {
+    this.pageHeader.clear();
     if (this.livePollHandle) clearInterval(this.livePollHandle);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   statusSeverity(status: string): 'success' | 'danger' | 'warn' | 'secondary' | 'info' {

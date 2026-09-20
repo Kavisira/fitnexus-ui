@@ -17,3 +17,64 @@
   color: var(--p-text-muted-color, #6b7280);
   font-size: 0.75rem;
 }
+
+.settings-divider {
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  margin: 0.4rem 0;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.logo-preview {
+  width: 3.2rem;
+  height: 3.2rem;
+  object-fit: contain;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0.2rem;
+}
+
+.logo-placeholder {
+  width: 3.2rem;
+  height: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--p-content-border-color, #d1d5db);
+  border-radius: 8px;
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 1.2rem;
+}
+
+.logo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-start;
+}
+
+.logo-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--p-content-border-color, #d1d5db);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--p-text-color, #111827);
+}
+
+.logo-upload-btn:hover {
+  background: var(--p-content-background, #f9fafb);
+}
+
+.logo-upload-btn.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}

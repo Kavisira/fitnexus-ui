@@ -1,11 +1,4 @@
 <div class="config-page">
-  <div class="page-header">
-    <div>
-      <h1>{{ 'notificationConfig.title' | translate }}</h1>
-      <p class="subtitle">{{ 'notificationConfig.subtitle' | translate }}</p>
-    </div>
-  </div>
-
   @if (!loading()) {
     <div class="config-list">
       @for (config of configs(); track config.type) {

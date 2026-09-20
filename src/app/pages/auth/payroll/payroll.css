@@ -1,0 +1,61 @@
+.payroll-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.payroll-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.payroll-period-select {
+  min-width: 9rem;
+}
+
+.loading-text {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.chart-empty {
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 0.85rem;
+}
+
+.payroll-table-wrap {
+  overflow-x: auto;
+}
+
+.payroll-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.payroll-table th,
+.payroll-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+  font-size: 0.86rem;
+}
+
+.payroll-table thead th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:host-context(.my-app-dark) .payroll-table th,
+:host-context(.my-app-dark) .payroll-table td {
+  border-color: #1f2937;
+}

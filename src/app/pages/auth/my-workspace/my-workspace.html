@@ -1,0 +1,360 @@
+@if (isOwnerAccount()) {
+  <div class="mw-owner-notice">
+    <i class="pi pi-info-circle"></i>
+    {{ 'myWorkspace.ownerNotice' | translate }}
+  </div>
+} @else {
+  <div class="mw-tab-bar">
+    @for (tab of tabs; track tab.id) {
+      <button type="button" class="mw-tab-btn" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
+        <i class="pi pi-{{ tab.icon }}"></i>
+        {{ tab.labelKey | translate }}
+      </button>
+    }
+  </div>
+
+  @if (activeTab() === 'leave') {
+    <div class="ep-balance-grid">
+      @for (row of leaveBalance(); track row.leaveType) {
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ leaveTypeLabel(row.leaveType) }}</span>
+          <span class="ep-balance-value">{{ row.balance }}</span>
+          <span class="ep-balance-label">{{ 'dashboard.leave.daysAvailable' | translate }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="ep-header">
+      <h2>{{ 'dashboard.leave.myRequestsTitle' | translate }}</h2>
+      <button pButton type="button" (click)="openApplyDialog()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>{{ 'dashboard.leave.apply' | translate }}
+      </button>
+    </div>
+
+    @if (leaveLoading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!myLeaveRequests().length) {
+      <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
+    } @else {
+      <div class="ep-table-wrap">
+        <table class="ep-table">
+          <thead>
+            <tr>
+              <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
+              <th>{{ 'leaveManagement.dates' | translate }}</th>
+              <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
+              <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of myLeaveRequests(); track r.id) {
+              <tr>
+                <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+                <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+                <td class="col-num">{{ r.days }}</td>
+                <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
+                <td>
+                  @if (r.status === 'PENDING') {
+                    <button
+                      pButton
+                      type="button"
+                      class="p-button-sm p-button-text p-button-danger"
+                      [loading]="cancellingId() === r.id"
+                      (click)="cancelLeaveRequest(r.id)"
+                    >{{ 'dashboard.leave.cancel' | translate }}</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'attendance') {
+    <div class="mw-attendance-filters">
+      <p-select
+        [options]="monthOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="attendanceMonth()"
+        (ngModelChange)="attendanceMonth.set($event); onAttendancePeriodChange()"
+        styleClass="mw-period-select"
+      />
+      <p-select
+        [options]="yearOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="attendanceYear()"
+        (ngModelChange)="attendanceYear.set($event); onAttendancePeriodChange()"
+        styleClass="mw-period-select"
+      />
+    </div>
+
+    @if (attendanceLoading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (attendanceSummary(); as summary) {
+      <div class="ep-balance-grid">
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ 'myWorkspace.attendanceStatus.PRESENT' | translate }}</span>
+          <span class="ep-balance-value">{{ summary.summary.PRESENT }}</span>
+        </div>
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ 'myWorkspace.attendanceStatus.ABSENT' | translate }}</span>
+          <span class="ep-balance-value">{{ summary.summary.ABSENT }}</span>
+        </div>
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ 'myWorkspace.attendanceStatus.HALF_DAY' | translate }}</span>
+          <span class="ep-balance-value">{{ summary.summary.HALF_DAY }}</span>
+        </div>
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ 'myWorkspace.attendanceStatus.ON_LEAVE' | translate }}</span>
+          <span class="ep-balance-value">{{ summary.summary.ON_LEAVE }}</span>
+        </div>
+        <div class="ep-balance-card">
+          <span class="ep-balance-type">{{ 'myWorkspace.attendanceStatus.HOLIDAY' | translate }}</span>
+          <span class="ep-balance-value">{{ summary.summary.HOLIDAY }}</span>
+        </div>
+      </div>
+
+      @if (!summary.days.length) {
+        <p class="chart-empty">{{ 'myWorkspace.noAttendanceRecords' | translate }}</p>
+      } @else {
+        <div class="ep-table-wrap">
+          <table class="ep-table">
+            <thead>
+              <tr>
+                <th>{{ 'myWorkspace.dateColumn' | translate }}</th>
+                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+                <th>{{ 'myWorkspace.firstPunchColumn' | translate }}</th>
+                <th>{{ 'myWorkspace.lastPunchColumn' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (day of summary.days; track trackDay($index, day)) {
+                <tr>
+                  <td>{{ day.date | date: 'mediumDate' }}</td>
+                  <td><p-tag [value]="attendanceStatusLabel(day.status)" [severity]="attendanceStatusSeverity(day.status)" /></td>
+                  <td>{{ day.firstPunchAt ? (day.firstPunchAt | date: 'shortTime') : '—' }}</td>
+                  <td>{{ day.lastPunchAt ? (day.lastPunchAt | date: 'shortTime') : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+
+  @if (activeTab() === 'payslips') {
+    @if (payslipsLoading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!payslips().length) {
+      <div class="mw-coming-soon">
+        <i class="pi pi-wallet"></i>
+        <p>{{ 'myWorkspace.noPayslips' | translate }}</p>
+      </div>
+    } @else {
+      <div class="mw-payslip-list">
+        @for (payslip of payslips(); track trackPayslip($index, payslip)) {
+          <div class="mw-payslip-card">
+            <button type="button" class="mw-payslip-summary" (click)="togglePayslip(payslip.id)">
+              <span class="mw-payslip-month">{{ monthLabel(payslip.year, payslip.month) }}</span>
+              <span class="mw-payslip-net">{{ payslip.netPay | number: '1.0-2' }}</span>
+              <i class="pi" [class.pi-chevron-down]="expandedPayslipId() !== payslip.id" [class.pi-chevron-up]="expandedPayslipId() === payslip.id"></i>
+            </button>
+            @if (expandedPayslipId() === payslip.id) {
+              <div class="mw-payslip-detail">
+                <div class="mw-payslip-row">
+                  <span>{{ 'myWorkspace.basicPayLabel' | translate }}</span>
+                  <span>{{ payslip.basicPay | number: '1.0-2' }}</span>
+                </div>
+                @for (component of payslip.componentsSnapshot; track component.name) {
+                  <div class="mw-payslip-row">
+                    <span>{{ component.name }} ({{ component.percent }}%)</span>
+                    <span [class.mw-payslip-negative]="component.type === 'DEDUCTION'">
+                      {{ component.type === 'DEDUCTION' ? '-' : '+' }}{{ component.amount | number: '1.0-2' }}
+                    </span>
+                  </div>
+                }
+                @if (payslip.lopDays !== '0' && payslip.lopDays !== '0.00') {
+                  <div class="mw-payslip-row">
+                    <span>{{ 'myWorkspace.lopLabel' | translate }} ({{ payslip.lopDays }} {{ 'myWorkspace.daysSuffix' | translate }})</span>
+                    <span class="mw-payslip-negative">-{{ payslip.lopAmount | number: '1.0-2' }}</span>
+                  </div>
+                }
+                <div class="mw-payslip-row mw-payslip-total">
+                  <span>{{ 'myWorkspace.netPayLabel' | translate }}</span>
+                  <span>{{ payslip.netPay | number: '1.0-2' }}</span>
+                </div>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-download"
+                  class="p-button-sm mw-payslip-download-btn"
+                  [loading]="downloadingPayslipId() === payslip.id"
+                  (click)="downloadPayslip(payslip)"
+                >{{ 'myWorkspace.downloadPayslip' | translate }}</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'reviews') {
+    @if (reviewsLoading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!reviews().length) {
+      <div class="mw-coming-soon">
+        <i class="pi pi-star"></i>
+        <p>{{ 'myWorkspace.noReviews' | translate }}</p>
+      </div>
+    } @else {
+      <div class="mw-review-list">
+        @for (review of reviews(); track trackReview($index, review)) {
+          <div class="mw-review-card">
+            <div class="mw-review-header">
+              <span class="mw-review-date">{{ review.reviewDate | date: 'mediumDate' }}</span>
+              @if (review.rating != null) {
+                <span class="mw-review-stars">{{ ratingStars(review.rating) }}</span>
+              }
+              <p-tag [value]="('myWorkspace.reviewStatus.' + review.status) | translate" [severity]="reviewStatusSeverity(review.status)" />
+            </div>
+            <p class="mw-review-notes" [innerHTML]="review.notes"></p>
+
+            @if (review.responses.length) {
+              <div class="review-thread">
+                @for (response of review.responses; track trackResponse($index, response)) {
+                  <div class="review-thread-item" [class.review-thread-item-employee]="response.authorType === 'EMPLOYEE'">
+                    <span class="review-thread-author">{{ ('myWorkspace.reviewAuthor.' + response.authorType) | translate }}</span>
+                    <p class="review-thread-message" [innerHTML]="response.message"></p>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (review.status !== 'SIGNED_OFF') {
+              <div class="review-reply-form">
+                <p-editor
+                  class="mini-editor"
+                  [style]="{ height: '110px' }"
+                  [placeholder]="'myWorkspace.replyPlaceholder' | translate"
+                  [ngModel]="reviewReplyDraft(review.id)"
+                  (ngModelChange)="setReviewReplyDraft(review.id, $event)"
+                >
+                  <ng-template #header>
+                    <span class="ql-formats">
+                      <button type="button" class="ql-bold" aria-label="Bold"></button>
+                      <button type="button" class="ql-italic" aria-label="Italic"></button>
+                      <button type="button" class="ql-underline" aria-label="Underline"></button>
+                      <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+                      <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
+                    </span>
+                  </ng-template>
+                </p-editor>
+                <div class="review-reply-actions">
+                  <button
+                    pButton
+                    type="button"
+                    [text]="true"
+                    [loading]="signingOffReviewId() === review.id"
+                    (click)="signOffReview(review)"
+                  >
+                    <i class="pi pi-check" style="margin-right: 0.4rem"></i>{{ 'myWorkspace.signOff' | translate }}
+                  </button>
+                  <button
+                    pButton
+                    type="button"
+                    [disabled]="richTextIsBlank(reviewReplyDraft(review.id))"
+                    [loading]="sendingReplyReviewId() === review.id"
+                    (click)="sendEmployeeReply(review)"
+                  >
+                    {{ 'myWorkspace.sendReply' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'appraisals') {
+    @if (appraisalsLoading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!appraisals().length) {
+      <div class="mw-coming-soon">
+        <i class="pi pi-file"></i>
+        <p>{{ 'myWorkspace.noAppraisals' | translate }}</p>
+      </div>
+    } @else {
+      <div class="mw-payslip-list">
+        @for (appraisal of appraisals(); track trackAppraisal($index, appraisal)) {
+          <div class="mw-payslip-card">
+            <button type="button" class="mw-payslip-summary" (click)="toggleAppraisal(appraisal.id)">
+              <span class="mw-payslip-month">{{ appraisal.effectiveDate | date: 'mediumDate' }}</span>
+              <span class="mw-payslip-net">{{ appraisal.newBasicPay | number: '1.0-2' }}</span>
+              <i class="pi" [class.pi-chevron-down]="expandedAppraisalId() !== appraisal.id" [class.pi-chevron-up]="expandedAppraisalId() === appraisal.id"></i>
+            </button>
+            @if (expandedAppraisalId() === appraisal.id) {
+              <div class="mw-payslip-detail mw-appraisal-letter">{{ appraisal.letterContent }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <p-dialog
+    [visible]="applyDialogVisible()"
+    (visibleChange)="closeApplyDialog()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '28rem' }"
+    [header]="'dashboard.leave.applyTitle' | translate"
+  >
+    <div class="ep-apply-form">
+      <label>{{ 'leaveManagement.typeColumn' | translate }}</label>
+      <p-select
+        [options]="leaveTypeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="applyLeaveType()"
+        (ngModelChange)="applyLeaveType.set($event)"
+      />
+
+      <label>{{ 'dashboard.leave.startDate' | translate }}</label>
+      <p-datepicker
+        [ngModel]="applyStartDate()"
+        (ngModelChange)="applyStartDate.set($event)"
+        dateFormat="M d, yy"
+        [showIcon]="true"
+      />
+
+      <label>{{ 'dashboard.leave.endDate' | translate }}</label>
+      <p-datepicker
+        [ngModel]="applyEndDate()"
+        (ngModelChange)="applyEndDate.set($event)"
+        dateFormat="M d, yy"
+        [showIcon]="true"
+      />
+
+      <label>{{ 'dashboard.leave.reasonLabel' | translate }}</label>
+      <textarea pTextarea rows="3" class="ep-apply-textarea" [ngModel]="applyReason()" (ngModelChange)="applyReason.set($event)"></textarea>
+
+      @if (applyError()) {
+        <p class="ep-apply-error">{{ applyError() }}</p>
+      }
+
+      <div class="ep-apply-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeApplyDialog()">{{ 'common.cancel' | translate }}</button>
+        <button pButton type="button" [loading]="applySaving()" (click)="submitLeaveApplication()">{{ 'dashboard.leave.submit' | translate }}</button>
+      </div>
+    </div>
+  </p-dialog>
+}

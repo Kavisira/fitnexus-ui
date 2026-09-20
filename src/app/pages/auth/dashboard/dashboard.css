@@ -1,28 +1,17 @@
 .dashboard-page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.6rem;
   padding-bottom: 1.5rem;
 }
 
-.page-header {
+.dash-tab-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.subtitle {
-  margin: 0.3rem 0 0;
-  color: var(--p-text-muted-color, #6b7280);
+  margin-bottom: 1.25rem;
 }
 
 .loading-text,
@@ -197,7 +186,6 @@ h1 {
   flex-wrap: wrap;
   gap: 0.4rem;
   padding: 0.35rem;
-  margin-bottom: 1.25rem;
   background: var(--p-content-background, #ffffff);
   border: 1px solid var(--p-content-border-color, #e5e7eb);
   border-radius: 12px;
@@ -651,8 +639,9 @@ h1 {
 
 .branch-filter {
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .branch-filter label {

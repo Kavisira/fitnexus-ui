@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -20,11 +20,13 @@ import { TranslationService } from '../../../core/i18n/translation.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Lead, LeadActivity, LeadApiService, LeadPayload, LeadStatus } from '../../../core/leads/lead-api.service';
-import { Branch, BranchApiService } from '../../../core/branches/branch-api.service';
+import { BranchStore } from '../../../core/branches/branch-store.service';
 import { LEAD_SOURCES } from '../../../core/constants/lead-sources';
 import { PermissionsService } from '../../../core/roles/permissions.service';
-import { Employee, EmployeeApiService } from '../../../core/employees/employee-api.service';
+import { EmployeeStore } from '../../../core/employees/employee-store.service';
 import { AuthApiService, MeResponse } from '../../../core/auth/auth-api.service';
+import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 
 type StatusSeverity = 'info' | 'success' | 'warn' | 'danger' | 'secondary';
 
@@ -64,6 +66,7 @@ const STATUS_SEVERITY: Record<LeadStatus, StatusSeverity> = {
     TooltipModule,
     CardModule,
     AvatarModule,
+    FilterPanel,
     TranslatePipe,
   ],
   templateUrl: './leads.html',
@@ -72,8 +75,8 @@ const STATUS_SEVERITY: Record<LeadStatus, StatusSeverity> = {
 export class Leads implements OnInit {
   private fb = inject(FormBuilder);
   private leadApi = inject(LeadApiService);
-  private branchApi = inject(BranchApiService);
-  private employeeApi = inject(EmployeeApiService);
+  private branchStore = inject(BranchStore);
+  private employeeStore = inject(EmployeeStore);
   private authApi = inject(AuthApiService);
   private toast = inject(ToastService);
   private confirmService = inject(ConfirmService);
@@ -94,11 +97,13 @@ export class Leads implements OnInit {
   canReadEmployees = computed(() => this.permissions.canRead('EMPLOYEES'));
 
   leads = signal<Lead[]>([]);
-  branches = signal<Branch[]>([]);
+  // Shared cache — see BranchStore; this page only ever wants ACTIVE branches.
+  branches = this.branchStore.activeBranches;
   // Real employees to assign a lead to — "Assigned to" used to be a
   // free-text name field; now it's a real link to an Employee record
   // (see Lead.assignedToEmployeeId on the backend).
-  employees = signal<Employee[]>([]);
+  // Shared cache — see EmployeeStore; this page only ever wants ACTIVE employees.
+  employees = this.employeeStore.activeEmployees;
   // The logged-in user's own profile (name, branch, linked employee) —
   // used to default/lock "branch" and "assigned to" to themselves when
   // they can't browse the full Branches/Employees lists.
@@ -108,9 +113,9 @@ export class Leads implements OnInit {
   savingNote = signal(false);
 
   searchTerm = signal('');
-  branchFilter = signal<string | null>(null);
-  sourceFilter = signal<string | null>(null);
-  assignedToFilter = signal<string | null>(null);
+  branchFilter = signal<string[]>([]);
+  sourceFilter = signal<string[]>([]);
+  assignedToFilter = signal<string[]>([]);
   // [start, end] from the p-datepicker range picker, or null — filters
   // on the lead's createdAt.
   dateRange = signal<Date[] | null>(null);
@@ -170,12 +175,9 @@ export class Leads implements OnInit {
     const own = this.me();
     return own?.branch ? [{ label: own.branch.location, value: own.branch.id }] : [];
   });
-  branchFilterOptions = computed(() => [{ label: this.i18n.t('leads.allBranches'), value: null }, ...this.branchOptions()]);
+  branchFilterOptions = computed(() => this.branchOptions());
 
-  sourceFilterOptions = computed(() => [
-    { label: this.i18n.t('leads.allSources'), value: null },
-    ...this.sourceOptions,
-  ]);
+  sourceFilterOptions = computed(() => this.sourceOptions);
 
   // Every active employee, for the "Assigned to" dropdown on the
   // create/detail forms — a real Employee link now, not free text.
@@ -189,44 +191,59 @@ export class Leads implements OnInit {
     return own?.employeeId ? [{ label: own.employeeName ?? own.name, value: own.employeeId }] : [];
   });
 
-  assignedToFilterOptions = computed(() => [
-    { label: this.i18n.t('leads.allAssignees'), value: null },
-    ...this.employeeOptions(),
+  assignedToFilterOptions = computed(() => this.employeeOptions());
+
+  filterSections = computed<FilterSection[]>(() => [
+    { key: 'branch', label: this.i18n.t('leads.branchLabel'), options: this.branchFilterOptions() },
+    { key: 'source', label: this.i18n.t('leads.sourceLabel'), options: this.sourceFilterOptions() },
+    { key: 'assignedTo', label: this.i18n.t('leads.assignedToLabel'), options: this.assignedToFilterOptions() },
   ]);
+
+  filterPanelValue = computed<Record<string, unknown[]>>(() => ({
+    branch: this.branchFilter(),
+    source: this.sourceFilter(),
+    assignedTo: this.assignedToFilter(),
+  }));
 
   hasActiveFilters = computed(
     () =>
       !!this.searchTerm().trim() ||
-      !!this.branchFilter() ||
-      !!this.sourceFilter() ||
-      !!this.assignedToFilter() ||
+      this.branchFilter().length > 0 ||
+      this.sourceFilter().length > 0 ||
+      this.assignedToFilter().length > 0 ||
       !!this.dateRange(),
   );
 
+  onFiltersApply(values: Record<string, unknown[]>): void {
+    this.branchFilter.set((values['branch'] as string[]) ?? []);
+    this.sourceFilter.set((values['source'] as string[]) ?? []);
+    this.assignedToFilter.set((values['assignedTo'] as string[]) ?? []);
+  }
+
   clearFilters(): void {
     this.searchTerm.set('');
-    this.branchFilter.set(null);
-    this.sourceFilter.set(null);
-    this.assignedToFilter.set(null);
+    this.branchFilter.set([]);
+    this.sourceFilter.set([]);
+    this.assignedToFilter.set([]);
     this.dateRange.set(null);
   }
 
   filteredLeads = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    const branchId = this.branchFilter();
-    const source = this.sourceFilter();
-    const assignedTo = this.assignedToFilter();
+    const branchIds = this.branchFilter();
+    const sources = this.sourceFilter();
+    const assignedTos = this.assignedToFilter();
     const range = this.dateRange();
 
     let leads = this.leads();
-    if (branchId) {
-      leads = leads.filter((l) => l.branchId === branchId);
+    if (branchIds.length > 0) {
+      leads = leads.filter((l) => branchIds.includes(l.branchId));
     }
-    if (source) {
-      leads = leads.filter((l) => l.source === source);
+    if (sources.length > 0) {
+      leads = leads.filter((l) => !!l.source && sources.includes(l.source));
     }
-    if (assignedTo) {
-      leads = leads.filter((l) => l.assignedToEmployeeId === assignedTo);
+    if (assignedTos.length > 0) {
+      leads = leads.filter((l) => !!l.assignedToEmployeeId && assignedTos.includes(l.assignedToEmployeeId));
     }
     if (range && range[0]) {
       const from = new Date(range[0]);
@@ -285,7 +302,12 @@ export class Leads implements OnInit {
     return this.detailForm.controls;
   }
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('leads.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadMe();
     this.loadBranches();
     this.loadEmployees();
@@ -311,10 +333,7 @@ export class Leads implements OnInit {
     if (!this.canReadBranches()) {
       return;
     }
-    this.branchApi.list().subscribe({
-      next: (branches) => this.branches.set(branches.filter((b) => b.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('leads.loadBranchesError')),
-    });
+    this.branchStore.ensureLoaded();
   }
 
   loadEmployees(): void {
@@ -323,10 +342,7 @@ export class Leads implements OnInit {
     if (!this.canReadEmployees()) {
       return;
     }
-    this.employeeApi.list().subscribe({
-      next: (employees) => this.employees.set(employees.filter((e) => e.status === 'ACTIVE')),
-      error: () => this.toast.error(this.i18n.t('leads.loadEmployeesError')),
-    });
+    this.employeeStore.ensureLoaded();
   }
 
   loadLeads(): void {

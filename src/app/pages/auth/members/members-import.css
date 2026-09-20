@@ -1,0 +1,85 @@
+.import-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.import-step--review {
+  gap: 0.5rem;
+}
+
+.import-hint {
+  margin: 0;
+  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.9rem;
+}
+
+.import-hint--muted {
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 0.85rem;
+}
+
+.import-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.import-upload-row {
+  display: flex;
+}
+
+.import-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border: 1px dashed var(--p-content-border-color, #d1d5db);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.import-upload-btn:hover {
+  background: var(--p-content-hover-background, #f3f4f6);
+}
+
+.import-upload-btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.import-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.import-batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.import-row--error {
+  background: var(--p-red-50, #fef2f2);
+}
+
+.import-result-errors {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.import-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}

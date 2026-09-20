@@ -1,0 +1,119 @@
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-spacer" aria-hidden="true"></div>
+    <ul class="nav-list">
+    @if (showDashboard()) {
+      <li class="nav-item">
+        <a [routerLink]="dashboard.route" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon"><svg data-p-icon="home"></svg></span>
+          <span class="nav-label">{{ dashboard.labelKey | translate }}</span>
+        </a>
+      </li>
+    }
+    @for (group of visibleGroups(); track group.labelKey) {
+      <li class="nav-item" (mouseenter)="openGroupOnHover(group.labelKey)" (mouseleave)="closeGroup()">
+        <button
+          type="button"
+          class="nav-link nav-toggle"
+          [class.active]="isGroupActive(group)"
+          [class.open]="openGroup() === group.labelKey"
+          (click)="toggleGroup(group.labelKey, $event)"
+        >
+          <span class="nav-icon">
+            @switch (group.icon) {
+              @case ('users') { <svg data-p-icon="users"></svg> }
+              @case ('building') { <svg data-p-icon="building"></svg> }
+              @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
+              @case ('shield') { <svg data-p-icon="shield"></svg> }
+            }
+          </span>
+          <span class="nav-label">{{ group.labelKey | translate }}</span>
+          <i class="pi pi-angle-down nav-caret"></i>
+        </button>
+        @if (openGroup() === group.labelKey) {
+          <ul class="submenu" (click)="$event.stopPropagation()">
+            @for (item of group.items; track item.route) {
+              <li>
+                <a [routerLink]="item.route" routerLinkActive="active" class="submenu-link" (click)="closeGroup()">
+                  <span class="submenu-icon">
+                    @switch (item.icon) {
+                      @case ('home') { <svg data-p-icon="home"></svg> }
+                      @case ('building') { <svg data-p-icon="building"></svg> }
+                      @case ('users') { <svg data-p-icon="users"></svg> }
+                      @case ('id-card') { <svg data-p-icon="id-card"></svg> }
+                      @case ('user-plus') { <svg data-p-icon="user-plus"></svg> }
+                      @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
+                      @case ('bell') { <svg data-p-icon="bell"></svg> }
+                      @case ('shield') { <svg data-p-icon="shield"></svg> }
+                      @case ('tags') { <svg data-p-icon="tags"></svg> }
+                      @case ('percentage') { <svg data-p-icon="percentage"></svg> }
+                      @case ('wallet') { <i class="pi pi-wallet"></i> }
+                      @case ('alert') { <i class="pi pi-exclamation-triangle"></i> }
+                    }
+                  </span>
+                  {{ item.labelKey | translate }}
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </li>
+    }
+    @if (showMyWorkspace()) {
+      <li class="nav-item">
+        <a [routerLink]="myWorkspace.route" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon"><svg data-p-icon="id-card"></svg></span>
+          <span class="nav-label">{{ myWorkspace.labelKey | translate }}</span>
+        </a>
+      </li>
+    }
+    </ul>
+
+    <div class="topnav-actions">
+      <button
+        pButton
+        type="button"
+        class="help-btn"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        [pTooltip]="'common.help' | translate"
+        tooltipPosition="bottom"
+        aria-label="Help"
+        (click)="openHelp()"
+      >
+        <i class="pi pi-question-circle"></i>
+      </button>
+      @if (notificationStore.enabled()) {
+        <app-notification-bell></app-notification-bell>
+      }
+      <app-theme-toggle></app-theme-toggle>
+
+      <button
+        pButton
+        type="button"
+        class="profile-btn"
+        [text]="true"
+        (click)="profileMenu.toggle($event)"
+        aria-haspopup="true"
+      >
+        <p-avatar [label]="userInitial" shape="circle" size="normal" />
+        <i class="pi pi-angle-down profile-caret"></i>
+      </button>
+      <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body">
+        <ng-template #start>
+          <div class="profile-menu-header">
+            <p-avatar [label]="userInitial" shape="circle" size="large" />
+            <div class="profile-menu-info">
+              <span class="profile-menu-email">{{ userEmail }}</span>
+              <span class="profile-menu-role">{{ userRoleLabel }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-menu>
+    </div>
+  </div>
+</nav>
+
+<app-settings-dialog [(visible)]="settingsVisible"></app-settings-dialog>
+<app-version-dialog [(visible)]="versionVisible"></app-version-dialog>
