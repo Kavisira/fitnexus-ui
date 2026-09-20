@@ -16,5 +16,30 @@
       styleClass="w-full"
     />
     <small class="hint">{{ 'settings.languageHint' | translate }}</small>
+
+    @if (isOwner) {
+      <div class="settings-divider"></div>
+
+      <label>{{ 'settings.orgLogo' | translate }}</label>
+      <div class="logo-row">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" alt="" class="logo-preview" />
+        } @else {
+          <div class="logo-placeholder"><i class="pi pi-building"></i></div>
+        }
+        <div class="logo-actions">
+          <label class="logo-upload-btn" [class.disabled]="savingLogo()">
+            {{ (logoUrl() ? 'settings.logoReplace' : 'settings.logoUpload') | translate }}
+            <input type="file" accept="image/*" [disabled]="savingLogo()" (change)="onLogoSelected($event)" hidden />
+          </label>
+          @if (logoUrl()) {
+            <button pButton type="button" class="p-button-text p-button-danger p-button-sm" [disabled]="savingLogo()" (click)="removeLogo()">
+              {{ 'common.delete' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+      <small class="hint">{{ 'settings.orgLogoHint' | translate }}</small>
+    }
   </div>
 </p-dialog>

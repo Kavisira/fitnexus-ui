@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/api.config';
 
 export type BiometricVendorType = 'ADMS_PUSH' | 'GENERIC_WEBHOOK' | 'CSV_IMPORT';
 export type PunchPersonType = 'EMPLOYEE' | 'MEMBER';
+export type PunchDirection = 'IN' | 'OUT' | 'UNKNOWN';
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'ON_LEAVE' | 'HOLIDAY';
 
 export interface TodaySnapshot {
@@ -141,6 +142,15 @@ export interface UnmatchedPunch {
   branch?: { id: string; location: string };
 }
 
+export interface SimulatePunchPayload {
+  biometricUserId: string;
+  // Omit to use "now" — pass an ISO datetime to backdate a punch, for
+  // testing scenarios (a full present day, a half day, a late
+  // check-in) without waiting for real clock time to pass.
+  timestamp?: string;
+  direction?: PunchDirection;
+}
+
 /** Thin wrapper over `/api/attendance/*`. All routes here require the
  * ATTENDANCE permission (read for reporting/listing, write for
  * devices/enrollments/holidays) — enforced server-side, same pattern
@@ -183,6 +193,13 @@ export class AttendanceApiService {
   employeeMonthly(employeeId: string, year: number, month: number): Observable<EmployeeMonthlySummary> {
     const params = new HttpParams().set('year', year).set('month', month);
     return this.http.get<EmployeeMonthlySummary>(`${this.base}/employees/${employeeId}/monthly`, { params });
+  }
+
+  // Self-service — see AttendanceController.myMonthly. No employeeId
+  // param: the backend resolves it from the caller's own JWT.
+  myMonthly(year: number, month: number): Observable<EmployeeMonthlySummary> {
+    const params = new HttpParams().set('year', year).set('month', month);
+    return this.http.get<EmployeeMonthlySummary>(`${this.base}/me/monthly`, { params });
   }
 
   monthlySummary(year: number, month: number, branchId?: string): Observable<EmployeeMonthlyRow[]> {
@@ -233,6 +250,14 @@ export class AttendanceApiService {
 
   rotateKey(id: string): Observable<BiometricDevice> {
     return this.http.post<BiometricDevice>(`${this.base}/devices/${id}/rotate-key`, {});
+  }
+
+  /** Fires one test punch against this device, without any physical
+   * hardware — goes through the same recording pipeline a real
+   * device's punch would, so it's a genuine end-to-end test of
+   * attendance, not a separate mock path. */
+  simulatePunch(deviceId: string, payload: SimulatePunchPayload): Observable<{ recorded: number }> {
+    return this.http.post<{ recorded: number }>(`${this.base}/devices/${deviceId}/simulate-punch`, payload);
   }
 
   // ---- Enrollments ----

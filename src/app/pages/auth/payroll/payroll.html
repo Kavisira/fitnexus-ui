@@ -1,0 +1,84 @@
+<div class="payroll-page">
+  <div class="payroll-filters">
+    <p-select
+      [options]="monthOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="selectedMonth()"
+      (ngModelChange)="selectedMonth.set($event); onPeriodChange()"
+      styleClass="payroll-period-select"
+    />
+    <p-select
+      [options]="yearOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="selectedYear()"
+      (ngModelChange)="selectedYear.set($event); onPeriodChange()"
+      styleClass="payroll-period-select"
+    />
+    @if (branches().length > 1) {
+      <p-select
+        [options]="branchOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="selectedBranchId()"
+        (ngModelChange)="selectedBranchId.set($event); onPeriodChange()"
+        styleClass="payroll-period-select"
+      />
+    }
+    <button pButton type="button" [loading]="generating()" (click)="generate()">
+      <i class="pi pi-play" style="margin-right: 0.4rem"></i>
+      {{ 'payroll.generateAction' | translate }}
+    </button>
+  </div>
+
+  @if (generateSummary(); as summary) {
+    <p-message severity="success" styleClass="w-full">{{ summary.text }}</p-message>
+  }
+  @if (generateError()) {
+    <p-message severity="error" styleClass="w-full">{{ generateError() }}</p-message>
+  }
+
+  @if (loading()) {
+    <p class="loading-text">{{ 'common.loading' | translate }}</p>
+  } @else if (!payslips().length) {
+    <p class="chart-empty">{{ 'payroll.noneForPeriod' | translate }}</p>
+  } @else {
+    <div class="payroll-table-wrap">
+      <table class="payroll-table">
+        <thead>
+          <tr>
+            <th>{{ 'payroll.employeeColumn' | translate }}</th>
+            <th>{{ 'payroll.branchColumn' | translate }}</th>
+            <th class="col-num">{{ 'myWorkspace.basicPayLabel' | translate }}</th>
+            <th class="col-num">{{ 'payroll.lopDaysColumn' | translate }}</th>
+            <th class="col-num">{{ 'myWorkspace.netPayLabel' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payslip of payslips(); track trackPayslip($index, payslip)) {
+            <tr>
+              <td>{{ payslip.employee?.name }}</td>
+              <td>{{ payslip.employee?.branch?.location }}</td>
+              <td class="col-num">{{ payslip.basicPay | number: '1.0-2' }}</td>
+              <td class="col-num">{{ payslip.lopDays }}</td>
+              <td class="col-num">{{ payslip.netPay | number: '1.0-2' }}</td>
+              <td class="col-num">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-download"
+                  class="p-button-sm p-button-text"
+                  [pTooltip]="'payroll.downloadPdf' | translate"
+                  [loading]="downloadingPayslipId() === payslip.id"
+                  (click)="downloadPayslip(payslip)"
+                ></button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,13 +1,12 @@
 .app-shell {
-  /* Fixed to the viewport, not just a minimum — this is what makes
-     the header/sidenav "sticky" actually hold in place instead of
-     scrolling off with the page: the shell itself never grows taller
-     than the screen or scrolls, so only .app-content's own overflow
-     does. */
+  /* Fixed to the viewport, not just a minimum — this is what makes the
+     sidebar full-height and the top bar sticky instead of scrolling
+     off with the page: the shell itself never grows taller than the
+     screen or scrolls, so only .app-content's own overflow does. */
   height: 100dvh;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   /* Light mode only: a very light gray page background so white cards
      (branch cards, dialogs, etc.) actually stand out from the page
      instead of blending into an all-white screen. Dark mode already
@@ -19,10 +18,12 @@
   background: transparent;
 }
 
-.app-body {
+.app-main {
   flex: 1;
+  min-width: 0;
   display: flex;
-  min-height: 0;
+  flex-direction: column;
+  height: 100%;
 }
 
 .app-content {
@@ -30,14 +31,13 @@
   padding: 1.5rem;
   min-width: 0;
   min-height: 0;
-  /* This is the ONLY scrolling region in the app shell: the header is
-     sticky and the sidenav is sticky, so whatever a page renders here
+  /* This is the ONLY scrolling region in the app shell: the sidebar and
+     top bar are both fixed/sticky, so whatever a page renders here
      scrolls on its own (vertical only) instead of the whole page
-     moving and dragging the header/sidenav along with it. Most
-     feature pages already manage their own internal scroll area (e.g.
-     .app-table-card's flex:1 in styles.css) and simply won't overflow
-     this container in practice — this is the fallback for anything
-     that does. */
+     moving and dragging them along with it. Most feature pages already
+     manage their own internal scroll area (e.g. .app-table-card's
+     flex:1 in styles.css) and simply won't overflow this container in
+     practice — this is the fallback for anything that does. */
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -58,31 +58,8 @@
   min-height: 0;
 }
 
-/* Dimmed backdrop behind the sidenav when it's open as a mobile overlay.
-   Hidden entirely above the mobile breakpoint (the sidenav is part of
-   the normal layout there and never needs one). */
-.sidenav-backdrop {
-  display: none;
-}
-
 @media (max-width: 768px) {
   .app-content {
     padding: 1rem;
-  }
-
-  .sidenav-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.5);
-    z-index: 1100;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-  }
-
-  .sidenav-backdrop.visible {
-    opacity: 1;
-    pointer-events: auto;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -18,6 +18,7 @@ import { AvatarModule } from 'primeng/avatar';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Branch, BranchApiService, BranchPayload } from '../../../core/branches/branch-api.service';
@@ -153,7 +154,12 @@ export class Branches implements OnInit {
     return this.form.controls;
   }
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('branches.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadBranches();
   }
 

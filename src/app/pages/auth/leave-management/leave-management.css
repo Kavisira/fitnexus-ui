@@ -4,16 +4,6 @@
   gap: 1.5rem;
 }
 
-.page-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
 .lm-section {
   background: var(--p-content-background, #ffffff);
   border: 1px solid var(--p-content-border-color, #e5e7eb);
@@ -27,15 +17,12 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 .lm-section h2 {
   margin: 0 0 0.25rem;
   font-size: 1.05rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
 }
 
 .lm-config-actions {
@@ -50,17 +37,11 @@
   color: var(--p-text-muted-color, #6b7280);
 }
 
-.lm-info-icon {
-  font-size: 0.78rem;
-  margin-left: 0.25rem;
-  color: var(--p-text-muted-color, #9ca3af);
-  cursor: help;
-}
-
 .lm-config-hint {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: 0.82rem;
   color: var(--p-text-muted-color, #6b7280);
+  max-width: 42rem;
 }
 
 .loading-text,
@@ -69,81 +50,76 @@
   padding: 1rem 0;
 }
 
-.lm-table-wrap,
-.lm-config-table-wrap {
+/* ---- Role x leave-type grid ---- */
+
+.lm-grid-wrap {
   overflow-x: auto;
 }
 
-.lm-table,
-.lm-config-table {
-  width: 100%;
+.lm-grid {
   border-collapse: collapse;
-  min-width: 720px;
+  width: 100%;
+  min-width: 38rem;
 }
 
-.lm-table th,
-.lm-table td,
-.lm-config-table th,
-.lm-config-table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
+.lm-grid th,
+.lm-grid td {
+  padding: 0.7rem 0.9rem;
   border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
-  font-size: 0.86rem;
+  vertical-align: top;
 }
 
-.lm-table thead th,
-.lm-config-table thead th {
+.lm-grid thead th {
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--p-text-muted-color, #6b7280);
+  text-align: center;
 }
 
-.col-num {
-  text-align: right;
-}
-
-.lm-reason {
-  max-width: 16rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.lm-role-col {
+  text-align: left;
+  font-size: 0.86rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.lm-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
+.col-num {
+  text-align: center;
 }
 
-.lm-decided-note {
+.lm-info-icon {
   font-size: 0.78rem;
-  color: var(--p-text-muted-color, #6b7280);
+  margin-left: 0.25rem;
+  color: var(--p-text-muted-color, #9ca3af);
+  cursor: help;
+  text-transform: none;
+}
+
+.lm-type-note {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.66rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.lm-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .lm-config-input {
-  width: 5.5rem;
+  width: 6.5rem;
 }
 
-.lm-decision-summary {
-  margin: 0 0 0.9rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.lm-decision-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 0.4rem;
-  resize: vertical;
-}
-
-.lm-decision-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  margin-top: 1.1rem;
+.lm-cap-input {
+  opacity: 0.85;
 }
 
 :host-context(.my-app-dark) .lm-section {
@@ -151,9 +127,21 @@
   border-color: #1f2937;
 }
 
-:host-context(.my-app-dark) .lm-table th,
-:host-context(.my-app-dark) .lm-table td,
-:host-context(.my-app-dark) .lm-config-table th,
-:host-context(.my-app-dark) .lm-config-table td {
+:host-context(.my-app-dark) .lm-grid th,
+:host-context(.my-app-dark) .lm-grid td {
   border-color: #1f2937;
+}
+
+.lm-per-year-note {
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.lm-cap-label {
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--p-text-muted-color, #9ca3af);
 }

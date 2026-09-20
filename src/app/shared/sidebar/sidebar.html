@@ -1,0 +1,145 @@
+<aside class="sidebar" [class.collapsed]="state.collapsed()" [class.mobile-open]="state.mobileOpen()">
+  <div class="sidebar-brand">
+    <span class="brand-mark"><i class="pi pi-bolt"></i></span>
+    @if (showLabels()) {
+      <span class="brand-text">FitNexus</span>
+    }
+  </div>
+
+  <nav class="sidebar-nav">
+    @if (showDashboard()) {
+      <a
+        [routerLink]="dashboard.route"
+        routerLinkActive="active"
+        class="nav-link"
+        [pTooltip]="!showLabels() ? (dashboard.labelKey | translate) : ''"
+        tooltipPosition="right"
+        (click)="closeMobile()"
+      >
+        <span class="nav-icon"><svg data-p-icon="home"></svg></span>
+        @if (showLabels()) {
+          <span class="nav-label">{{ dashboard.labelKey | translate }}</span>
+        }
+      </a>
+    }
+
+    @if (showTodo()) {
+      <a
+        [routerLink]="todo.route"
+        routerLinkActive="active"
+        class="nav-link"
+        [pTooltip]="!showLabels() ? (todo.labelKey | translate) : ''"
+        tooltipPosition="right"
+        (click)="closeMobile()"
+      >
+        <span class="nav-icon">
+          <svg data-p-icon="list-check"></svg>
+          @if (todoCount() > 0 && !showLabels()) {
+            <span class="nav-icon-dot"></span>
+          }
+        </span>
+        @if (showLabels()) {
+          <span class="nav-label">{{ todo.labelKey | translate }}</span>
+          @if (todoCount() > 0) {
+            <span class="nav-badge">{{ todoCount() }}</span>
+          }
+        }
+      </a>
+    }
+
+    @for (group of visibleGroups(); track group.labelKey) {
+      <div class="nav-group">
+        <div
+          class="nav-group-label"
+          [class.active]="isGroupActive(group)"
+          [pTooltip]="!showLabels() ? (group.labelKey | translate) : ''"
+          tooltipPosition="right"
+        >
+          <span class="nav-icon">
+            @switch (group.icon) {
+              @case ('users') { <svg data-p-icon="users"></svg> }
+              @case ('building') { <svg data-p-icon="building"></svg> }
+              @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
+              @case ('shield') { <svg data-p-icon="shield"></svg> }
+            }
+          </span>
+          @if (showLabels()) {
+            <span class="nav-label">{{ group.labelKey | translate }}</span>
+          }
+        </div>
+        @if (showLabels()) {
+          <ul class="submenu">
+            @for (item of group.items; track item.route) {
+              <li>
+                <a [routerLink]="item.route" routerLinkActive="active" class="submenu-link" (click)="closeMobile()">
+                  <span class="submenu-icon">
+                    @switch (item.icon) {
+                      @case ('home') { <svg data-p-icon="home"></svg> }
+                      @case ('building') { <svg data-p-icon="building"></svg> }
+                      @case ('users') { <svg data-p-icon="users"></svg> }
+                      @case ('id-card') { <svg data-p-icon="id-card"></svg> }
+                      @case ('user-plus') { <svg data-p-icon="user-plus"></svg> }
+                      @case ('calendar-clock') { <svg data-p-icon="calendar-clock"></svg> }
+                      @case ('bell') { <svg data-p-icon="bell"></svg> }
+                      @case ('shield') { <svg data-p-icon="shield"></svg> }
+                      @case ('tags') { <svg data-p-icon="tags"></svg> }
+                      @case ('percentage') { <svg data-p-icon="percentage"></svg> }
+                      @case ('wallet') { <i class="pi pi-wallet"></i> }
+                      @case ('alert') { <i class="pi pi-exclamation-triangle"></i> }
+                    }
+                  </span>
+                  {{ item.labelKey | translate }}
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
+    @if (showMyWorkspace()) {
+      <a
+        [routerLink]="myWorkspace.route"
+        routerLinkActive="active"
+        class="nav-link"
+        [pTooltip]="!showLabels() ? (myWorkspace.labelKey | translate) : ''"
+        tooltipPosition="right"
+        (click)="closeMobile()"
+      >
+        <span class="nav-icon"><svg data-p-icon="id-card"></svg></span>
+        @if (showLabels()) {
+          <span class="nav-label">{{ myWorkspace.labelKey | translate }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <button type="button" class="sidebar-footer" (click)="profileMenu.toggle($event)" aria-haspopup="true">
+    <p-avatar [label]="userInitial" shape="circle" size="normal" />
+    @if (showLabels()) {
+      <span class="footer-who">
+        <b>{{ userEmail }}</b>
+        <span>{{ userRoleLabel }}</span>
+      </span>
+    }
+  </button>
+  <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body">
+    <ng-template #start>
+      <div class="profile-menu-header">
+        <p-avatar [label]="userInitial" shape="circle" size="large" />
+        <div class="profile-menu-info">
+          <span class="profile-menu-email">{{ userEmail }}</span>
+          <span class="profile-menu-role">{{ userRoleLabel }}</span>
+        </div>
+      </div>
+    </ng-template>
+  </p-menu>
+</aside>
+
+<!-- Mobile-only backdrop: dims the page and closes the drawer on tap,
+     outside the sidebar itself — see the 768px breakpoint in
+     sidebar.css, where the sidebar becomes an off-canvas overlay. -->
+<div class="sidebar-backdrop" [class.visible]="state.mobileOpen()" (click)="closeMobile()"></div>
+
+<app-settings-dialog [(visible)]="settingsVisible"></app-settings-dialog>
+<app-version-dialog [(visible)]="versionVisible"></app-version-dialog>

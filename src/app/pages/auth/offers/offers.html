@@ -1,18 +1,11 @@
 <div class="offers-page">
   <div class="page-header">
-    <div>
-      <h1>{{ 'offersPage.title' | translate }}</h1>
-      <p class="subtitle">{{ 'offersPage.subtitle' | translate }}</p>
-    </div>
-    @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
-        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
-        {{ 'offersPage.addOffer' | translate }}
-      </button>
-    }
-  </div>
-
-  <div class="grid-toolbar">
+    <app-filter-panel
+      [sections]="filterSections()"
+      [value]="filterPanelValue()"
+      (apply)="onFiltersApply($event)"
+      (clear)="clearFilters()"
+    ></app-filter-panel>
     <input
       pInputText
       type="text"
@@ -21,23 +14,18 @@
       (ngModelChange)="searchTerm.set($event)"
       class="search-field"
     />
-    <div class="toolbar-right">
-      <p-select
-        [options]="typeFilterOptions()"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="typeFilter()"
-        (ngModelChange)="typeFilter.set($event)"
-        [placeholder]="'offersPage.allTypes' | translate"
-        styleClass="filter-select"
-      />
-      @if (hasActiveFilters()) {
-        <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
-          {{ 'common.clearFilters' | translate }}
-        </button>
-      }
-      <span class="result-count">{{ filteredOffers().length }} / {{ offers().length }}</span>
-    </div>
+    @if (hasActiveFilters()) {
+      <button pButton type="button" [text]="true" severity="secondary" (click)="clearFilters()">
+        {{ 'common.clearFilters' | translate }}
+      </button>
+    }
+
+    @if (canWrite()) {
+      <button pButton type="button" (click)="openCreate()">
+        <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
+        {{ 'offersPage.addOffer' | translate }}
+      </button>
+    }
   </div>
 
   <div class="offer-grid">
@@ -98,6 +86,10 @@
         </div>
       }
     }
+  </div>
+
+  <div class="table-footer-bar">
+    <span class="result-count">{{ filteredOffers().length }} / {{ offers().length }}</span>
   </div>
 
   <p-dialog

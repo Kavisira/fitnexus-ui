@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -21,6 +21,8 @@ import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Plan, PlanApiService, PlanDuration, PlanPayload } from '../../../core/plans/plan-api.service';
 import { BranchStore } from '../../../core/branches/branch-store.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
+import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { currencySymbol } from '../../../core/constants/currencies';
 
 /**
@@ -53,6 +55,7 @@ import { currencySymbol } from '../../../core/constants/currencies';
     TooltipModule,
     CardModule,
     TagModule,
+    FilterPanel,
     TranslatePipe,
   ],
   templateUrl: './plans.html',
@@ -81,8 +84,8 @@ export class Plans implements OnInit {
   saving = signal(false);
 
   searchTerm = signal('');
-  branchFilter = signal<string | null>(null);
-  durationFilter = signal<string | null>(null);
+  branchFilter = signal<string[]>([]);
+  durationFilter = signal<PlanDuration[]>([]);
 
   dialogVisible = signal(false);
   editingId = signal<string | null>(null);
@@ -97,31 +100,45 @@ export class Plans implements OnInit {
   ];
 
   branchOptions = computed(() => this.branches().map((b) => ({ label: b.location, value: b.id })));
-  branchFilterOptions = computed(() => [{ label: this.i18n.t('plans.allBranches'), value: null }, ...this.branchOptions()]);
-  durationFilterOptions = computed(() => [
-    { label: this.i18n.t('plans.allDurations'), value: null },
-    ...this.durationOptions,
+  branchFilterOptions = computed(() => this.branchOptions());
+  durationFilterOptions = computed(() => this.durationOptions);
+
+  filterSections = computed<FilterSection[]>(() => [
+    { key: 'branch', label: this.i18n.t('plans.branchLabel'), options: this.branchFilterOptions() },
+    { key: 'duration', label: this.i18n.t('plans.durationLabel'), options: this.durationFilterOptions() },
   ]);
 
-  hasActiveFilters = computed(() => !!this.searchTerm().trim() || !!this.branchFilter() || !!this.durationFilter());
+  filterPanelValue = computed<Record<string, unknown[]>>(() => ({
+    branch: this.branchFilter(),
+    duration: this.durationFilter(),
+  }));
+
+  onFiltersApply(values: Record<string, unknown[]>): void {
+    this.branchFilter.set((values['branch'] as string[]) ?? []);
+    this.durationFilter.set((values['duration'] as PlanDuration[]) ?? []);
+  }
+
+  hasActiveFilters = computed(
+    () => !!this.searchTerm().trim() || this.branchFilter().length > 0 || this.durationFilter().length > 0,
+  );
 
   clearFilters(): void {
     this.searchTerm.set('');
-    this.branchFilter.set(null);
-    this.durationFilter.set(null);
+    this.branchFilter.set([]);
+    this.durationFilter.set([]);
   }
 
   filteredPlans = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    const branchId = this.branchFilter();
-    const duration = this.durationFilter();
+    const branchIds = this.branchFilter();
+    const durations = this.durationFilter();
 
     let plans = this.plans();
-    if (branchId) {
-      plans = plans.filter((p) => p.branchId === branchId);
+    if (branchIds.length > 0) {
+      plans = plans.filter((p) => branchIds.includes(p.branchId));
     }
-    if (duration) {
-      plans = plans.filter((p) => p.duration === duration);
+    if (durations.length > 0) {
+      plans = plans.filter((p) => durations.includes(p.duration));
     }
     if (!term) {
       return plans;
@@ -166,7 +183,12 @@ export class Plans implements OnInit {
       .replace('{rate}', String(rate))}`;
   });
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('plans.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadBranches();
     this.loadPlans();
   }

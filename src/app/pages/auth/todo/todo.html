@@ -1,0 +1,101 @@
+<div class="todo-page">
+  <section class="todo-section">
+    <div class="todo-section-header">
+      <div>
+        <h2>{{ 'todo.leave.sectionTitle' | translate }}</h2>
+        <p class="todo-section-hint">{{ 'todo.leave.sectionHint' | translate }}</p>
+      </div>
+      <p-select
+        [options]="statusFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusFilterChange($event)"
+        styleClass="todo-status-filter"
+      />
+    </div>
+
+    @if (loading()) {
+      <p class="loading-text">{{ 'common.loading' | translate }}</p>
+    } @else if (!requests().length) {
+      <p class="empty-text">{{ 'todo.leave.noRequests' | translate }}</p>
+    } @else {
+      <div class="todo-table-wrap">
+        <table class="todo-table">
+          <thead>
+            <tr>
+              <th>{{ 'todo.leave.employee' | translate }}</th>
+              <th>{{ 'todo.leave.branch' | translate }}</th>
+              <th>{{ 'todo.leave.typeColumn' | translate }}</th>
+              <th>{{ 'todo.leave.dates' | translate }}</th>
+              <th class="col-num">{{ 'todo.leave.days' | translate }}</th>
+              <th>{{ 'todo.leave.reason' | translate }}</th>
+              <th>{{ 'todo.leave.statusColumn' | translate }}</th>
+              @if (canWrite()) {
+                <th>{{ 'todo.leave.actions' | translate }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of requests(); track r.id) {
+              <tr>
+                <td>{{ r.employee?.name }}</td>
+                <td>{{ r.branch?.location }}</td>
+                <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+                <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+                <td class="col-num">{{ r.days }}</td>
+                <td class="todo-reason">{{ r.reason || '—' }}</td>
+                <td><p-tag [value]="('todo.leave.status.' + r.status) | translate" [severity]="statusSeverity(r.status)" /></td>
+                @if (canWrite()) {
+                  <td class="todo-actions">
+                    @if (r.status === 'PENDING') {
+                      <button pButton type="button" icon="pi pi-check" class="p-button-sm p-button-success p-button-text" (click)="openDecision(r, true)">{{ 'todo.leave.approve' | translate }}</button>
+                      <button pButton type="button" icon="pi pi-times" class="p-button-sm p-button-danger p-button-text" (click)="openDecision(r, false)">{{ 'todo.leave.reject' | translate }}</button>
+                    } @else {
+                      <span class="todo-decided-note">{{ r.decisionNote }}</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <p-dialog
+    [visible]="decisionDialogVisible()"
+    (visibleChange)="closeDecision()"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '28rem' }"
+    [header]="(decisionApprove() ? 'todo.leave.approveTitle' : 'todo.leave.rejectTitle') | translate"
+  >
+    @if (decisionTarget(); as target) {
+      <p class="todo-decision-summary">
+        {{ target.employee?.name }} · {{ leaveTypeLabel(target.leaveType) }} · {{ target.days }} {{ 'todo.leave.daysSuffix' | translate }}
+      </p>
+      <label for="todo-decision-note">{{ 'todo.leave.decisionNoteLabel' | translate }}</label>
+      <textarea
+        pTextarea
+        id="todo-decision-note"
+        rows="3"
+        class="todo-decision-textarea"
+        [ngModel]="decisionNote()"
+        (ngModelChange)="decisionNote.set($event)"
+      ></textarea>
+      <div class="todo-decision-actions">
+        <button pButton type="button" class="p-button-text" (click)="closeDecision()">{{ 'common.cancel' | translate }}</button>
+        <button
+          pButton
+          type="button"
+          [class.p-button-success]="decisionApprove()"
+          [class.p-button-danger]="!decisionApprove()"
+          [loading]="deciding()"
+          (click)="confirmDecision()"
+        >{{ (decisionApprove() ? 'todo.leave.approve' : 'todo.leave.reject') | translate }}</button>
+      </div>
+    }
+  </p-dialog>
+</div>

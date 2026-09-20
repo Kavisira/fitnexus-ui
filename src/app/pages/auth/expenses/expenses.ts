@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +23,8 @@ import { BranchStore } from '../../../core/branches/branch-store.service';
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_ICON, ExpenseCategory } from '../../../core/constants/expense-categories';
 import { currencySymbol } from '../../../core/constants/currencies';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 
 /**
  * Expenses — per-branch expense tracking (rent, salary, utilities,
@@ -51,6 +53,7 @@ import { ThemeService } from '../../../core/theme/theme.service';
     TooltipModule,
     TagModule,
     ChartModule,
+    FilterPanel,
     TranslatePipe,
   ],
   templateUrl: './expenses.html',
@@ -77,27 +80,39 @@ export class Expenses implements OnInit {
   categories = EXPENSE_CATEGORIES;
 
   // ---- Filters (all applied server-side — reloads the list) ----
-  branchFilter = signal<string | null>(null);
-  categoryFilter = signal<ExpenseCategory | null>(null);
+  branchFilter = signal<string[]>([]);
+  categoryFilter = signal<ExpenseCategory[]>([]);
   fromFilter = signal<Date | null>(null);
   toFilter = signal<Date | null>(null);
 
-  branchOptions = computed(() => [
-    { label: this.i18n.t('expensesPage.allBranches'), value: null },
-    ...this.branches().map((b) => ({ label: b.location, value: b.id })),
-  ]);
+  branchOptions = computed(() => this.branches().map((b) => ({ label: b.location, value: b.id })));
 
-  categoryOptions = computed(() => [
-    { label: this.i18n.t('expensesPage.allCategories'), value: null },
-    ...this.categories.map((c) => ({ label: this.i18n.t(`expensesPage.category.${c}`), value: c })),
-  ]);
+  categoryOptions = computed(() =>
+    this.categories.map((c) => ({ label: this.i18n.t(`expensesPage.category.${c}`), value: c })),
+  );
 
   categoryFormOptions = computed(() =>
     this.categories.map((c) => ({ label: this.i18n.t(`expensesPage.category.${c}`), value: c })),
   );
 
+  filterSections = computed<FilterSection[]>(() => [
+    { key: 'branch', label: this.i18n.t('expensesPage.branchFilterLabel'), options: this.branchOptions() },
+    { key: 'category', label: this.i18n.t('expensesPage.categoryFilterLabel'), options: this.categoryOptions() },
+  ]);
+
+  filterPanelValue = computed<Record<string, unknown[]>>(() => ({
+    branch: this.branchFilter(),
+    category: this.categoryFilter(),
+  }));
+
+  onFiltersApply(values: Record<string, unknown[]>): void {
+    this.branchFilter.set((values['branch'] as string[]) ?? []);
+    this.categoryFilter.set((values['category'] as ExpenseCategory[]) ?? []);
+    this.applyFilters();
+  }
+
   hasActiveFilters = computed(
-    () => !!this.branchFilter() || !!this.categoryFilter() || !!this.fromFilter() || !!this.toFilter(),
+    () => this.branchFilter().length > 0 || this.categoryFilter().length > 0 || !!this.fromFilter() || !!this.toFilter(),
   );
 
   // Sum of whatever the table is currently showing — a lightweight
@@ -199,8 +214,8 @@ export class Expenses implements OnInit {
   }));
 
   clearFilters(): void {
-    this.branchFilter.set(null);
-    this.categoryFilter.set(null);
+    this.branchFilter.set([]);
+    this.categoryFilter.set([]);
     this.fromFilter.set(null);
     this.toFilter.set(null);
     this.loadExpenses();
@@ -226,7 +241,12 @@ export class Expenses implements OnInit {
     return this.form.controls;
   }
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('common.expenses');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.branchStore.ensureLoaded();
     this.loadExpenses();
   }
@@ -237,8 +257,8 @@ export class Expenses implements OnInit {
     const to = this.toFilter();
     this.expenseApi
       .list({
-        branchId: this.branchFilter() ?? undefined,
-        category: this.categoryFilter() ?? undefined,
+        branchIds: this.branchFilter(),
+        categories: this.categoryFilter(),
         from: from ? from.toISOString() : undefined,
         to: to ? to.toISOString() : undefined,
       })
@@ -361,7 +381,12 @@ export class Expenses implements OnInit {
   }
 
   totalAmountLabel = computed(() => {
-    const branchId = this.branchFilter();
+    // Only show a specific branch's currency symbol when exactly one
+    // branch is selected in the filter panel — with 0 or several
+    // branches selected there's no single currency to show, so fall
+    // back to the default symbol.
+    const branchIds = this.branchFilter();
+    const branchId = branchIds.length === 1 ? branchIds[0] : undefined;
     const currency = branchId ? this.branches().find((b) => b.id === branchId)?.currency : undefined;
     const symbol = currencySymbol(currency);
     return `${symbol}${this.totalAmount().toFixed(2)}`;

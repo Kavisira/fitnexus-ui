@@ -3,19 +3,23 @@
     <button
       pButton
       type="button"
-      class="collapse-btn"
+      class="nav-toggle-btn"
       [rounded]="true"
       [text]="true"
       severity="secondary"
-      aria-label="Toggle sidebar"
-      (click)="onToggleSidebar()"
+      [pTooltip]="(sidebarState.collapsed() ? 'common.expandNav' : 'common.collapseNav') | translate"
+      tooltipPosition="bottom"
+      aria-label="Toggle navigation"
+      (click)="sidebarState.toggleForViewport()"
     >
-      <svg data-p-icon="bars"></svg>
+      <i class="pi pi-bars"></i>
     </button>
-    <div class="app-brand">
-      <span class="brand-mark"><i class="pi pi-bolt"></i></span>
-      <span class="brand-text">FitNexus</span>
-    </div>
+  </div>
+
+  <div class="header-title-wrap">
+    @if (pageHeader.titleKey(); as key) {
+      <span class="header-title">{{ key | translate }}</span>
+    }
   </div>
 
   <div class="header-right">
@@ -37,31 +41,5 @@
       <app-notification-bell></app-notification-bell>
     }
     <app-theme-toggle></app-theme-toggle>
-
-    <button
-      pButton
-      type="button"
-      class="profile-btn"
-      [text]="true"
-      (click)="profileMenu.toggle($event)"
-      aria-haspopup="true"
-    >
-      <p-avatar [label]="userInitial" shape="circle" size="normal" />
-      <i class="pi pi-angle-down profile-caret"></i>
-    </button>
-    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body">
-      <ng-template #start>
-        <div class="profile-menu-header">
-          <p-avatar [label]="userInitial" shape="circle" size="large" />
-          <div class="profile-menu-info">
-            <span class="profile-menu-email">{{ userEmail }}</span>
-            <span class="profile-menu-role">{{ userRoleLabel }}</span>
-          </div>
-        </div>
-      </ng-template>
-    </p-menu>
   </div>
 </header>
-
-<app-settings-dialog [(visible)]="settingsVisible"></app-settings-dialog>
-<app-version-dialog [(visible)]="versionVisible"></app-version-dialog>

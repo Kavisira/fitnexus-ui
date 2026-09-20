@@ -1,6 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'primeicons/primeicons.css';
 
+html {
+    /* Standard browser default — most components size themselves in
+       rem, so this one value scales text across the whole app
+       consistently. Previously bumped to 18px, but that read as
+       oversized across the app; 16px matches normal application text
+       sizing. */
+    font-size: 16px;
+}
+
 html, body {
     padding: 0 !important;
     margin: 0 !important;

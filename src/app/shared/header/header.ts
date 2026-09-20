@@ -1,108 +1,37 @@
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { MenuModule } from 'primeng/menu';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuItem } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
-import { Bars } from '@primeicons/angular/bars';
-
+import { PageHeaderService } from '../page-header/page-header.service';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
-import { SettingsDialog } from '../settings-dialog/settings-dialog';
-import { VersionDialog } from '../version-dialog/version-dialog';
 import { NotificationBell } from '../notification-bell/notification-bell';
-import { TranslationService } from '../../core/i18n/translation.service';
-import { TokenStorage } from '../../core/auth/token-storage.service';
-import { ToastService } from '../../core/toast/toast.service';
 import { NotificationStore } from '../../core/notifications/notification-store.service';
-import { PermissionsService } from '../../core/roles/permissions.service';
+import { SidebarStateService } from '../sidebar/sidebar-state.service';
 
+/**
+ * Slim content-area top bar: a single nav-toggle button on the left
+ * (collapses/expands the sidebar on desktop, opens it as a drawer on
+ * mobile — see SidebarStateService), the current page's title centered,
+ * and help / notifications / theme toggle on the right. The brand and
+ * the user's own identity (profile menu, logout) live in the sidebar
+ * instead — see shared/sidebar — since this bar sits inside the
+ * content column, not across the full app width.
+ */
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ButtonModule, MenuModule, AvatarModule, ThemeToggle, SettingsDialog, VersionDialog, NotificationBell, Bars, TooltipModule, TranslatePipe],
+  imports: [ButtonModule, TooltipModule, ThemeToggle, NotificationBell, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
 })
 export class Header {
-  @Input() sidebarCollapsed = false;
-  @Output() toggleSidebar = new EventEmitter<void>();
-
   private router = inject(Router);
-  private i18n = inject(TranslationService);
-  private tokenStorage = inject(TokenStorage);
-  private toast = inject(ToastService);
-  private permissions = inject(PermissionsService);
+  pageHeader = inject(PageHeaderService);
   notificationStore = inject(NotificationStore);
-
-  settingsVisible = signal(false);
-  versionVisible = signal(false);
-
-  get userEmail(): string {
-    return this.tokenStorage.getEmail() ?? '';
-  }
-
-  get userInitial(): string {
-    return (this.userEmail || 'U').charAt(0).toUpperCase();
-  }
-
-  private static readonly ROLE_LABELS: Record<string, string> = {
-    OWNER: 'Owner',
-    BRANCH_MANAGER: 'Branch Manager',
-    TRAINER: 'Trainer',
-    FRONT_DESK: 'Front Desk',
-  };
-
-  get userRoleLabel(): string {
-    const role = this.tokenStorage.getRole();
-    return role ? (Header.ROLE_LABELS[role] ?? role) : '';
-  }
-
-  // A getter (not a fixed array) so the labels are re-translated on every
-  // change-detection pass — including right after the language changes.
-  get profileMenuItems(): MenuItem[] {
-    return [
-      { label: this.i18n.t('common.profile'), icon: 'pi pi-user' },
-      {
-        label: this.i18n.t('common.settings'),
-        icon: 'pi pi-cog',
-        command: () => this.openSettings(),
-      },
-      {
-        label: this.i18n.t('common.deployedVersion'),
-        icon: 'pi pi-info-circle',
-        command: () => this.openVersion(),
-      },
-      { separator: true },
-      {
-        label: this.i18n.t('common.logout'),
-        icon: 'pi pi-sign-out',
-        command: () => this.logout(),
-      },
-    ];
-  }
-
-  onToggleSidebar(): void {
-    this.toggleSidebar.emit();
-  }
-
-  openSettings(): void {
-    this.settingsVisible.set(true);
-  }
-
-  openVersion(): void {
-    this.versionVisible.set(true);
-  }
+  sidebarState = inject(SidebarStateService);
 
   openHelp(): void {
     this.router.navigateByUrl('/help');
-  }
-
-  private logout(): void {
-    this.tokenStorage.clear();
-    this.permissions.clear();
-    this.toast.success('You have been logged out.');
-    this.router.navigateByUrl('/login');
   }
 }

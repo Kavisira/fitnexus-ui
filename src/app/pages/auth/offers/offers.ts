@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -19,6 +19,8 @@ import { ToastService } from '../../../core/toast/toast.service';
 import { ConfirmService } from '../../../core/confirm/confirm.service';
 import { Offer, OfferApiService, OfferPayload, OfferType } from '../../../core/offers/offer-api.service';
 import { PermissionsService } from '../../../core/roles/permissions.service';
+import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 
 /**
  * Offers — an independent, org-wide discount/promo catalog. Not tied to
@@ -45,6 +47,7 @@ import { PermissionsService } from '../../../core/roles/permissions.service';
     CardModule,
     TagModule,
     CheckboxModule,
+    FilterPanel,
     TranslatePipe,
   ],
   templateUrl: './offers.html',
@@ -67,7 +70,7 @@ export class Offers implements OnInit {
   saving = signal(false);
 
   searchTerm = signal('');
-  typeFilter = signal<OfferType | null>(null);
+  typeFilter = signal<OfferType[]>([]);
 
   dialogVisible = signal(false);
   editingId = signal<string | null>(null);
@@ -80,25 +83,32 @@ export class Offers implements OnInit {
     { label: 'Couple offer (2nd member)', value: 'COUPLE' },
   ];
 
-  typeFilterOptions = computed(() => [
-    { label: this.i18n.t('offersPage.allTypes'), value: null },
-    ...this.offerTypeOptions,
+  typeFilterOptions = computed(() => this.offerTypeOptions);
+
+  filterSections = computed<FilterSection[]>(() => [
+    { key: 'type', label: this.i18n.t('offersPage.typeLabel'), options: this.typeFilterOptions() },
   ]);
 
-  hasActiveFilters = computed(() => !!this.searchTerm().trim() || !!this.typeFilter());
+  filterPanelValue = computed<Record<string, unknown[]>>(() => ({ type: this.typeFilter() }));
+
+  onFiltersApply(values: Record<string, unknown[]>): void {
+    this.typeFilter.set((values['type'] as OfferType[]) ?? []);
+  }
+
+  hasActiveFilters = computed(() => !!this.searchTerm().trim() || this.typeFilter().length > 0);
 
   clearFilters(): void {
     this.searchTerm.set('');
-    this.typeFilter.set(null);
+    this.typeFilter.set([]);
   }
 
   filteredOffers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    const type = this.typeFilter();
+    const types = this.typeFilter();
 
     let offers = this.offers();
-    if (type) {
-      offers = offers.filter((o) => o.type === type);
+    if (types.length > 0) {
+      offers = offers.filter((o) => types.includes(o.type));
     }
     if (!term) {
       return offers;
@@ -122,7 +132,12 @@ export class Offers implements OnInit {
   private formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
   formType = computed(() => this.formValue()?.type ?? 'PERCENT_DISCOUNT');
 
+  private destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
+
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('offersPage.title');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadOffers();
   }
 

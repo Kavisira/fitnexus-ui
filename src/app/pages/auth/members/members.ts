@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
+import { TableLazyLoadEvent } from 'primeng/table';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,6 +19,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TableModule } from 'primeng/table';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
@@ -41,7 +45,28 @@ import { MEMBER_SOURCES } from '../../../core/constants/member-sources';
 import { PAYMENT_MODES } from '../../../core/constants/payment-modes';
 import { GENDERS, Gender } from '../../../core/constants/genders';
 import { BLOOD_GROUPS } from '../../../core/constants/blood-groups';
-import { BMI_STATUS_LABEL, BMI_STATUS_SEVERITY, bmiStatus, computeBmi } from '../../../core/constants/bmi';
+import { BMI_STATUS_LABEL, BMI_STATUS_SEVERITY, BmiStatus, TagSeverity, bmiStatus, computeBmi } from '../../../core/constants/bmi';
+import { MembersImport } from './members-import';
+import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
+import { PageHeaderService } from '../../../shared/page-header/page-header.service';
+
+/** Row shape produced by memberCards() below — named so the
+ * actions-menu / details-dialog state (which needs the whole row, not
+ * just the raw Member, since the details dialog shows the precomputed
+ * labels too) has something to type against instead of `any`. */
+interface MemberCard {
+  member: Member;
+  ageLabel: string;
+  priceLabel: string;
+  latest: MemberMetricEntry | null;
+  branchLabel: string;
+  planLabel: string;
+  emailLabel: string;
+  sourceLabel: string;
+  paymentModeLabel: string;
+  bloodGroupLabel: string;
+}
+
 
 /** Downscales/compresses an image file to a small JPEG data URL before
  * it's sent to the server — a phone photo straight out of the camera
@@ -126,7 +151,11 @@ function addMonths(date: Date, months: number): Date {
     CardModule,
     TagModule,
     CheckboxModule,
+    TableModule,
+    MenuModule,
     PaginatorModule,
+    MembersImport,
+    FilterPanel,
     TranslatePipe,
   ],
   templateUrl: './members.html',
@@ -154,6 +183,14 @@ export class Members implements OnInit {
   bloodGroupOptions = BLOOD_GROUPS;
   bmiStatusLabel = BMI_STATUS_LABEL;
   bmiStatusSeverity = BMI_STATUS_SEVERITY;
+
+  // The p-table row template's `let-card` is untyped (any), so indexing
+  // BMI_STATUS_SEVERITY directly with `latest.bmiStatus` in the template
+  // trips noImplicitAny under strict template checking — this gives the
+  // template a properly-typed lookup instead.
+  bmiSeverity(status: BmiStatus): TagSeverity {
+    return this.bmiStatusSeverity[status];
+  }
 
   // Data now lives in MemberStore (see its doc comment) — this page
   // still drives *when* to fetch (filters/page/search below), the
@@ -184,22 +221,102 @@ export class Members implements OnInit {
   // via loadMembers()'s query params, and the page only ever holds one
   // page's worth of rows. ----
   private readonly destroyRef = inject(DestroyRef);
+  private pageHeader = inject(PageHeaderService);
   page = signal(1);
   readonly pageSize = 25;
   total = this.memberStore.total;
 
   searchTerm = signal('');
-  branchFilter = signal<string | null>(null);
-  statusFilter = signal<MemberStatus | null>(null);
+  branchFilter = signal<string[]>([]);
+  statusFilter = signal<MemberStatus[]>([]);
 
   // Free-text search is debounced so every keystroke doesn't fire its
-  // own request — branch/status filters (a discrete pick, not typing)
-  // reload immediately instead, see onBranchFilterChange/onStatusFilterChange.
+  // own request — branch/status filters (picked from the filter panel,
+  // not typing) reload immediately on Apply/Clear instead, see
+  // onFiltersApply/clearFilters.
   private searchInput$ = new Subject<string>();
 
-  viewMode = signal<'grid' | 'list'>('grid');
-  setViewMode(mode: 'grid' | 'list'): void {
+  selectedMembers = signal<Member[]>([]);
+
+  viewMode = signal<'table' | 'list'>('table');
+  setViewMode(mode: 'table' | 'list'): void {
     this.viewMode.set(mode);
+  }
+
+  // Per-row "..." actions menu — one shared p-menu (see members.html),
+  // its [model] rebuilt from whichever row's kebab button was last
+  // clicked (activeCard). Same shared-menu pattern as the header's
+  // profile menu (shared/header/header.ts).
+  // ---- Sorting — the table is only ever holding one server-paginated
+  // page (25 rows, see the pagination note above), so a full backend
+  // sort endpoint would be overkill; this sorts whatever's currently on
+  // screen. Switching pages resets it implicitly since sortedCards()
+  // re-derives from memberCards() every time the page's data changes. ----
+  sortField = signal<'name' | 'plan' | 'trainer' | 'status' | null>(null);
+  sortOrder = signal<1 | -1>(1);
+
+  toggleSort(field: 'name' | 'plan' | 'trainer' | 'status'): void {
+    if (this.sortField() === field) {
+      this.sortOrder.set(this.sortOrder() === 1 ? -1 : 1);
+    } else {
+      this.sortField.set(field);
+      this.sortOrder.set(1);
+    }
+  }
+
+  private sortValue(card: MemberCard, field: 'name' | 'plan' | 'trainer' | 'status'): string {
+    switch (field) {
+      case 'name':
+        return card.member.name ?? '';
+      case 'plan':
+        return card.planLabel ?? '';
+      case 'trainer':
+        return card.member.assignedTrainerEmployee?.name ?? '';
+      case 'status':
+        return card.member.status ?? '';
+    }
+  }
+
+  sortedCards = computed(() => {
+    const field = this.sortField();
+    const cards = this.memberCards();
+    if (!field) {
+      return cards;
+    }
+    const order = this.sortOrder();
+    return [...cards].sort((a, b) => this.sortValue(a, field).localeCompare(this.sortValue(b, field)) * order);
+  });
+
+  activeCard = signal<MemberCard | null>(null);
+  menuItems = computed<MenuItem[]>(() => {
+    const card = this.activeCard();
+    if (!card) {
+      return [];
+    }
+    const member = card.member;
+    const items: MenuItem[] = [
+      { label: this.i18n.t('members.detailsLabel'), icon: 'pi pi-info-circle', command: () => this.openDetails(card) },
+      { label: this.i18n.t('members.viewProgress'), icon: 'pi pi-eye', command: () => this.openProgress(member) },
+    ];
+    if (this.canWrite()) {
+      items.push(
+        { label: this.i18n.t('members.logCheckin'), icon: 'pi pi-plus-circle', command: () => this.openLogMetrics(member) },
+        { separator: true },
+        { label: this.i18n.t('plans.edit'), icon: 'pi pi-pencil', command: () => this.openEdit(member) },
+        { label: this.i18n.t('plans.delete'), icon: 'pi pi-trash', command: () => this.remove(member) },
+      );
+    }
+    return items;
+  });
+
+  // Details dialog — everything the old member cards (and the now-
+  // trimmed table columns) used to show at a glance: branch, offer,
+  // duration, price, trainer, email, source, payment mode, blood
+  // group, age, BMI.
+  detailsDialogVisible = signal(false);
+  openDetails(card: MemberCard): void {
+    this.activeCard.set(card);
+    this.detailsDialogVisible.set(true);
   }
 
   dialogVisible = signal(false);
@@ -213,15 +330,34 @@ export class Members implements OnInit {
   ];
 
   branchOptions = computed(() => this.branches().map((b) => ({ label: b.location, value: b.id })));
-  branchFilterOptions = computed(() => [{ label: this.i18n.t('members.allBranches'), value: null }, ...this.branchOptions()]);
-  statusFilterOptions = computed(() => [{ label: this.i18n.t('members.allStatuses'), value: null }, ...this.statusOptions]);
+  branchFilterOptions = computed(() => this.branchOptions());
+  statusFilterOptions = computed(() => this.statusOptions);
 
-  hasActiveFilters = computed(() => !!this.searchTerm().trim() || !!this.branchFilter() || !!this.statusFilter());
+  filterSections = computed<FilterSection[]>(() => [
+    { key: 'branch', label: this.i18n.t('members.branchLabel'), options: this.branchFilterOptions() },
+    { key: 'status', label: this.i18n.t('members.statusLabel'), options: this.statusFilterOptions() },
+  ]);
+
+  filterPanelValue = computed<Record<string, unknown[]>>(() => ({
+    branch: this.branchFilter(),
+    status: this.statusFilter(),
+  }));
+
+  hasActiveFilters = computed(
+    () => !!this.searchTerm().trim() || this.branchFilter().length > 0 || this.statusFilter().length > 0,
+  );
+
+  onFiltersApply(values: Record<string, unknown[]>): void {
+    this.branchFilter.set((values['branch'] as string[]) ?? []);
+    this.statusFilter.set((values['status'] as MemberStatus[]) ?? []);
+    this.page.set(1);
+    this.loadMembers();
+  }
 
   clearFilters(): void {
     this.searchTerm.set('');
-    this.branchFilter.set(null);
-    this.statusFilter.set(null);
+    this.branchFilter.set([]);
+    this.statusFilter.set([]);
     this.page.set(1);
     this.loadMembers();
   }
@@ -235,20 +371,29 @@ export class Members implements OnInit {
     this.searchInput$.next(value);
   }
 
-  onBranchFilterChange(branchId: string | null): void {
-    this.branchFilter.set(branchId);
-    this.page.set(1);
+
+  // p-table's built-in paginator (replacing the standalone grid +
+  // p-paginator pair — same server-side pagination underneath, just a
+  // more compact control bundled with the table itself). Guarded so the
+  // paginator's own onLazyLoad firing on init (lazyLoadOnInit defaults
+  // to true) doesn't trigger a second, redundant fetch on top of
+  // ngOnInit's loadMembers() call.
+  onLazyLoad(event: TableLazyLoadEvent): void {
+    const newPage = Math.floor((event.first ?? 0) / this.pageSize) + 1;
+    if (newPage === this.page()) {
+      return;
+    }
+    this.page.set(newPage);
     this.loadMembers();
   }
 
-  onStatusFilterChange(status: MemberStatus | null): void {
-    this.statusFilter.set(status);
-    this.page.set(1);
-    this.loadMembers();
-  }
-
-  onPageChange(event: PaginatorState): void {
-    this.page.set((event.page ?? 0) + 1); // PrimeNG's page is 0-based
+  // p-paginator below the restored card-based list view (see
+  // viewMode) — separate from onLazyLoad above since p-paginator's
+  // event shape (0-based `.page`) differs from p-table's own
+  // TableLazyLoadEvent (`.first`), but both drive the same
+  // page()/loadMembers() server-side pagination underneath.
+  onListPageChange(event: PaginatorState): void {
+    this.page.set((event.page ?? 0) + 1);
     this.loadMembers();
   }
 
@@ -422,6 +567,8 @@ export class Members implements OnInit {
   });
 
   ngOnInit(): void {
+    this.pageHeader.setTitleKey('common.members');
+    this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.loadBranches();
     this.loadPlans();
     this.loadOffers();
@@ -454,8 +601,8 @@ export class Members implements OnInit {
   loadMembers(): void {
     this.memberStore.load(
       {
-        branchId: this.branchFilter(),
-        status: this.statusFilter(),
+        branchIds: this.branchFilter(),
+        statuses: this.statusFilter(),
         search: this.searchTerm().trim() || undefined,
         page: this.page(),
         pageSize: this.pageSize,
