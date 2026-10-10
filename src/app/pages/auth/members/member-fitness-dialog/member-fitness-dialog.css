@@ -1,0 +1,196 @@
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+.link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.link-text {
+  word-break: break-all;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+.field-block {
+  margin-bottom: 1rem;
+}
+.field-block label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+.item-row,
+.exercise-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+.item-row__meal {
+  flex: 1 1 140px;
+}
+.item-row__desc {
+  flex: 2 1 220px;
+}
+.exercise-row__name {
+  flex: 2 1 180px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.exercise-card {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+.exercise-card__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.exercise-card__row {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  width: 100%;
+}
+.exercise-card__fields {
+  flex: 1;
+  min-width: 0;
+}
+.exercise-card__name-input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.4rem;
+}
+.muscle-chip {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-color-secondary);
+  background: var(--surface-100);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}
+.exercise-card__targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.no-log-yet {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-color-secondary);
+}
+
+.exercise-card__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.exercise-card__name-row .exercise-card__name-input {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+::ng-deep .fitness-dialog .p-dialog-content {
+  overflow-y: auto;
+}
+
+.day-group {
+  margin-bottom: 0.5rem;
+}
+.day-group__title {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-color-secondary);
+}
+.day-group:first-child .day-group__title {
+  margin-top: 0.25rem;
+}
+
+/* --- Mobile layout fixes ---
+   PrimeNG inputs/selects have no intrinsic width of their own, so
+   inside a flex-wrap row (targets, meal rows, link row) they were
+   sizing off placeholder/content text and wrapping unpredictably on a
+   narrow dialog (the 575px breakpoint shrinks the dialog to ~98vw,
+   but nothing inside it was told to shrink with it). Give the key
+   rows an explicit mobile shape instead of leaving it to wrap on its
+   own. */
+@media (max-width: 600px) {
+  .link-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .link-row ::ng-deep .p-button {
+    width: 100%;
+  }
+  .link-text {
+    font-size: 0.8rem;
+  }
+
+  .item-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .item-row__meal,
+  .item-row__desc {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .item-row ::ng-deep .p-button {
+    align-self: flex-end;
+  }
+
+  .exercise-card__name-row {
+    flex-wrap: wrap;
+  }
+  .exercise-card__name-row .exercise-card__name-input {
+    flex: 1 1 100%;
+  }
+  .exercise-card__name-row ::ng-deep .p-button {
+    margin-left: auto;
+  }
+
+  .exercise-card__targets {
+    gap: 0.5rem;
+  }
+  .exercise-card__targets ::ng-deep .p-select,
+  .exercise-card__targets ::ng-deep .p-inputnumber {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0;
+  }
+  .exercise-card__targets ::ng-deep .p-select .p-select-label,
+  .exercise-card__targets ::ng-deep .p-inputnumber input {
+    width: 100%;
+  }
+  .exercise-card__targets ::ng-deep .p-button {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .dialog-actions {
+    flex-wrap: wrap;
+  }
+  .dialog-actions ::ng-deep .p-button {
+    flex: 1 1 auto;
+  }
+}

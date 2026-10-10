@@ -1,0 +1,106 @@
+<div class="muscle-diagram" [class.muscle-diagram--md]="size === 'md'">
+  <!-- Front view -->
+  <svg viewBox="0 0 120 260" class="muscle-diagram__figure">
+    <!-- Body silhouette: head, neck/traps, torso taper, arms, legs -->
+    <path
+      class="muscle-diagram__outline"
+      d="M60 10
+         c10 0 17 8 17 18 c0 7 -3 12 -6 15
+         c9 3 15 10 17 20 l4 22
+         c7 2 12 9 13 18 l4 36 c1 8 -5 14 -12 13 c-6 -1 -10 -6 -10 -13 l-3 -30
+         c-1 7 -1 15 1 23 c3 14 4 30 2 46 l-3 36 c6 2 10 7 10 14 l0 34 c0 8 -6 14 -14 14 c-7 0 -13 -5 -14 -12 l-4 -40
+         c-1 10 -1 20 0 30 l3 22 c1 8 -5 14 -13 14 c-7 0 -13 -5 -14 -13 l-2 -36
+         c-1 10 -1 20 0 30 l3 22 c1 8 -5 14 -13 14 c-7 0 -13 -5 -14 -13 l-4 -40
+         c1 -8 -6 -11 -13 -12 c-8 -1 -14 -7 -14 -15 l0 -34 c0 -7 4 -12 10 -14
+         l-3 -36 c-2 -16 -1 -32 2 -46 c2 -8 2 -16 1 -23 l-3 30 c0 7 -4 12 -10 13 c-7 1 -13 -5 -12 -13 l4 -36
+         c1 -9 6 -16 13 -18 l4 -22 c2 -10 8 -17 17 -20
+         c-3 -3 -6 -8 -6 -15 c0 -10 7 -18 17 -18 z"
+    />
+
+    <!-- Shoulders / front delts -->
+    <path class="muscle-diagram__region" [class.active]="isActive('SHOULDERS')" d="M30 56 c-2 9 -2 17 2 24 c4 4 9 5 13 3 c-2 -9 -2 -18 -1 -26 c-5 -3 -10 -3 -14 -1 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('SHOULDERS')" d="M90 56 c2 9 2 17 -2 24 c-4 4 -9 5 -13 3 c2 -9 2 -18 1 -26 c5 -3 10 -3 14 -1 z" />
+
+    <!-- Traps (front sliver near neck) -->
+    <path class="muscle-diagram__region" [class.active]="isActive('TRAPS')" d="M46 42 c4 -4 10 -5 14 -5 c4 0 10 1 14 5 c-2 4 -8 7 -14 7 c-6 0 -12 -3 -14 -7 z" />
+
+    <!-- Chest -->
+    <path class="muscle-diagram__region" [class.active]="isActive('CHEST')" d="M60 58 c-13 -3 -22 2 -24 12 c-1 8 4 15 13 17 c5 1 9 0 11 -3 c2 3 6 4 11 3 c9 -2 14 -9 13 -17 c-2 -10 -11 -15 -24 -12 z" />
+
+    <!-- Biceps -->
+    <path class="muscle-diagram__region" [class.active]="isActive('BICEPS')" d="M24 80 c-3 10 -4 20 -3 29 c3 2 7 2 10 0 c0 -10 1 -20 3 -29 c-3 -2 -7 -2 -10 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('BICEPS')" d="M96 80 c3 10 4 20 3 29 c-3 2 -7 2 -10 0 c0 -10 -1 -20 -3 -29 c3 -2 7 -2 10 0 z" />
+
+    <!-- Forearms -->
+    <path class="muscle-diagram__region" [class.active]="isActive('FOREARMS')" d="M21 112 c-2 8 -3 15 -2 22 c3 2 6 2 9 0 c1 -7 1 -14 -1 -22 c-2 -2 -4 -2 -6 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('FOREARMS')" d="M99 112 c2 8 3 15 2 22 c-3 2 -6 2 -9 0 c-1 -7 -1 -14 1 -22 c2 -2 4 -2 6 0 z" />
+
+    <!-- Core / abs (segmented) -->
+    <g class="muscle-diagram__region" [class.active]="isActive('CORE')">
+      <rect x="47" y="92" width="11" height="12" rx="3" />
+      <rect x="62" y="92" width="11" height="12" rx="3" />
+      <rect x="47" y="106" width="11" height="12" rx="3" />
+      <rect x="62" y="106" width="11" height="12" rx="3" />
+      <rect x="47" y="120" width="11" height="12" rx="3" />
+      <rect x="62" y="120" width="11" height="12" rx="3" />
+    </g>
+
+    <!-- Quads -->
+    <path class="muscle-diagram__region" [class.active]="isActive('QUADS')" d="M42 148 c-4 16 -5 32 -3 47 c5 3 10 3 15 0 c1 -16 1 -32 -1 -47 c-4 -2 -8 -2 -11 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('QUADS')" d="M78 148 c4 16 5 32 3 47 c-5 3 -10 3 -15 0 c-1 -16 -1 -32 1 -47 c4 -2 8 -2 11 0 z" />
+
+    <!-- Calves -->
+    <path class="muscle-diagram__region" [class.active]="isActive('CALVES')" d="M41 206 c-2 12 -2 24 0 36 c4 2 8 2 12 0 c1 -12 1 -24 -1 -36 c-4 -2 -8 -2 -11 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('CALVES')" d="M79 206 c2 12 2 24 0 36 c-4 2 -8 2 -12 0 c-1 -12 -1 -24 1 -36 c4 -2 8 -2 11 0 z" />
+  </svg>
+
+  <!-- Back view -->
+  <svg viewBox="0 0 120 260" class="muscle-diagram__figure">
+    <path
+      class="muscle-diagram__outline"
+      d="M60 10
+         c10 0 17 8 17 18 c0 7 -3 12 -6 15
+         c9 3 15 10 17 20 l4 22
+         c7 2 12 9 13 18 l4 36 c1 8 -5 14 -12 13 c-6 -1 -10 -6 -10 -13 l-3 -30
+         c-1 7 -1 15 1 23 c3 14 4 30 2 46 l-3 36 c6 2 10 7 10 14 l0 34 c0 8 -6 14 -14 14 c-7 0 -13 -5 -14 -12 l-4 -40
+         c-1 10 -1 20 0 30 l3 22 c1 8 -5 14 -13 14 c-7 0 -13 -5 -14 -13 l-2 -36
+         c-1 10 -1 20 0 30 l3 22 c1 8 -5 14 -13 14 c-7 0 -13 -5 -14 -13 l-4 -40
+         c1 -8 -6 -11 -13 -12 c-8 -1 -14 -7 -14 -15 l0 -34 c0 -7 4 -12 10 -14
+         l-3 -36 c-2 -16 -1 -32 2 -46 c2 -8 2 -16 1 -23 l-3 30 c0 7 -4 12 -10 13 c-7 1 -13 -5 -12 -13 l4 -36
+         c1 -9 6 -16 13 -18 l4 -22 c2 -10 8 -17 17 -20
+         c-3 -3 -6 -8 -6 -15 c0 -10 7 -18 17 -18 z"
+    />
+
+    <!-- Shoulders / rear delts -->
+    <path class="muscle-diagram__region" [class.active]="isActive('SHOULDERS')" d="M30 56 c-2 9 -2 17 2 24 c4 4 9 5 13 3 c-2 -9 -2 -18 -1 -26 c-5 -3 -10 -3 -14 -1 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('SHOULDERS')" d="M90 56 c2 9 2 17 -2 24 c-4 4 -9 5 -13 3 c2 -9 2 -18 1 -26 c5 -3 10 -3 14 -1 z" />
+
+    <!-- Traps -->
+    <path class="muscle-diagram__region" [class.active]="isActive('TRAPS')" d="M42 40 l18 10 l18 -10 c0 6 -8 14 -18 14 c-10 0 -18 -8 -18 -14 z" />
+
+    <!-- Upper/lats back -->
+    <path class="muscle-diagram__region" [class.active]="isActive('BACK')" d="M60 56 c-14 0 -22 7 -23 20 c-1 11 5 22 17 26 c3 1 4 -1 4 -4 l0 -20 l2 0 l0 20 c0 3 1 5 4 4 c12 -4 18 -15 17 -26 c-1 -13 -9 -20 -21 -20 z" />
+
+    <!-- Triceps -->
+    <path class="muscle-diagram__region" [class.active]="isActive('TRICEPS')" d="M24 80 c-3 10 -4 20 -3 29 c3 2 7 2 10 0 c0 -10 1 -20 3 -29 c-3 -2 -7 -2 -10 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('TRICEPS')" d="M96 80 c3 10 4 20 3 29 c-3 2 -7 2 -10 0 c0 -10 -1 -20 -3 -29 c3 -2 7 -2 10 0 z" />
+
+    <!-- Forearms -->
+    <path class="muscle-diagram__region" [class.active]="isActive('FOREARMS')" d="M21 112 c-2 8 -3 15 -2 22 c3 2 6 2 9 0 c1 -7 1 -14 -1 -22 c-2 -2 -4 -2 -6 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('FOREARMS')" d="M99 112 c2 8 3 15 2 22 c-3 2 -6 2 -9 0 c-1 -7 -1 -14 1 -22 c2 -2 4 -2 6 0 z" />
+
+    <!-- Lower back -->
+    <rect class="muscle-diagram__region" [class.active]="isActive('LOWER_BACK')" x="46" y="124" width="28" height="18" rx="5" />
+
+    <!-- Glutes -->
+    <path class="muscle-diagram__region" [class.active]="isActive('GLUTES')" d="M60 144 c-14 -2 -22 3 -23 13 c-1 9 6 16 17 17 c3 0 5 -2 6 -5 c1 3 3 5 6 5 c11 -1 18 -8 17 -17 c-1 -10 -9 -15 -23 -13 z" />
+
+    <!-- Hamstrings -->
+    <path class="muscle-diagram__region" [class.active]="isActive('HAMSTRINGS')" d="M42 172 c-4 14 -5 26 -3 38 c5 3 10 3 15 0 c1 -14 1 -26 -1 -38 c-4 -2 -8 -2 -11 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('HAMSTRINGS')" d="M78 172 c4 14 5 26 3 38 c-5 3 -10 3 -15 0 c-1 -14 -1 -26 1 -38 c4 -2 8 -2 11 0 z" />
+
+    <!-- Calves -->
+    <path class="muscle-diagram__region" [class.active]="isActive('CALVES')" d="M41 206 c-2 12 -2 24 0 36 c4 2 8 2 12 0 c1 -12 1 -24 -1 -36 c-4 -2 -8 -2 -11 0 z" />
+    <path class="muscle-diagram__region" [class.active]="isActive('CALVES')" d="M79 206 c2 12 2 24 0 36 c-4 2 -8 2 -12 0 c-1 -12 -1 -24 1 -36 c4 -2 8 -2 11 0 z" />
+  </svg>
+</div>

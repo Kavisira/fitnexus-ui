@@ -1,0 +1,89 @@
+<div class="public-page">
+  <div class="public-page__center" *ngIf="loading()">
+    <p-progress-spinner styleClass="w-3rem h-3rem" />
+  </div>
+
+  <div class="public-page__center" *ngIf="!loading() && errorMessage() && !form()">
+    <p-card styleClass="public-page__card">
+      <p-message severity="error">{{ errorMessage() }}</p-message>
+    </p-card>
+  </div>
+
+  <div class="public-page__center" *ngIf="submitted()">
+    <p-card styleClass="public-page__card">
+      <div class="text-center">
+        <h2>Thank you!</h2>
+        <p>Your response has been recorded.</p>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="public-page__center" *ngIf="!loading() && form() && !submitted()">
+    <p-card styleClass="public-page__card">
+      <h2>{{ form()!.templateName }}</h2>
+      <p *ngIf="form()!.description" class="text-color-secondary">{{ form()!.description }}</p>
+
+      <p-message *ngIf="errorMessage()" severity="error" styleClass="w-full mb-3">{{ errorMessage() }}</p-message>
+
+      <div class="field-block" *ngFor="let field of form()!.fields; trackBy: fieldTrackBy">
+        <label>{{ field.label }}<span *ngIf="field.required" class="required-mark">*</span></label>
+
+        <input
+          *ngIf="field.type === 'SHORT_TEXT'"
+          pInputText
+          class="w-full"
+          [(ngModel)]="answers[field.id].text"
+        />
+
+        <textarea
+          *ngIf="field.type === 'LONG_TEXT'"
+          pTextarea
+          class="w-full"
+          rows="4"
+          [(ngModel)]="answers[field.id].text"
+        ></textarea>
+
+        <p-rating *ngIf="field.type === 'RATING'" [(ngModel)]="answers[field.id].number" [stars]="5" />
+
+        <p-inputnumber
+          *ngIf="field.type === 'NUMBER'"
+          class="w-full"
+          [(ngModel)]="answers[field.id].number"
+        />
+
+        <p-datepicker *ngIf="field.type === 'DATE'" [(ngModel)]="answers[field.id].date" />
+
+        <div *ngIf="field.type === 'YES_NO'" class="flex gap-4 mt-1">
+          <label class="flex align-items-center gap-2">
+            <p-radiobutton [name]="field.id" [value]="true" [(ngModel)]="answers[field.id].boolean" />
+            Yes
+          </label>
+          <label class="flex align-items-center gap-2">
+            <p-radiobutton [name]="field.id" [value]="false" [(ngModel)]="answers[field.id].boolean" />
+            No
+          </label>
+        </div>
+
+        <div *ngIf="field.type === 'SINGLE_CHOICE'" class="flex flex-column gap-2 mt-1">
+          <label class="flex align-items-center gap-2" *ngFor="let option of field.options">
+            <p-radiobutton [name]="field.id" [value]="option" [(ngModel)]="answers[field.id].choices![0]" />
+            {{ option }}
+          </label>
+        </div>
+
+        <div *ngIf="field.type === 'MULTI_CHOICE'" class="flex flex-column gap-2 mt-1">
+          <label class="flex align-items-center gap-2" *ngFor="let option of field.options">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isMultiChoiceSelected(field.id, option)"
+              (ngModelChange)="toggleMultiChoice(field.id, option)"
+            />
+            {{ option }}
+          </label>
+        </div>
+      </div>
+
+      <p-button label="Submit" [loading]="submitting()" (onClick)="submit()" styleClass="w-full mt-3" />
+    </p-card>
+  </div>
+</div>

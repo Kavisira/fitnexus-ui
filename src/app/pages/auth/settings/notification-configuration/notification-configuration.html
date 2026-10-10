@@ -6,13 +6,6 @@
           <div class="config-card-header">
             <div class="config-card-title">
               <span class="config-type-name">{{ typeLabel(config.type) }}</span>
-              @if (isNotReady(config.type)) {
-                <p-tag
-                  [value]="'notificationConfig.notReady' | translate"
-                  severity="secondary"
-                  [pTooltip]="'notificationConfig.notReadyHint' | translate"
-                />
-              }
             </div>
             <p-toggleswitch [ngModel]="config.enabled" (ngModelChange)="setEnabled(config, $event)" />
           </div>
@@ -38,15 +31,13 @@
                     <p-toggleswitch [ngModel]="config.inAppEnabled" (ngModelChange)="setInAppEnabled(config, $event)" />
                     <span>{{ 'notificationConfig.channelInApp' | translate }}</span>
                   </div>
-                  <div class="channel-toggle channel-toggle-disabled" [pTooltip]="'notificationConfig.comingSoon' | translate">
-                    <p-toggleswitch [ngModel]="false" [disabled]="true" />
+                  <div class="channel-toggle">
+                    <p-toggleswitch [ngModel]="config.emailEnabled" (ngModelChange)="setEmailEnabled(config, $event)" />
                     <span>{{ 'notificationConfig.channelEmail' | translate }}</span>
-                    <p-tag [value]="'notificationConfig.comingSoon' | translate" severity="secondary" />
                   </div>
-                  <div class="channel-toggle channel-toggle-disabled" [pTooltip]="'notificationConfig.comingSoon' | translate">
-                    <p-toggleswitch [ngModel]="false" [disabled]="true" />
+                  <div class="channel-toggle">
+                    <p-toggleswitch [ngModel]="config.whatsappEnabled" (ngModelChange)="setWhatsappEnabled(config, $event)" />
                     <span>{{ 'notificationConfig.channelWhatsapp' | translate }}</span>
-                    <p-tag [value]="'notificationConfig.comingSoon' | translate" severity="secondary" />
                   </div>
                 </div>
               </div>

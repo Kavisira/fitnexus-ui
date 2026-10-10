@@ -13,6 +13,7 @@ export const en = {
     expenses: 'Expenses',
     employees: 'Employees',
     leads: 'Leads',
+    forms: 'Forms',
     attendance: 'Attendance',
     notifications: 'Notifications',
     leaveManagement: 'Leave Management',
@@ -509,6 +510,8 @@ export const en = {
       PLANS: 'Plans & Packages',
       EXPENSES: 'Expenses',
       LEAVES: 'Leave Management',
+      FORMS: 'Forms',
+      FITNESS: 'Fitness',
     },
   },
   expensesPage: {

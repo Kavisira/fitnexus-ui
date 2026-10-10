@@ -1,0 +1,17 @@
+<div class="exercise-sprite" *ngIf="imageUrl && !failed()">
+  <img
+    [src]="imageUrl"
+    [alt]="alt"
+    class="exercise-sprite__img"
+    [style.transform]="'translateX(-' + startOffset() + '%)'"
+    [class.exercise-sprite__img--visible]="frame() === 0"
+    (error)="onImageError()"
+  />
+  <img
+    [src]="imageUrl"
+    [alt]="alt"
+    class="exercise-sprite__img"
+    [style.transform]="'translateX(-' + endOffset() + '%)'"
+    [class.exercise-sprite__img--visible]="frame() === 1"
+  />
+</div>

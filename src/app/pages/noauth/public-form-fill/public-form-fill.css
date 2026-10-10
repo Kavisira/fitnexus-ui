@@ -1,0 +1,36 @@
+.public-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--p-content-background, #f4f6f9);
+}
+
+.public-page__center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 60vh;
+}
+
+:host ::ng-deep .public-page__card {
+  width: 100%;
+  max-width: 560px;
+}
+
+.field-block {
+  margin-bottom: 1.25rem;
+}
+
+.field-block label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.required-mark {
+  color: var(--p-red-500, #e24c4c);
+  margin-left: 0.25rem;
+}

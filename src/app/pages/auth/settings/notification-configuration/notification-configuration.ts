@@ -28,11 +28,6 @@ const TYPE_LABEL_KEY: Record<NotificationType, string> = {
   MEMBERSHIP_EXPIRY: 'notificationConfig.typeMembershipExpiry',
 };
 
-// Not wired up yet — Employees/Members modules don't exist, so these
-// have nothing to check. Shown in the list (per the earlier product
-// decision) but visually marked "not available yet".
-const NOT_READY_TYPES = new Set<NotificationType>(['BIRTHDAY_EMPLOYEE', 'BIRTHDAY_MEMBER', 'MEMBERSHIP_EXPIRY']);
-
 @Component({
   selector: 'app-notification-configuration',
   standalone: true,
@@ -79,10 +74,6 @@ export class NotificationConfiguration implements OnInit {
     return this.i18n.t(TYPE_LABEL_KEY[type]);
   }
 
-  isNotReady(type: NotificationType): boolean {
-    return NOT_READY_TYPES.has(type);
-  }
-
   offsets(config: NotificationConfig): { value: number; unit: OffsetUnit }[] {
     return config.rule?.offsets ?? [];
   }
@@ -101,6 +92,14 @@ export class NotificationConfiguration implements OnInit {
 
   setInAppEnabled(config: NotificationConfig, value: boolean): void {
     this.patchConfig(config.type, { inAppEnabled: value });
+  }
+
+  setEmailEnabled(config: NotificationConfig, value: boolean): void {
+    this.patchConfig(config.type, { emailEnabled: value });
+  }
+
+  setWhatsappEnabled(config: NotificationConfig, value: boolean): void {
+    this.patchConfig(config.type, { whatsappEnabled: value });
   }
 
   addOffset(config: NotificationConfig): void {
@@ -130,6 +129,8 @@ export class NotificationConfiguration implements OnInit {
         enabled: config.enabled,
         severity: config.severity,
         inAppEnabled: config.inAppEnabled,
+        emailEnabled: config.emailEnabled,
+        whatsappEnabled: config.whatsappEnabled,
         rule: config.rule,
       })
       .subscribe({

@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.exercise-sprite {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-100, #f4f6f9);
+  border: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.exercise-sprite__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 0.35s ease-in-out;
+}
+
+.exercise-sprite__img--visible {
+  opacity: 1;
+}
