@@ -1,0 +1,27 @@
+.muscle-diagram {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+.muscle-diagram__figure {
+  width: 40px;
+  height: 86px;
+}
+.muscle-diagram--md .muscle-diagram__figure {
+  width: 64px;
+  height: 138px;
+}
+.muscle-diagram__outline {
+  fill: var(--surface-200, #e9ecef);
+  stroke: var(--surface-400, #ced4da);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.muscle-diagram__region {
+  fill: transparent;
+  stroke: none;
+  transition: fill 0.15s ease, filter 0.15s ease;
+}
+.muscle-diagram__region.active {
+  fill: #e11d2e;
+  filter: drop-shadow(0 0 2px rgba(225, 29, 46, 0.55));
+}

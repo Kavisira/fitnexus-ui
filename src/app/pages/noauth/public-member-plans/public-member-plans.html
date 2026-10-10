@@ -1,0 +1,105 @@
+<div class="public-page">
+  <div class="public-page__center" *ngIf="loading()">
+    <p-progress-spinner styleClass="w-3rem h-3rem" />
+  </div>
+
+  <div class="public-page__center" *ngIf="!loading() && errorMessage()">
+    <p-card styleClass="public-page__card">
+      <p-message severity="error">{{ errorMessage() }}</p-message>
+    </p-card>
+  </div>
+
+  <div class="public-page__wide" *ngIf="!loading() && plans() && !errorMessage()">
+    <div class="hero">
+      <div class="hero__avatar">{{ plans()!.memberName.charAt(0) }}</div>
+      <h2>{{ plans()!.memberName }}'s Plans</h2>
+    </div>
+
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0"><i class="pi pi-apple mr-2"></i>Diet</p-tab>
+        <p-tab value="1"><i class="pi pi-bolt mr-2"></i>Workout</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <ng-container *ngIf="plans()!.diet as diet; else noDiet">
+            <p-card [header]="diet.title" styleClass="plan-card">
+              <p *ngIf="diet.notes" class="text-color-secondary mb-3">{{ diet.notes }}</p>
+              <div class="meal-row" *ngFor="let item of diet.items">
+                <div class="meal-row__badge">{{ item.mealLabel.charAt(0) }}</div>
+                <div>
+                  <div class="meal-row__label">{{ item.mealLabel }}</div>
+                  <div class="meal-row__desc">{{ item.description }}</div>
+                </div>
+              </div>
+            </p-card>
+          </ng-container>
+          <ng-template #noDiet>
+            <p-message severity="info">No diet plan has been assigned yet.</p-message>
+          </ng-template>
+        </p-tabpanel>
+
+        <p-tabpanel value="1">
+          <ng-container *ngIf="plans()!.workout as workout; else noWorkout">
+            <p-card [header]="workout.title" styleClass="plan-card">
+              <p *ngIf="workout.notes" class="text-color-secondary mb-3">{{ workout.notes }}</p>
+
+              <div class="day-group" *ngFor="let group of groupedExercises()">
+                <h4 class="day-group__title">{{ group.label }}</h4>
+
+              <div class="exercise-card" *ngFor="let exercise of group.items">
+                <div class="exercise-card__header">
+                  <span class="exercise-card__name">{{ exercise.name }}</span>
+                  <p-button
+                    label="View demo"
+                    icon="pi pi-video"
+                    size="small"
+                    [text]="true"
+                    (onClick)="openDemo(exercise)"
+                  />
+                  <p-tag *ngIf="exercise.lastBestWeightKg" severity="success" [value]="'PR: ' + exercise.lastBestWeightKg + ' kg'" />
+                </div>
+
+                <div class="exercise-card__row">
+                  <div class="exercise-card__info">
+                    <div class="exercise-card__target text-color-secondary">
+                      Target: {{ exercise.targetSets }} sets × {{ exercise.targetReps }} reps
+                      <span *ngIf="exercise.targetWeightKg"> @ {{ exercise.targetWeightKg }} kg</span>
+                    </div>
+
+                    <div class="set-log">
+                      <div class="set-log__row" *ngFor="let draft of logDrafts[exercise.id]; let si = index">
+                        <span class="set-log__label">Set {{ si + 1 }}</span>
+                        <p-inputnumber placeholder="Reps" [(ngModel)]="draft.reps" />
+                        <p-inputnumber placeholder="kg" [(ngModel)]="draft.weightKg" [minFractionDigits]="0" [maxFractionDigits]="2" />
+                        <p-button
+                          label="Log"
+                          size="small"
+                          [loading]="logging() === exercise.id + ':' + si"
+                          (onClick)="logSet(exercise, si)"
+                        />
+                        <small *ngIf="logSuccess() === exercise.id + ':' + si" class="text-green-600">Logged!</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </p-card>
+          </ng-container>
+          <ng-template #noWorkout>
+            <p-message severity="info">No workout plan has been assigned yet.</p-message>
+          </ng-template>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+
+  <app-exercise-details-modal
+    [visible]="demoModalVisible()"
+    (visibleChange)="demoModalVisible.set($event)"
+    [exerciseName]="demoExerciseName()"
+    [imageUrl]="demoImageUrl()"
+    [gender]="plans()?.memberGender ?? null"
+  />
+</div>

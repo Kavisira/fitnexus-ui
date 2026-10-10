@@ -1,0 +1,149 @@
+<p-dialog
+  [header]="memberName + ' — diet & workout'"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '1100px', height: '85vh' }"
+  [breakpoints]="{ '1199px': '90vw', '575px': '98vw' }"
+  styleClass="fitness-dialog"
+>
+  <div class="center" *ngIf="loading()">
+    <p-progress-spinner styleClass="w-3rem h-3rem" />
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <div class="link-row">
+      <p-button
+        label="Get member public link"
+        icon="pi pi-link"
+        size="small"
+        severity="secondary"
+        [loading]="loadingLink()"
+        (onClick)="getPublicLink()"
+      />
+      <ng-container *ngIf="publicLink()">
+        <span class="link-text">{{ publicLink() }}</span>
+        <p-button icon="pi pi-copy" size="small" [text]="true" (onClick)="copyLink()" />
+      </ng-container>
+    </div>
+
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">Diet</p-tab>
+        <p-tab value="1">Workout</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <div class="field-block">
+            <label>Title</label>
+            <input pInputText class="w-full" [(ngModel)]="dietTitle" [disabled]="!canWrite" />
+          </div>
+          <div class="field-block">
+            <label>Notes (optional)</label>
+            <textarea pTextarea class="w-full" rows="2" [(ngModel)]="dietNotes" [disabled]="!canWrite"></textarea>
+          </div>
+
+          <div class="item-row" *ngFor="let item of dietItems(); let i = index">
+            <input pInputText placeholder="Meal (e.g. Breakfast)" class="item-row__meal" [(ngModel)]="item.mealLabel" [disabled]="!canWrite" />
+            <input pInputText placeholder="Description" class="item-row__desc" [(ngModel)]="item.description" [disabled]="!canWrite" />
+            <p-button *ngIf="canWrite" icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeDietItem(i)" />
+          </div>
+          <p-button *ngIf="canWrite" label="Add meal" icon="pi pi-plus" size="small" severity="secondary" (onClick)="addDietItem()" styleClass="mt-2" />
+
+          <div class="dialog-actions" *ngIf="canWrite">
+            <p-button label="Save diet plan" [loading]="savingDiet()" (onClick)="saveDiet()" />
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="1">
+          <div class="field-block">
+            <label>Title</label>
+            <input pInputText class="w-full" [(ngModel)]="workoutTitle" [disabled]="!canWrite" />
+          </div>
+          <div class="field-block">
+            <label>Notes (optional)</label>
+            <textarea pTextarea class="w-full" rows="2" [(ngModel)]="workoutNotes" [disabled]="!canWrite"></textarea>
+          </div>
+
+          <div class="day-group" *ngFor="let group of groupedExercises()">
+            <h4 class="day-group__title">{{ group.label }}</h4>
+
+            <div class="exercise-card" *ngFor="let item of group.items">
+              <div class="exercise-card__label">
+                {{ item.ex.name || 'Exercise ' + (item.index + 1) }}
+                <span class="muscle-chip" *ngIf="item.ex.muscleGroup">{{ muscleGroupLabel(item.ex.muscleGroup) }}</span>
+                <p-tag *ngIf="item.ex.lastBestWeightKg" severity="success" [value]="'Best: ' + (item.ex.lastBestReps ?? '?') + ' reps @ ' + item.ex.lastBestWeightKg + ' kg'" />
+                <span class="no-log-yet" *ngIf="!item.ex.lastBestWeightKg && item.ex.id">No sets logged yet</span>
+              </div>
+
+              <div class="exercise-card__row">
+                <div class="exercise-card__fields">
+                  <div class="exercise-card__name-row">
+                    <p-autocomplete
+                      [ngModel]="item.ex.name"
+                      (ngModelChange)="onExerciseNameChange(item.ex, $event, item.index)"
+                      [suggestions]="exerciseSuggestions()"
+                      optionLabel="name"
+                      placeholder="Search or type an exercise"
+                      [disabled]="!canWrite"
+                      [appendTo]="'body'"
+                      class="exercise-card__name-input"
+                      (completeMethod)="searchExercise($event)"
+                    />
+                    <p-button
+                      *ngIf="item.ex.name"
+                      label="View demo"
+                      icon="pi pi-video"
+                      size="small"
+                      [text]="true"
+                      (onClick)="openDemo(item.ex, item.index)"
+                    />
+                  </div>
+
+                  <div class="exercise-card__targets">
+                    <p-select
+                      [ngModel]="item.ex.day"
+                      (ngModelChange)="onDayChange(item.ex, $event)"
+                      [options]="dayOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Day"
+                      [disabled]="!canWrite"
+                      [appendTo]="'body'"
+                    />
+                    <p-inputnumber placeholder="Sets" [(ngModel)]="item.ex.targetSets" [disabled]="!canWrite" />
+                    <p-inputnumber placeholder="Reps" [(ngModel)]="item.ex.targetReps" [disabled]="!canWrite" />
+                    <p-inputnumber placeholder="Target kg" [(ngModel)]="item.ex.targetWeightKg" [minFractionDigits]="0" [maxFractionDigits]="2" [disabled]="!canWrite" />
+                    <p-button *ngIf="canWrite" icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeExercise(item.index)" />
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <p-button *ngIf="canWrite" label="Add exercise" icon="pi pi-plus" size="small" severity="secondary" (onClick)="addExercise()" styleClass="mt-2" />
+
+          <p-message severity="info" styleClass="mt-3" *ngIf="canWrite">
+            Editing an exercise's details here clears that exercise's logged-set history going forward.
+          </p-message>
+
+          <div class="dialog-actions" *ngIf="canWrite">
+            <p-button label="Save workout plan" [loading]="savingWorkout()" (onClick)="saveWorkout()" />
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </ng-container>
+
+  <div class="dialog-actions mt-2">
+    <p-button label="Close" severity="secondary" [text]="true" (onClick)="close()" />
+  </div>
+</p-dialog>
+
+<app-exercise-details-modal
+  [visible]="demoModalVisible()"
+  (visibleChange)="demoModalVisible.set($event)"
+  [exerciseName]="demoExerciseName()"
+  [imageUrl]="demoImageUrl()"
+  [gender]="memberGender"
+/>

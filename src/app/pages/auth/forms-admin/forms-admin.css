@@ -1,0 +1,121 @@
+.forms-page__header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+.forms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.forms-grid__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+.field-block {
+  margin-bottom: 1rem;
+}
+.field-block label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+.field-row__label {
+  flex: 2 1 160px;
+}
+.field-row__type {
+  flex: 1 1 140px;
+}
+.field-row__required {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+.field-row__options {
+  flex: 1 1 100%;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.qr-image {
+  width: 220px;
+  height: 220px;
+}
+.break-all {
+  word-break: break-all;
+}
+.result-row {
+  margin-bottom: 0.75rem;
+}
+.option-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+.option-chip {
+  background: var(--surface-100);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.submission-row {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.submission-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+}
+.submission-row__name {
+  font-weight: 600;
+  flex: 1;
+}
+.submission-row__date {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+.submission-row__body {
+  padding: 0 0.9rem 0.75rem;
+  border-top: 1px solid var(--surface-border);
+}
+.submission-answer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+}
+.submission-answer__label {
+  color: var(--text-color-secondary);
+  flex: 1;
+}
+.submission-answer__value {
+  font-weight: 500;
+  text-align: right;
+}

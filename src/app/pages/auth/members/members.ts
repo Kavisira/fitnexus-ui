@@ -49,6 +49,7 @@ import { BMI_STATUS_LABEL, BMI_STATUS_SEVERITY, BmiStatus, TagSeverity, bmiStatu
 import { MembersImport } from './members-import';
 import { FilterPanel, FilterSection } from '../../../shared/filter-panel/filter-panel';
 import { PageHeaderService } from '../../../shared/page-header/page-header.service';
+import { MemberFitnessDialog } from './member-fitness-dialog/member-fitness-dialog';
 
 /** Row shape produced by memberCards() below — named so the
  * actions-menu / details-dialog state (which needs the whole row, not
@@ -157,6 +158,7 @@ function addMonths(date: Date, months: number): Date {
     MembersImport,
     FilterPanel,
     TranslatePipe,
+    MemberFitnessDialog,
   ],
   templateUrl: './members.html',
   styleUrls: ['./members.css'],
@@ -297,6 +299,7 @@ export class Members implements OnInit {
     const items: MenuItem[] = [
       { label: this.i18n.t('members.detailsLabel'), icon: 'pi pi-info-circle', command: () => this.openDetails(card) },
       { label: this.i18n.t('members.viewProgress'), icon: 'pi pi-eye', command: () => this.openProgress(member) },
+      { label: 'Diet & workout', icon: 'pi pi-heart', command: () => this.openFitnessDialog(member) },
     ];
     if (this.canWrite()) {
       items.push(
@@ -323,6 +326,20 @@ export class Members implements OnInit {
   editingId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   partnerMode = signal<'new' | 'existing'>('new');
+
+  // Diet & workout dialog (see MemberFitnessDialog)
+  fitnessDialogVisible = signal(false);
+  fitnessMemberId = signal<string | null>(null);
+  fitnessMemberName = signal('');
+  fitnessMemberGender = signal<'MALE' | 'FEMALE' | 'OTHER' | null>(null);
+  canWriteFitness = computed(() => this.permissions.canWrite('FITNESS'));
+
+  openFitnessDialog(member: Member): void {
+    this.fitnessMemberId.set(member.id);
+    this.fitnessMemberName.set(member.name);
+    this.fitnessMemberGender.set(member.gender ?? null);
+    this.fitnessDialogVisible.set(true);
+  }
 
   statusOptions: { label: string; value: MemberStatus }[] = [
     { label: 'Active', value: 'ACTIVE' },

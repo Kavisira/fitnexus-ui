@@ -1,0 +1,1690 @@
+[
+  {
+    "id": "barbell-bench-press",
+    "name": "Barbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Bench Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "incline-barbell-bench-press",
+    "name": "Incline Barbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Incline Barbell Bench Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "decline-barbell-bench-press",
+    "name": "Decline Barbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Decline Barbell Bench Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "close-grip-barbell-bench-press",
+    "name": "Close-Grip Barbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Close-Grip Barbell Bench Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-floor-press",
+    "name": "Barbell Floor Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Floor Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "paused-barbell-bench-press",
+    "name": "Paused Barbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Paused Barbell Bench Press using barbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-bench-press",
+    "name": "Dumbbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Bench Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "incline-dumbbell-bench-press",
+    "name": "Incline Dumbbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Incline Dumbbell Bench Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "decline-dumbbell-bench-press",
+    "name": "Decline Dumbbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Decline Dumbbell Bench Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-fly",
+    "name": "Dumbbell Fly",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Fly using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "incline-dumbbell-fly",
+    "name": "Incline Dumbbell Fly",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Incline Dumbbell Fly using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-floor-press",
+    "name": "Dumbbell Floor Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Floor Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-squeeze-press",
+    "name": "Dumbbell Squeeze Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Squeeze Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "single-arm-dumbbell-bench-press",
+    "name": "Single-Arm Dumbbell Bench Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Single-Arm Dumbbell Bench Press using dumbbell.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "push-up",
+    "name": "Push-Up",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Push-Up using bodyweight.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "wide-push-up",
+    "name": "Wide Push-Up",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Wide Push-Up using bodyweight.",
+      "Brace your core and position your body to emphasize the chest.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-bent-over-row",
+    "name": "Barbell Bent-Over Row",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Bent-Over Row using barbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-deadlift",
+    "name": "Barbell Deadlift",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Deadlift using barbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "one-arm-dumbbell-row",
+    "name": "One-Arm Dumbbell Row",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the One-Arm Dumbbell Row using dumbbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "chest-supported-dumbbell-row",
+    "name": "Chest-Supported Dumbbell Row",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Chest-Supported Dumbbell Row using dumbbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "bent-over-dumbbell-row",
+    "name": "Bent-Over Dumbbell Row",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Bent-Over Dumbbell Row using dumbbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-pullover",
+    "name": "Dumbbell Pullover",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Pullover using dumbbell.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "pull-up",
+    "name": "Pull-Up",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Pull-Up using bodyweight.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "neutral-grip-pull-up",
+    "name": "Neutral-Grip Pull-Up",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "back"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Neutral-Grip Pull-Up using bodyweight.",
+      "Brace your core and position your body to emphasize the back.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-overhead-press",
+    "name": "Barbell Overhead Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Overhead Press using barbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "seated-barbell-shoulder-press",
+    "name": "Seated Barbell Shoulder Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Seated Barbell Shoulder Press using barbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-shoulder-press",
+    "name": "Dumbbell Shoulder Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Shoulder Press using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "arnold-dumbbell-press",
+    "name": "Arnold Dumbbell Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Arnold Dumbbell Press using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-lateral-raise",
+    "name": "Dumbbell Lateral Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Lateral Raise using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-front-raise",
+    "name": "Dumbbell Front Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Front Raise using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "bent-over-rear-delt-raise",
+    "name": "Bent-Over Rear Delt Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Bent-Over Rear Delt Raise using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "seated-dumbbell-shoulder-press",
+    "name": "Seated Dumbbell Shoulder Press",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Seated Dumbbell Shoulder Press using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-upright-row",
+    "name": "Dumbbell Upright Row",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps",
+      "traps"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Upright Row using dumbbell.",
+      "Brace your core and position your body to emphasize the shoulders.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "reverse-barbell-curl",
+    "name": "Reverse Barbell Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Reverse Barbell Curl using barbell.",
+      "Brace your core and position your body to emphasize the biceps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-curl",
+    "name": "Dumbbell Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Curl using dumbbell.",
+      "Brace your core and position your body to emphasize the biceps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "hammer-curl",
+    "name": "Hammer Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Hammer Curl using dumbbell.",
+      "Brace your core and position your body to emphasize the biceps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "incline-dumbbell-curl",
+    "name": "Incline Dumbbell Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Incline Dumbbell Curl using dumbbell.",
+      "Brace your core and position your body to emphasize the biceps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "concentration-curl",
+    "name": "Concentration Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "forearms"
+    ],
+    "instructions": [
+      "Set up safely for the Concentration Curl using dumbbell.",
+      "Brace your core and position your body to emphasize the biceps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "ez-bar-skull-crusher",
+    "name": "EZ-Bar Skull Crusher",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the EZ-Bar Skull Crusher using barbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-overhead-triceps-extension",
+    "name": "Barbell Overhead Triceps Extension",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Overhead Triceps Extension using barbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "overhead-dumbbell-triceps-extension",
+    "name": "Overhead Dumbbell Triceps Extension",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Overhead Dumbbell Triceps Extension using dumbbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-skull-crusher",
+    "name": "Dumbbell Skull Crusher",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Skull Crusher using dumbbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-kickback",
+    "name": "Dumbbell Kickback",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Kickback using dumbbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "single-arm-overhead-dumbbell-extension",
+    "name": "Single-Arm Overhead Dumbbell Extension",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Single-Arm Overhead Dumbbell Extension using dumbbell.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "bench-dip",
+    "name": "Bench Dip",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Bench Dip using bodyweight.",
+      "Brace your core and position your body to emphasize the triceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-back-squat",
+    "name": "Barbell Back Squat",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Back Squat using barbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-front-squat",
+    "name": "Barbell Front Squat",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Front Squat using barbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-walking-lunge",
+    "name": "Barbell Walking Lunge",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Walking Lunge using barbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-squat",
+    "name": "Dumbbell Squat",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Squat using dumbbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-walking-lunge",
+    "name": "Dumbbell Walking Lunge",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Walking Lunge using dumbbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-bulgarian-split-squat",
+    "name": "Dumbbell Bulgarian Split Squat",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Bulgarian Split Squat using dumbbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-step-up",
+    "name": "Dumbbell Step-Up",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Step-Up using dumbbell.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "bodyweight-squat",
+    "name": "Bodyweight Squat",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes"
+    ],
+    "instructions": [
+      "Set up safely for the Bodyweight Squat using bodyweight.",
+      "Brace your core and position your body to emphasize the quadriceps.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-romanian-deadlift",
+    "name": "Barbell Romanian Deadlift",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "lower back"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Romanian Deadlift using barbell.",
+      "Brace your core and position your body to emphasize the hamstrings.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-romanian-deadlift",
+    "name": "Dumbbell Romanian Deadlift",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "lower back"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Romanian Deadlift using dumbbell.",
+      "Brace your core and position your body to emphasize the hamstrings.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-hip-thrust",
+    "name": "Barbell Hip Thrust",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Hip Thrust using barbell.",
+      "Brace your core and position your body to emphasize the glutes.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-glute-bridge",
+    "name": "Barbell Glute Bridge",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Glute Bridge using barbell.",
+      "Brace your core and position your body to emphasize the glutes.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "sumo-deadlift",
+    "name": "Sumo Deadlift",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "instructions": [
+      "Set up safely for the Sumo Deadlift using barbell.",
+      "Brace your core and position your body to emphasize the glutes.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "standing-barbell-calf-raise",
+    "name": "Standing Barbell Calf Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "calves"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Standing Barbell Calf Raise using barbell.",
+      "Brace your core and position your body to emphasize the calves.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "seated-barbell-calf-raise",
+    "name": "Seated Barbell Calf Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "calves"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Seated Barbell Calf Raise using barbell.",
+      "Brace your core and position your body to emphasize the calves.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "standing-calf-raise",
+    "name": "Standing Calf Raise",
+    "force": "push",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "calves"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Standing Calf Raise using bodyweight.",
+      "Brace your core and position your body to emphasize the calves.",
+      "Press or push the weight through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "plank",
+    "name": "Plank",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Plank using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "side-plank",
+    "name": "Side Plank",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Side Plank using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "crunch",
+    "name": "Crunch",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Crunch using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "reverse-crunch",
+    "name": "Reverse Crunch",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Reverse Crunch using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "bicycle-crunch",
+    "name": "Bicycle Crunch",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Bicycle Crunch using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "leg-raise",
+    "name": "Leg Raise",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Leg Raise using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "hanging-knee-raise",
+    "name": "Hanging Knee Raise",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Hanging Knee Raise using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "hanging-leg-raise",
+    "name": "Hanging Leg Raise",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Hanging Leg Raise using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "mountain-climber",
+    "name": "Mountain Climber",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Mountain Climber using bodyweight.",
+      "Brace your core and position your body to emphasize the abdominals.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-wrist-curl",
+    "name": "Barbell Wrist Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "forearms"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Barbell Wrist Curl using barbell.",
+      "Brace your core and position your body to emphasize the forearms.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "reverse-barbell-wrist-curl",
+    "name": "Reverse Barbell Wrist Curl",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "forearms"
+    ],
+    "secondaryMuscles": [],
+    "instructions": [
+      "Set up safely for the Reverse Barbell Wrist Curl using barbell.",
+      "Brace your core and position your body to emphasize the forearms.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "conventional-barbell-deadlift",
+    "name": "Conventional Barbell Deadlift",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "compound",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "lower back"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "instructions": [
+      "Set up safely for the Conventional Barbell Deadlift using barbell.",
+      "Brace your core and position your body to emphasize the lower back.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "back-extension",
+    "name": "Back Extension",
+    "force": "static",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "bodyweight",
+    "primaryMuscles": [
+      "lower back"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "instructions": [
+      "Set up safely for the Back Extension using bodyweight.",
+      "Brace your core and position your body to emphasize the lower back.",
+      "Move slowly through a comfortable range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "barbell-shrug",
+    "name": "Barbell Shrug",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "barbell",
+    "primaryMuscles": [
+      "traps"
+    ],
+    "secondaryMuscles": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Barbell Shrug using barbell.",
+      "Brace your core and position your body to emphasize the traps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  },
+  {
+    "id": "dumbbell-shrug",
+    "name": "Dumbbell Shrug",
+    "force": "pull",
+    "level": "beginner",
+    "mechanic": "isolation",
+    "equipment": "dumbbell",
+    "primaryMuscles": [
+      "traps"
+    ],
+    "secondaryMuscles": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Set up safely for the Dumbbell Shrug using dumbbell.",
+      "Brace your core and position your body to emphasize the traps.",
+      "Pull the resistance through a controlled range of motion.",
+      "Return to the starting position under control without using momentum.",
+      "Repeat for the prescribed repetitions; stop if you experience pain."
+    ],
+    "category": "strength"
+  }
+]

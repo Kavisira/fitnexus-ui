@@ -1,0 +1,135 @@
+<div class="forms-page">
+  <div class="forms-page__header">
+    <p-button *ngIf="canWrite()" label="New form" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <div class="center" *ngIf="loading()">
+    <p-progress-spinner styleClass="w-3rem h-3rem" />
+  </div>
+
+  <p-message *ngIf="!loading() && !templates().length" severity="info">
+    No forms yet. Create one to start collecting member feedback.
+  </p-message>
+
+  <div class="forms-grid" *ngIf="!loading()">
+    <p-card *ngFor="let t of templates()" [header]="t.name">
+      <p *ngIf="t.description" class="text-color-secondary">{{ t.description }}</p>
+      <p-tag severity="info" [value]="t.fields.length + ' field(s)'" />
+      <div class="forms-grid__actions">
+        <p-button label="Send to member" icon="pi pi-send" size="small" [disabled]="!canWrite()" (onClick)="openGenerateLink(t)" />
+        <p-button label="Results" icon="pi pi-chart-bar" size="small" severity="secondary" (onClick)="openResults(t)" />
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Create template -->
+  <p-dialog header="New form" [(visible)]="createDialogVisible" [modal]="true" [style]="{ width: '640px' }">
+    <p-message *ngIf="errorMessage()" severity="error" styleClass="w-full mb-3">{{ errorMessage() }}</p-message>
+
+    <div class="field-block">
+      <label>Form name</label>
+      <input pInputText class="w-full" [(ngModel)]="newName" />
+    </div>
+    <div class="field-block">
+      <label>Description (optional)</label>
+      <textarea pTextarea class="w-full" rows="2" [(ngModel)]="newDescription"></textarea>
+    </div>
+
+    <h4>Fields</h4>
+    <div class="field-row" *ngFor="let field of newFields(); let i = index">
+      <input pInputText placeholder="Question / label" class="field-row__label" [(ngModel)]="field.label" />
+      <p-select
+        [options]="fieldTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="field.type"
+        [appendTo]="'body'"
+        class="field-row__type"
+      />
+      <label class="field-row__required">
+        <p-checkbox [binary]="true" [(ngModel)]="field.required" /> Required
+      </label>
+      <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeField(i)" />
+      <input
+        *ngIf="choiceTypes.has(field.type)"
+        pInputText
+        placeholder="Options, comma separated"
+        class="field-row__options"
+        [(ngModel)]="field.optionsText"
+      />
+    </div>
+
+    <p-button label="Add field" icon="pi pi-plus" size="small" severity="secondary" (onClick)="addField()" styleClass="mt-2" />
+
+    <div class="dialog-actions">
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="createDialogVisible.set(false)" />
+      <p-button label="Create" [loading]="saving()" (onClick)="saveTemplate()" />
+    </div>
+  </p-dialog>
+
+  <!-- Generate / send link -->
+  <p-dialog header="Send form to a member" [(visible)]="linkDialogVisible" [modal]="true" [style]="{ width: '560px' }" [breakpoints]="{ '960px': '90vw' }">
+    <ng-container *ngIf="!generatedLink()">
+      <div class="field-block">
+        <label>Member</label>
+        <p-select
+          [options]="memberOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          [appendTo]="'body'"
+          placeholder="Select a member"
+          class="w-full"
+          [(ngModel)]="linkMemberId"
+        />
+      </div>
+      <label class="flex align-items-center gap-2 mt-2">
+        <p-checkbox [binary]="true" [(ngModel)]="linkSendWhatsapp" /> Send via WhatsApp
+      </label>
+      <p-button label="Generate link" styleClass="w-full mt-3" [loading]="generatingLink()" [disabled]="!linkMemberId()" (onClick)="generateLink()" />
+    </ng-container>
+
+    <ng-container *ngIf="generatedLink() as link">
+      <div class="text-center">
+        <img [src]="link.qrCodeDataUrl" alt="QR code" class="qr-image" />
+        <p class="mt-2 break-all">{{ link.publicUrl }}</p>
+        <p-button label="Copy link" icon="pi pi-copy" size="small" (onClick)="copyLink(link.publicUrl)" />
+      </div>
+    </ng-container>
+  </p-dialog>
+
+  <!-- Results -->
+  <p-dialog [header]="resultsTemplateName() + ' — results'" [(visible)]="resultsDialogVisible" [modal]="true" [style]="{ width: '680px' }" [breakpoints]="{ '960px': '90vw' }">
+    <div class="center" *ngIf="resultsLoading()">
+      <p-progress-spinner styleClass="w-3rem h-3rem" />
+    </div>
+    <ng-container *ngIf="!resultsLoading() && results() as r">
+      <p class="mb-3"><strong>{{ r.totalSubmissions }}</strong> submission(s)</p>
+      <div class="result-row" *ngFor="let f of r.fields">
+        <strong>{{ f.label }}</strong>
+        <span *ngIf="f.average !== undefined"> — average {{ f.average | number: '1.1-2' }} ({{ f.count }} answered)</span>
+        <span *ngIf="f.average === undefined"> — {{ f.count }} answered</span>
+        <div class="option-counts" *ngIf="f.optionCounts">
+          <span *ngFor="let entry of optionCountEntries(f)" class="option-chip">{{ entry.option }}: {{ entry.count }}</span>
+        </div>
+      </div>
+
+      <h4 class="mt-4 mb-2">Respondents</h4>
+      <p-message *ngIf="!submissions().length" severity="info">No one has submitted this form yet.</p-message>
+
+      <div class="submission-row" *ngFor="let s of submissions()">
+        <div class="submission-row__head" (click)="toggleSubmission(s.id)">
+          <span class="submission-row__name">{{ s.formShareLink.member.name }}</span>
+          <span class="submission-row__date">{{ s.submittedAt | date: 'medium' }}</span>
+          <i class="pi" [ngClass]="expandedSubmissionId() === s.id ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+        </div>
+        <div class="submission-row__body" *ngIf="expandedSubmissionId() === s.id">
+          <div class="submission-answer" *ngFor="let a of s.answers">
+            <span class="submission-answer__label">{{ fieldLabel(resultsTemplate()!.fields, a.formFieldId) }}</span>
+            <span class="submission-answer__value">{{ answerText(a, fieldById(a.formFieldId)) }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </p-dialog>
+</div>

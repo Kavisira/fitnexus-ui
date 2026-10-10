@@ -218,6 +218,7 @@ export class Sidebar {
         { labelKey: 'common.members', route: '/members', icon: 'users', screen: 'MEMBERS' },
         { labelKey: 'common.employees', route: '/employees', icon: 'id-card', screen: 'EMPLOYEES' },
         { labelKey: 'common.leads', route: '/leads', icon: 'user-plus', screen: 'LEADS' },
+        { labelKey: 'common.forms', route: '/forms', icon: 'file-text', screen: 'FORMS' },
       ],
     },
     {

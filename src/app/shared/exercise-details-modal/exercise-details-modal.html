@@ -1,0 +1,38 @@
+<p-dialog
+  [header]="exerciseName"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [breakpoints]="{ '575px': '95vw' }"
+>
+  <div class="exercise-details">
+    <app-exercise-sprite *ngIf="imageUrl" [imageUrl]="imageUrl" [gender]="gender" [alt]="exerciseName" class="exercise-details__sprite"></app-exercise-sprite>
+
+    <ng-container *ngIf="details() as d; else noDetails">
+      <div class="exercise-details__facts">
+        <p-tag *ngIf="d.category" severity="info" [value]="d.category" />
+        <p-tag *ngIf="d.level" severity="secondary" [value]="d.level" />
+        <p-tag *ngIf="d.equipment" severity="secondary" [value]="d.equipment" />
+      </div>
+
+      <div class="exercise-details__muscles" *ngIf="d.muscleGroup">
+        <strong>Primary muscle:</strong> {{ muscleGroupLabel(d.muscleGroup) }}
+      </div>
+      <div class="exercise-details__muscles" *ngIf="d.secondaryMuscles?.length">
+        <strong>Also works:</strong> {{ d.secondaryMuscles!.join(', ') }}
+      </div>
+
+      <div class="exercise-details__instructions" *ngIf="d.instructions?.length">
+        <h5>How to perform it</h5>
+        <ol>
+          <li *ngFor="let step of d.instructions">{{ step }}</li>
+        </ol>
+      </div>
+    </ng-container>
+
+    <ng-template #noDetails>
+      <p class="exercise-details__empty">No additional details for this exercise yet.</p>
+    </ng-template>
+  </div>
+</p-dialog>

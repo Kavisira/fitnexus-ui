@@ -3,6 +3,8 @@ import { Login } from './pages/noauth/login/login';
 import { ForgotPassword } from './pages/noauth/forgot-password/forgot-password';
 import { Signup } from './pages/noauth/signup/signup';
 import { VerifyOtp } from './pages/noauth/verify-otp/verify-otp';
+import { PublicFormFill } from './pages/noauth/public-form-fill/public-form-fill';
+import { PublicMemberPlans } from './pages/noauth/public-member-plans/public-member-plans';
 import { Layout } from './pages/auth/layout/layout';
 import { Dashboard } from './pages/auth/dashboard/dashboard';
 import { MyWorkspace } from './pages/auth/my-workspace/my-workspace';
@@ -11,6 +13,7 @@ import { Branches } from './pages/auth/branches/branches';
 import { Plans } from './pages/auth/plans/plans';
 import { Offers } from './pages/auth/offers/offers';
 import { Leads } from './pages/auth/leads/leads';
+import { FormsAdmin } from './pages/auth/forms-admin/forms-admin';
 import { Employees } from './pages/auth/employees/employees';
 import { Members } from './pages/auth/members/members';
 import { Expenses } from './pages/auth/expenses/expenses';
@@ -43,6 +46,23 @@ export const routes: Routes = [
     component: VerifyOtp,
     canActivate: [noAuthGuard],
     title: 'Verify account · FitNexus',
+  },
+
+  // Public, unauthenticated pages reached via a shared link/QR code —
+  // no guard at all (not even noAuthGuard, since a logged-in staff
+  // member opening a link they generated themselves should still see
+  // it render, not get bounced to /dashboard). See FormsService and
+  // FitnessService's public endpoints on the backend for the token
+  // model these pages rely on.
+  {
+    path: 'public-forms/:token',
+    component: PublicFormFill,
+    title: 'Feedback form · FitNexus',
+  },
+  {
+    path: 'public-fitness/:token',
+    component: PublicMemberPlans,
+    title: 'My plans · FitNexus',
   },
 
   // Authenticated routes — everything nested under Layout requires a
@@ -116,6 +136,13 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { screen: 'LEADS' },
         title: 'Leads · FitNexus',
+      },
+      {
+        path: 'forms',
+        component: FormsAdmin,
+        canActivate: [permissionGuard],
+        data: { screen: 'FORMS' },
+        title: 'Forms · FitNexus',
       },
       {
         path: 'attendance',

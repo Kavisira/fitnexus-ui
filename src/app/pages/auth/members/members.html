@@ -907,4 +907,13 @@
     </div>
   </p-dialog>
   <app-members-import #membersImport (imported)="loadMembers()"></app-members-import>
+
+  <app-member-fitness-dialog
+    [visible]="fitnessDialogVisible()"
+    (visibleChange)="fitnessDialogVisible.set($event)"
+    [memberId]="fitnessMemberId()"
+    [memberName]="fitnessMemberName()"
+    [memberGender]="fitnessMemberGender()"
+    [canWrite]="canWriteFitness()"
+  />
 </div>

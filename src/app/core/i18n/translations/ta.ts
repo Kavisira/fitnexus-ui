@@ -13,6 +13,7 @@ export const ta = {
     expenses: 'செலவுகள்',
     employees: 'ஊழியர்கள்',
     leads: 'வாய்ப்புகள்',
+    forms: 'படிவங்கள்',
     attendance: 'வருகைப் பதிவு',
     notifications: 'அறிவிப்புகள்',
     leaveManagement: 'விடுப்பு மேலாண்மை',
@@ -509,6 +510,8 @@ export const ta = {
       PLANS: 'திட்டங்கள் & தொகுப்புகள்',
       EXPENSES: 'செலவுகள்',
       LEAVES: 'விடுப்பு மேலாண்மை',
+      FORMS: 'படிவங்கள்',
+      FITNESS: 'ஃபிட்னஸ்',
     },
   },
   expensesPage: {
