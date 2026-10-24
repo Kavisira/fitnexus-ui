@@ -179,6 +179,11 @@ export const en = {
     },
   },
   dashboard: {
+    todayTitle: 'Today',
+    employeesPresent: 'Present today',
+    employeesAbsent: 'Absent today',
+    membersCheckedInToday: 'Members checked in today',
+    viewingBranch: 'Viewing',
     title: 'Dashboard',
     subtitle: 'A snapshot of how your gym is doing right now.',
     loadError: 'Could not load the dashboard. Please try again.',
@@ -478,7 +483,7 @@ export const en = {
   },
   rolePermissions: {
     title: 'Roles & Permissions',
-    subtitle: 'Control which screens Trainer, Manager, and Front Desk staff can view and edit.',
+    subtitle: 'Control which screens Trainer, Manager, Front Desk, and other Staff can view and edit.',
     loading: 'Loading permissions...',
     screenColumn: 'Screen',
     readColumn: 'View',
@@ -498,6 +503,7 @@ export const en = {
       BRANCH_MANAGER: 'Manager',
       TRAINER: 'Trainer',
       FRONT_DESK: 'Front desk',
+      STAFF: 'Other staff',
     },
     screen: {
       DASHBOARD: 'Dashboard',
@@ -845,6 +851,17 @@ export const en = {
       CASUAL: 'Casual',
       SICK: 'Sick',
       EARNED: 'Earned',
+    },
+    filterAll: 'All statuses',
+    typeColumn: 'Type',
+    dates: 'Dates',
+    days: 'Days',
+    statusColumn: 'Status',
+    status: {
+      PENDING: 'Pending',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+      CANCELLED: 'Cancelled',
     },
   },
   todo: {

@@ -78,42 +78,20 @@ export class Dashboard implements OnInit {
   analytics = computed(() => (this.summary()?.view === 'ANALYTICS' ? (this.summary() as AnalyticsSummary) : null));
   ops = computed(() => (this.summary()?.view === 'OPS' ? (this.summary() as OpsSummary) : null));
 
-  // ---- Tabs — the dashboard was one long scrolling page; it's now
-  // split into focused tabs so each category (overview, finance,
-  // members, leads, branches) can be read on its own instead of all at
-  // once. Self-service (leave, attendance, payslips, ...) lives in My
-  // Workspace now, not here. Available tabs depend on which view
-  // (analytics vs. ops) the signed-in role gets, and the Branches tab
-  // only shows up when there's actually a breakdown to show (org-wide,
-  // multi-branch).
-  activeTab = signal<string>('overview');
+  // ---- No tabs — the dashboard is one continuous scrolling page for
+  // every role now (Owner/Manager: Today strip, KPI row, charts grid,
+  // branch comparison; Trainer/Front Desk: Overview stats, BMI
+  // Attention, Follow-ups). Tabbing used to hide related numbers from
+  // each other, which made the page feel more confusing, not less.
 
-  analyticsTabs = computed(() => {
-    const tabs = [
-      { id: 'overview', labelKey: 'dashboard.tabs.overview', icon: 'home' },
-      { id: 'members', labelKey: 'dashboard.tabs.members', icon: 'users' },
-      { id: 'finance', labelKey: 'dashboard.tabs.finance', icon: 'wallet' },
-      { id: 'leads', labelKey: 'dashboard.tabs.leads', icon: 'filter' },
-    ];
-    if (this.analytics()?.branchBreakdown.length) {
-      tabs.push({ id: 'branches', labelKey: 'dashboard.tabs.branches', icon: 'sitemap' });
-    }
-    return tabs;
+  // Single-branch orgs never show the branch dropdown (see
+  // showBranchFilter) — this fills that gap with a plain label so it's
+  // still clear which branch the numbers below belong to, instead of
+  // just silently showing nothing where the dropdown would've been.
+  singleBranchLabel = computed(() => {
+    const branches = this.branches();
+    return this.isAnalytics() && branches.length === 1 ? branches[0].location : null;
   });
-
-  opsTabs = computed(() => {
-    return [
-      { id: 'overview', labelKey: 'dashboard.tabs.overview', icon: 'home' },
-      { id: 'bmi', labelKey: 'dashboard.tabs.bmiAlerts', icon: 'heart' },
-      { id: 'followUps', labelKey: 'dashboard.tabs.followUps', icon: 'phone' },
-    ];
-  });
-
-  tabs = computed(() => (this.isAnalytics() ? this.analyticsTabs() : this.opsTabs()));
-
-  selectTab(id: string): void {
-    this.activeTab.set(id);
-  }
 
   private axisColor = computed(() => (this.theme.mode() === 'dark' ? '#9ca3af' : '#6b7280'));
   private gridColor = computed(() => (this.theme.mode() === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'));
@@ -150,6 +128,47 @@ export class Dashboard implements OnInit {
     this.expandedChart.set(null);
   }
 
+  // ---- Stat-card expand — the cards themselves are now small/compact
+  // (see dashboard.css), so a reader who wants the number at a glance
+  // can still blow it up to a full-screen modal rather than squinting.
+  expandedStat = signal<{ labelKey: string; value: string; icon: string; severity: 'good' | 'bad' | 'warn' | 'blue' | 'default' } | null>(null);
+
+  openExpandStat(labelKey: string, value: string, icon: string, severity: 'good' | 'bad' | 'warn' | 'blue' | 'default' = 'default'): void {
+    this.expandedStat.set({ labelKey, value, icon, severity });
+  }
+
+  closeExpandStat(): void {
+    this.expandedStat.set(null);
+  }
+
+  expandedTable = signal<any[] | null>(null);
+
+  openExpandTable(rows: any[]): void {
+    this.expandedTable.set(rows);
+  }
+
+  closeExpandTable(): void {
+    this.expandedTable.set(null);
+  }
+
+  expandedOpsList = signal<{ titleKey: string; kind: 'bmi' | 'followUps'; rows: any[] } | null>(null);
+
+  openExpandOpsList(titleKey: string, kind: 'bmi' | 'followUps', rows: any[]): void {
+    this.expandedOpsList.set({ titleKey, kind, rows });
+  }
+
+  closeExpandOpsList(): void {
+    this.expandedOpsList.set(null);
+  }
+
+  // Angular forbids a pipe inside an event-binding expression, so the
+  // (click) handlers that build an expand-dialog value can't use
+  // `| number: '1.0-0'` directly like the card's own display span
+  // does — this does the same whole-number rounding in plain TS.
+  formatRounded(value: number): string {
+    return Math.round(value).toLocaleString();
+  }
+
   private pageHeader = inject(PageHeaderService);
   private destroyRef = inject(DestroyRef);
 
@@ -167,7 +186,6 @@ export class Dashboard implements OnInit {
       next: (summary) => {
         this.loading.set(false);
         this.summary.set(summary);
-        this.activeTab.set('overview');
       },
       error: () => {
         this.loading.set(false);

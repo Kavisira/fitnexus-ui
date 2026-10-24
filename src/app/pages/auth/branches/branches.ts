@@ -1,5 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -156,10 +157,17 @@ export class Branches implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private pageHeader = inject(PageHeaderService);
+  private route = inject(ActivatedRoute);
+
+  // Set when firstBranchGuard (core/auth/auth.guard.ts) redirected a
+  // brand-new Owner here because the org has zero branches yet — shows
+  // a one-time explanatory banner instead of the normal empty state.
+  isFirstBranchSetup = signal(false);
 
   ngOnInit(): void {
     this.pageHeader.setTitleKey('branches.title');
     this.destroyRef.onDestroy(() => this.pageHeader.clear());
+    this.isFirstBranchSetup.set(this.route.snapshot.queryParamMap.get('firstBranch') === '1');
     this.loadBranches();
   }
 

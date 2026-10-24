@@ -12,6 +12,7 @@
         [routerLink]="dashboard.route"
         routerLinkActive="active"
         class="nav-link"
+        data-tour="nav-DASHBOARD"
         [pTooltip]="!showLabels() ? (dashboard.labelKey | translate) : ''"
         tooltipPosition="right"
         (click)="closeMobile()"
@@ -71,7 +72,7 @@
           <ul class="submenu">
             @for (item of group.items; track item.route) {
               <li>
-                <a [routerLink]="item.route" routerLinkActive="active" class="submenu-link" (click)="closeMobile()">
+                <a [routerLink]="item.route" routerLinkActive="active" class="submenu-link" [attr.data-tour]="'nav-' + item.screen" (click)="closeMobile()">
                   <span class="submenu-icon">
                     @switch (item.icon) {
                       @case ('home') { <svg data-p-icon="home"></svg> }

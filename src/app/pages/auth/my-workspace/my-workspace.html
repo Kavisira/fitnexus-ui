@@ -31,45 +31,66 @@
       </button>
     </div>
 
+    <div class="mw-attendance-filters">
+      <p-select
+        [options]="leaveStatusFilterOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="leaveStatusFilter()"
+        (ngModelChange)="leaveStatusFilter.set($event)"
+        styleClass="mw-period-select"
+      />
+    </div>
+
     @if (leaveLoading()) {
       <p class="loading-text">{{ 'common.loading' | translate }}</p>
     } @else if (!myLeaveRequests().length) {
       <p class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</p>
     } @else {
-      <div class="ep-table-wrap">
-        <table class="ep-table">
-          <thead>
-            <tr>
-              <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
-              <th>{{ 'leaveManagement.dates' | translate }}</th>
-              <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
-              <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (r of myLeaveRequests(); track r.id) {
-              <tr>
-                <td>{{ leaveTypeLabel(r.leaveType) }}</td>
-                <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
-                <td class="col-num">{{ r.days }}</td>
-                <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
-                <td>
-                  @if (r.status === 'PENDING') {
-                    <button
-                      pButton
-                      type="button"
-                      class="p-button-sm p-button-text p-button-danger"
-                      [loading]="cancellingId() === r.id"
-                      (click)="cancelLeaveRequest(r.id)"
-                    >{{ 'dashboard.leave.cancel' | translate }}</button>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <p-table
+        [value]="filteredLeaveRequests()"
+        dataKey="id"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [stripedRows]="true"
+        [rowHover]="true"
+        styleClass="p-datatable-sm mw-bordered-table"
+      >
+        <ng-template #header>
+          <tr>
+            <th>{{ 'leaveManagement.typeColumn' | translate }}</th>
+            <th>{{ 'leaveManagement.dates' | translate }}</th>
+            <th class="col-num">{{ 'leaveManagement.days' | translate }}</th>
+            <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-r>
+          <tr>
+            <td>{{ leaveTypeLabel(r.leaveType) }}</td>
+            <td>{{ r.startDate | date: 'mediumDate' }} – {{ r.endDate | date: 'mediumDate' }}</td>
+            <td class="col-num">{{ r.days }}</td>
+            <td><p-tag [value]="('leaveManagement.status.' + r.status) | translate" [severity]="leaveStatusSeverity(r.status)" /></td>
+            <td>
+              @if (r.status === 'PENDING') {
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-sm p-button-text p-button-danger"
+                  [loading]="cancellingId() === r.id"
+                  (click)="cancelLeaveRequest(r.id)"
+                >{{ 'dashboard.leave.cancel' | translate }}</button>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5" class="chart-empty">{{ 'dashboard.leave.noRequests' | translate }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
     }
   }
 
@@ -122,28 +143,33 @@
       @if (!summary.days.length) {
         <p class="chart-empty">{{ 'myWorkspace.noAttendanceRecords' | translate }}</p>
       } @else {
-        <div class="ep-table-wrap">
-          <table class="ep-table">
-            <thead>
-              <tr>
-                <th>{{ 'myWorkspace.dateColumn' | translate }}</th>
-                <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
-                <th>{{ 'myWorkspace.firstPunchColumn' | translate }}</th>
-                <th>{{ 'myWorkspace.lastPunchColumn' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (day of summary.days; track trackDay($index, day)) {
-                <tr>
-                  <td>{{ day.date | date: 'mediumDate' }}</td>
-                  <td><p-tag [value]="attendanceStatusLabel(day.status)" [severity]="attendanceStatusSeverity(day.status)" /></td>
-                  <td>{{ day.firstPunchAt ? (day.firstPunchAt | date: 'shortTime') : '—' }}</td>
-                  <td>{{ day.lastPunchAt ? (day.lastPunchAt | date: 'shortTime') : '—' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <p-table
+          [value]="summary.days"
+          dataKey="date"
+          [paginator]="true"
+          [rows]="10"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [stripedRows]="true"
+          [rowHover]="true"
+          styleClass="p-datatable-sm mw-bordered-table"
+        >
+          <ng-template #header>
+            <tr>
+              <th>{{ 'myWorkspace.dateColumn' | translate }}</th>
+              <th>{{ 'leaveManagement.statusColumn' | translate }}</th>
+              <th>{{ 'myWorkspace.firstPunchColumn' | translate }}</th>
+              <th>{{ 'myWorkspace.lastPunchColumn' | translate }}</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-day>
+            <tr>
+              <td>{{ day.date | date: 'mediumDate' }}</td>
+              <td><p-tag [value]="attendanceStatusLabel(day.status)" [severity]="attendanceStatusSeverity(day.status)" /></td>
+              <td>{{ day.firstPunchAt ? (day.firstPunchAt | date: 'shortTime') : '—' }}</td>
+              <td>{{ day.lastPunchAt ? (day.lastPunchAt | date: 'shortTime') : '—' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
       }
     }
   }
@@ -214,68 +240,73 @@
         <p>{{ 'myWorkspace.noReviews' | translate }}</p>
       </div>
     } @else {
-      <div class="mw-review-list">
+      <div class="mw-payslip-list">
         @for (review of reviews(); track trackReview($index, review)) {
-          <div class="mw-review-card">
-            <div class="mw-review-header">
-              <span class="mw-review-date">{{ review.reviewDate | date: 'mediumDate' }}</span>
+          <div class="mw-payslip-card">
+            <button type="button" class="mw-payslip-summary" (click)="toggleReview(review.id)">
+              <span class="mw-payslip-month">{{ review.reviewDate | date: 'mediumDate' }}</span>
               @if (review.rating != null) {
                 <span class="mw-review-stars">{{ ratingStars(review.rating) }}</span>
               }
               <p-tag [value]="('myWorkspace.reviewStatus.' + review.status) | translate" [severity]="reviewStatusSeverity(review.status)" />
-            </div>
-            <p class="mw-review-notes" [innerHTML]="review.notes"></p>
+              <i class="pi" [class.pi-chevron-down]="!isReviewExpanded(review.id)" [class.pi-chevron-up]="isReviewExpanded(review.id)"></i>
+            </button>
+            @if (isReviewExpanded(review.id)) {
+              <div class="mw-payslip-detail">
+                <p class="mw-review-notes" [innerHTML]="review.notes"></p>
 
-            @if (review.responses.length) {
-              <div class="review-thread">
-                @for (response of review.responses; track trackResponse($index, response)) {
-                  <div class="review-thread-item" [class.review-thread-item-employee]="response.authorType === 'EMPLOYEE'">
-                    <span class="review-thread-author">{{ ('myWorkspace.reviewAuthor.' + response.authorType) | translate }}</span>
-                    <p class="review-thread-message" [innerHTML]="response.message"></p>
+                @if (review.responses.length) {
+                  <div class="review-thread">
+                    @for (response of review.responses; track trackResponse($index, response)) {
+                      <div class="review-thread-item" [class.review-thread-item-employee]="response.authorType === 'EMPLOYEE'">
+                        <span class="review-thread-author">{{ ('myWorkspace.reviewAuthor.' + response.authorType) | translate }}</span>
+                        <p class="review-thread-message" [innerHTML]="response.message"></p>
+                      </div>
+                    }
                   </div>
                 }
-              </div>
-            }
 
-            @if (review.status !== 'SIGNED_OFF') {
-              <div class="review-reply-form">
-                <p-editor
-                  class="mini-editor"
-                  [style]="{ height: '110px' }"
-                  [placeholder]="'myWorkspace.replyPlaceholder' | translate"
-                  [ngModel]="reviewReplyDraft(review.id)"
-                  (ngModelChange)="setReviewReplyDraft(review.id, $event)"
-                >
-                  <ng-template #header>
-                    <span class="ql-formats">
-                      <button type="button" class="ql-bold" aria-label="Bold"></button>
-                      <button type="button" class="ql-italic" aria-label="Italic"></button>
-                      <button type="button" class="ql-underline" aria-label="Underline"></button>
-                      <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
-                      <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
-                    </span>
-                  </ng-template>
-                </p-editor>
-                <div class="review-reply-actions">
-                  <button
-                    pButton
-                    type="button"
-                    [text]="true"
-                    [loading]="signingOffReviewId() === review.id"
-                    (click)="signOffReview(review)"
-                  >
-                    <i class="pi pi-check" style="margin-right: 0.4rem"></i>{{ 'myWorkspace.signOff' | translate }}
-                  </button>
-                  <button
-                    pButton
-                    type="button"
-                    [disabled]="richTextIsBlank(reviewReplyDraft(review.id))"
-                    [loading]="sendingReplyReviewId() === review.id"
-                    (click)="sendEmployeeReply(review)"
-                  >
-                    {{ 'myWorkspace.sendReply' | translate }}
-                  </button>
-                </div>
+                @if (review.status !== 'SIGNED_OFF') {
+                  <div class="review-reply-form">
+                    <p-editor
+                      class="mini-editor"
+                      [style]="{ height: '110px' }"
+                      [placeholder]="'myWorkspace.replyPlaceholder' | translate"
+                      [ngModel]="reviewReplyDraft(review.id)"
+                      (ngModelChange)="setReviewReplyDraft(review.id, $event)"
+                    >
+                      <ng-template #header>
+                        <span class="ql-formats">
+                          <button type="button" class="ql-bold" aria-label="Bold"></button>
+                          <button type="button" class="ql-italic" aria-label="Italic"></button>
+                          <button type="button" class="ql-underline" aria-label="Underline"></button>
+                          <button type="button" class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+                          <button type="button" class="ql-list" value="ordered" aria-label="Numbered list"></button>
+                        </span>
+                      </ng-template>
+                    </p-editor>
+                    <div class="review-reply-actions">
+                      <button
+                        pButton
+                        type="button"
+                        [text]="true"
+                        [loading]="signingOffReviewId() === review.id"
+                        (click)="signOffReview(review)"
+                      >
+                        <i class="pi pi-check" style="margin-right: 0.4rem"></i>{{ 'myWorkspace.signOff' | translate }}
+                      </button>
+                      <button
+                        pButton
+                        type="button"
+                        [disabled]="richTextIsBlank(reviewReplyDraft(review.id))"
+                        [loading]="sendingReplyReviewId() === review.id"
+                        (click)="sendEmployeeReply(review)"
+                      >
+                        {{ 'myWorkspace.sendReply' | translate }}
+                      </button>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
@@ -315,7 +346,9 @@
     (visibleChange)="closeApplyDialog()"
     [modal]="true"
     [dismissableMask]="true"
-    [style]="{ width: '28rem' }"
+    [style]="{ width: '36rem', maxWidth: '95vw' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    styleClass="mw-apply-leave-dialog"
     [header]="'dashboard.leave.applyTitle' | translate"
   >
     <div class="ep-apply-form">
@@ -334,6 +367,7 @@
         (ngModelChange)="applyStartDate.set($event)"
         dateFormat="M d, yy"
         [showIcon]="true"
+        appendTo="body"
       />
 
       <label>{{ 'dashboard.leave.endDate' | translate }}</label>
@@ -342,6 +376,7 @@
         (ngModelChange)="applyEndDate.set($event)"
         dateFormat="M d, yy"
         [showIcon]="true"
+        appendTo="body"
       />
 
       <label>{{ 'dashboard.leave.reasonLabel' | translate }}</label>

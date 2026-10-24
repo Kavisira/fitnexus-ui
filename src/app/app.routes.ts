@@ -27,7 +27,7 @@ import { Todo } from './pages/auth/todo/todo';
 import { Attendance } from './pages/auth/attendance/attendance';
 import { Alerts } from './pages/auth/alerts/alerts';
 import { Placeholder } from './shared/placeholder/placeholder';
-import { authGuard, noAuthGuard, ownerGuard, permissionGuard } from './core/auth/auth.guard';
+import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   // Public (no auth required) routes. noAuthGuard bounces an already
@@ -77,6 +77,7 @@ export const routes: Routes = [
     path: '',
     component: Layout,
     canActivate: [authGuard],
+    canActivateChild: [firstBranchGuard],
     children: [
       {
         path: 'dashboard',

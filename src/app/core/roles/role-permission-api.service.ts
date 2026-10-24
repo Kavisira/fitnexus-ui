@@ -6,7 +6,9 @@ import { API_BASE_URL } from '../config/api.config';
 
 // Staff roles the permission matrix governs — OWNER always has full
 // access and never appears here (see RolesService.can on the backend).
-export type StaffRole = 'BRANCH_MANAGER' | 'TRAINER' | 'FRONT_DESK';
+// STAFF is the fallback role for any employee whose job title doesn't
+// map to one of the three named roles below.
+export type StaffRole = 'BRANCH_MANAGER' | 'TRAINER' | 'FRONT_DESK' | 'STAFF';
 
 export type PermissionScreen =
   | 'DASHBOARD'

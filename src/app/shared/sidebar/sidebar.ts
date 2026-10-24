@@ -20,6 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { PermissionsService, PermissionScreen } from '../../core/roles/permissions.service';
 import { TokenStorage } from '../../core/auth/token-storage.service';
+import { AuthApiService } from '../../core/auth/auth-api.service';
 import { SettingsDialog } from '../settings-dialog/settings-dialog';
 import { VersionDialog } from '../version-dialog/version-dialog';
 import { TranslationService } from '../../core/i18n/translation.service';
@@ -96,6 +97,7 @@ interface NavGroup {
 export class Sidebar {
   private permissions = inject(PermissionsService);
   private tokenStorage = inject(TokenStorage);
+  private authApi = inject(AuthApiService);
   private router = inject(Router);
   private i18n = inject(TranslationService);
   private toast = inject(ToastService);
@@ -173,6 +175,11 @@ export class Sidebar {
   }
 
   private logout(): void {
+    // Best effort — clears this login's server-side session marker so
+    // the token can't be reused and a same-device re-login afterward
+    // isn't mistaken for a "signed in elsewhere" kickout. The local
+    // logout below happens either way, even if this call fails.
+    this.authApi.logout().subscribe({ next: () => {}, error: () => {} });
     this.tokenStorage.clear();
     this.permissions.clear();
     this.toast.success('You have been logged out.');

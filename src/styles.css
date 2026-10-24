@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'primeicons/primeicons.css';
+@import 'driver.js/dist/driver.css';
 
 html {
     /* Standard browser default — most components size themselves in
@@ -212,4 +213,74 @@ html.my-app-dark .app-table-card .app-table .p-datatable-thead > tr > th {
   background: rgba(37, 99, 235, 0.18);
   color: var(--p-primary-200, #bfdbfe);
   border-bottom-color: rgba(37, 99, 235, 0.35);
+}
+
+/* ---- driver.js (first-login tour) — restyle the default grey theme to
+   match the app's own buttons/cards instead of looking like an
+   unbranded third-party widget. Global (not component-scoped) since
+   driver.js appends its popover straight to document.body, outside any
+   Angular component's view. */
+.driver-popover {
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.driver-popover-title {
+  font-size: 1.05rem;
+  color: var(--p-text-color, #111827);
+}
+
+.driver-popover-description {
+  color: var(--p-text-muted-color, #4b5563);
+  font-size: 0.9rem;
+}
+
+.driver-popover-progress-text {
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.driver-popover-footer-btn {
+  border-radius: 8px;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.75rem;
+  border-color: var(--p-content-border-color, #e5e7eb);
+}
+
+.driver-popover-footer .driver-popover-next-btn,
+.driver-popover-footer .driver-popover-done-btn {
+  background: var(--p-primary-500, #7c3aed);
+  border-color: var(--p-primary-500, #7c3aed);
+  color: #fff;
+}
+
+.driver-popover-footer .driver-popover-next-btn:hover,
+.driver-popover-footer .driver-popover-done-btn:hover {
+  background: var(--p-primary-600, #6d28d9);
+  border-color: var(--p-primary-600, #6d28d9);
+}
+
+.driver-popover-arrow {
+  border-color: var(--p-content-background, #fff);
+}
+
+html.my-app-dark .driver-popover {
+  background: var(--p-content-background, #1f2937);
+  color: var(--p-text-color, #f3f4f6);
+  border-color: var(--p-content-border-color, #374151);
+}
+
+html.my-app-dark .driver-popover-title {
+  color: var(--p-text-color, #f3f4f6);
+}
+
+html.my-app-dark .driver-popover-footer-btn {
+  background: var(--p-content-background, #1f2937);
+  color: var(--p-text-color, #f3f4f6);
+  border-color: var(--p-content-border-color, #374151);
+}
+
+html.my-app-dark .driver-popover-arrow {
+  border-color: var(--p-content-background, #1f2937);
 }
