@@ -92,4 +92,13 @@ export class AuthApiService {
   me(): Observable<MeResponse> {
     return this.http.get<MeResponse>(`${this.base}/me`);
   }
+
+  /** Clears this login's server-side session marker so the token being
+   * discarded right now can't be reused later, and so logging back in
+   * on this same device afterward isn't mistaken for a "signed in
+   * elsewhere" kickout (see JwtStrategy.validate on the backend). Best
+   * effort — callers clear the local token either way. */
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.base}/logout`, {});
+  }
 }

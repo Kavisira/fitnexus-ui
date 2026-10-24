@@ -7,23 +7,23 @@
 
 .ep-balance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: 0.9rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .ep-balance-card {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding: 1rem 1.1rem;
-  border-radius: 12px;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
   background: rgba(37, 99, 235, 0.08);
   border: 1px solid rgba(37, 99, 235, 0.15);
 }
 
 .ep-balance-type {
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #1d4ed8;
   text-transform: uppercase;
@@ -31,13 +31,13 @@
 }
 
 .ep-balance-value {
-  font-size: 1.7rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--p-text-color, #111827);
 }
 
 .ep-balance-label {
-  font-size: 0.76rem;
+  font-size: 0.68rem;
   color: var(--p-text-muted-color, #6b7280);
 }
 
@@ -492,4 +492,43 @@
   margin-top: 0.75rem;
   width: 100%;
   justify-content: center;
+}
+
+/* ---- Leave requests p-table: outer + cell borders, compact rows ---- */
+
+.mw-bordered-table {
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mw-bordered-table .p-datatable-table > thead > tr > th,
+.mw-bordered-table .p-datatable-table > tbody > tr > td {
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.mw-bordered-table .p-datatable-table > thead > tr > th:first-child,
+.mw-bordered-table .p-datatable-table > tbody > tr > td:first-child {
+  border-left: none;
+}
+
+.mw-bordered-table .p-datatable-table > thead > tr > th:last-child,
+.mw-bordered-table .p-datatable-table > tbody > tr > td:last-child {
+  border-right: none;
+}
+
+:host-context(.my-app-dark) .mw-bordered-table,
+:host-context(.my-app-dark) .mw-bordered-table .p-datatable-table > thead > tr > th,
+:host-context(.my-app-dark) .mw-bordered-table .p-datatable-table > tbody > tr > td {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- Apply Leave dialog: wider, and never clip the datepicker's
+   calendar panel (appendTo="body" on each p-datepicker already keeps
+   the panel out of this dialog's own overflow, but ::ng-deep covers
+   older/overridden cases and ensures the dialog content itself never
+   forces a clipping overflow). ---- */
+
+.mw-apply-leave-dialog .p-dialog-content {
+  overflow: visible;
 }

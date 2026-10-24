@@ -24,8 +24,20 @@ export interface BranchBreakdownRow {
   expensesThisMonth: number;
 }
 
+export interface TodaySnapshot {
+  totalActiveEmployees: number;
+  present: number;
+  absent: number;
+  halfDay: number;
+  onLeave: number;
+  holiday: number;
+  notYetAggregated: number;
+  distinctMembersCheckedIn: number;
+}
+
 export interface AnalyticsSummary {
   view: 'ANALYTICS';
+  today: TodaySnapshot;
   organization: {
     name: string;
     totalBranches: number;

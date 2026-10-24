@@ -8,6 +8,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { EditorModule } from 'primeng/editor';
 import { TagModule } from 'primeng/tag';
+import { TableModule } from 'primeng/table';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
@@ -19,6 +20,7 @@ import { PayrollApiService, Payslip } from '../../../core/payroll/payroll-api.se
 import { PerformanceApiService, Review, Appraisal } from '../../../core/performance/performance-api.service';
 import { ToastService } from '../../../core/toast/toast.service';
 import { downloadBlob } from '../../../core/common/csv-browser.util';
+import { toLocalDateString } from '../../../core/common/date.util';
 
 /**
  * My Workspace — self-service home for any logged-in employee (not the
@@ -39,7 +41,7 @@ function richTextIsBlank(html: string): boolean {
 @Component({
   selector: 'app-my-workspace',
   standalone: true,
-  imports: [CommonModule, ButtonModule, DialogModule, SelectModule, FormsModule, DatePickerModule, TextareaModule, EditorModule, TagModule, TranslatePipe],
+  imports: [CommonModule, ButtonModule, DialogModule, SelectModule, FormsModule, DatePickerModule, TextareaModule, EditorModule, TagModule, TableModule, TranslatePipe],
   templateUrl: './my-workspace.html',
   styleUrls: ['./my-workspace.css'],
 })
@@ -92,6 +94,26 @@ export class MyWorkspace implements OnInit {
   myLeaveRequests = signal<LeaveRequest[]>([]);
   leaveLoading = signal(false);
 
+  // Client-side status filter — this list is a single employee's own
+  // requests (not the admin-wide to-do queue), so it's always small
+  // enough to filter/paginate in the browser rather than round-tripping
+  // to the server per filter change.
+  leaveStatusFilter = signal<LeaveStatus | null>(null);
+
+  leaveStatusFilterOptions = computed(() => [
+    { label: this.i18n.t('leaveManagement.filterAll'), value: null },
+    { label: this.i18n.t('leaveManagement.status.PENDING'), value: 'PENDING' as LeaveStatus },
+    { label: this.i18n.t('leaveManagement.status.APPROVED'), value: 'APPROVED' as LeaveStatus },
+    { label: this.i18n.t('leaveManagement.status.REJECTED'), value: 'REJECTED' as LeaveStatus },
+    { label: this.i18n.t('leaveManagement.status.CANCELLED'), value: 'CANCELLED' as LeaveStatus },
+  ]);
+
+  filteredLeaveRequests = computed(() => {
+    const status = this.leaveStatusFilter();
+    const rows = this.myLeaveRequests();
+    return status ? rows.filter((r) => r.status === status) : rows;
+  });
+
   applyDialogVisible = signal(false);
   applyLeaveType = signal<LeaveType>('CASUAL');
   applyStartDate = signal<Date | null>(null);
@@ -139,8 +161,8 @@ export class MyWorkspace implements OnInit {
     this.leaveApi
       .apply({
         leaveType: this.applyLeaveType(),
-        startDate: start.toISOString().slice(0, 10),
-        endDate: end.toISOString().slice(0, 10),
+        startDate: toLocalDateString(start),
+        endDate: toLocalDateString(end),
         reason: this.applyReason() || undefined,
       })
       .subscribe({
@@ -292,6 +314,10 @@ export class MyWorkspace implements OnInit {
 
   reviews = signal<Review[]>([]);
   reviewsLoading = signal(false);
+  // Same header+chevron collapse pattern as payslips, and same default
+  // state too — every review card starts collapsed on load; clicking a
+  // header expands just that one card.
+  expandedReviewIds = signal<Set<string>>(new Set());
 
   loadReviews(): void {
     this.reviewsLoading.set(true);
@@ -302,6 +328,22 @@ export class MyWorkspace implements OnInit {
       },
       error: () => this.reviewsLoading.set(false),
     });
+  }
+
+  toggleReview(id: string): void {
+    this.expandedReviewIds.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  isReviewExpanded(id: string): boolean {
+    return this.expandedReviewIds().has(id);
   }
 
   ratingStars(rating: number | null): string {

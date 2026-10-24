@@ -39,11 +39,11 @@
 .org-chip {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 12px;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.12);
-  flex: 1 1 160px;
+  flex: 1 1 130px;
 }
 
 .org-chip i {
@@ -52,7 +52,7 @@
 }
 
 .org-chip-value {
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 800;
 }
 
@@ -257,17 +257,17 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
 }
 
 .stat-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.15rem 1.3rem;
-  border-radius: 16px;
+  gap: 0.25rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
   border: 1px solid var(--p-content-border-color, #e5e7eb);
   background: var(--p-content-background, #ffffff);
   overflow: hidden;
@@ -308,11 +308,11 @@
 
 .stat-icon {
   position: absolute;
-  top: 1rem;
-  right: 1.1rem;
-  font-size: 1.4rem;
+  top: 0.55rem;
+  right: 0.65rem;
+  font-size: 1rem;
   color: var(--p-primary-200, #ddd6fe);
-  opacity: 0.7;
+  opacity: 0.55;
 }
 
 .stat-card-good .stat-icon {
@@ -332,16 +332,16 @@
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--p-text-muted-color, #6b7280);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  max-width: calc(100% - 2rem);
+  max-width: calc(100% - 1.5rem);
 }
 
 .stat-value {
-  font-size: 1.75rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -507,6 +507,11 @@
   border-radius: 12px;
 }
 
+.branch-table-wrap-expanded {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
 .branch-table {
   width: 100%;
   border-collapse: separate;
@@ -602,6 +607,11 @@
   gap: 0.5rem;
 }
 
+.ops-list-expanded {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
 .ops-row {
   display: flex;
   align-items: center;
@@ -685,4 +695,166 @@
 
 :host-context(.my-app-dark) .org-strip {
   box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- Section titles for the un-tabbed analytics page ---- */
+
+.dash-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--p-text-muted-color, #6b7280);
+  margin: 1.75rem 0 0.75rem;
+}
+
+.dash-section-title:first-of-type {
+  margin-top: 0.5rem;
+}
+
+/* ---- Single-branch label shown in place of the branch dropdown
+   (which only ever appears once there's more than one branch) ---- */
+
+.branch-filter-label {
+  gap: 0.4rem;
+}
+
+.branch-filter-static-label {
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.branch-filter-static-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--p-text-color, #111827);
+}
+
+/* ---- Stat-card expand button (top-right corner) + full-screen
+   expand dialogs ---- */
+
+.stat-expand-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--p-text-muted-color, #6b7280);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  font-size: 0.65rem;
+  padding: 0;
+}
+
+.stat-card:hover .stat-expand-btn,
+.stat-expand-btn:focus-visible {
+  opacity: 1;
+}
+
+.stat-expand-btn:hover {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+:host-context(.my-app-dark) .stat-expand-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+:host-context(.my-app-dark) .stat-expand-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Dialog itself filling almost the whole viewport, as requested
+   ("large modal with full screen") — also applied to the existing
+   chart-expand dialog, not just the new stat one. */
+::ng-deep .dash-fullscreen-dialog {
+  max-height: 96vh;
+}
+
+::ng-deep .dash-fullscreen-dialog .p-dialog-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.expanded-stat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  border-radius: 16px;
+}
+
+.expanded-stat-icon {
+  font-size: 5rem;
+  opacity: 0.8;
+  color: var(--p-primary-400, #a78bfa);
+}
+
+.expanded-stat-value {
+  font-size: 5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--p-text-color, #111827);
+}
+
+.expanded-stat-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.expanded-stat-good .expanded-stat-icon,
+.expanded-stat-good .expanded-stat-value {
+  color: var(--p-green-600, #16a34a);
+}
+
+.expanded-stat-bad .expanded-stat-icon,
+.expanded-stat-bad .expanded-stat-value {
+  color: var(--p-red-500, #ef4444);
+}
+
+.expanded-stat-warn .expanded-stat-icon,
+.expanded-stat-warn .expanded-stat-value {
+  color: var(--p-orange-600, #d97706);
+}
+
+.expanded-stat-blue .expanded-stat-icon,
+.expanded-stat-blue .expanded-stat-value {
+  color: var(--p-blue-500, #3b82f6);
+}
+
+/* ---- Leads by Status + Branch Performance row: Leads stays its
+   normal chart width, Branch Performance stretches to fill the rest
+   of the row instead of both splitting evenly like chart-grid's equal
+   columns would. ---- */
+
+.chart-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: stretch;
+  margin-top: 1.25rem;
+}
+
+.chart-row-fixed {
+  flex: 0 1 360px;
+}
+
+.chart-row-fill {
+  flex: 1 1 320px;
 }

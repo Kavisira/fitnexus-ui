@@ -20,6 +20,30 @@ export interface ConfirmOptions {
 export class ConfirmService {
   private confirmationService = inject(ConfirmationService);
 
+  /** A plain OK-only notice using the same themed dialog — no Cancel
+   * button, resolves once the user dismisses it. Use this instead of
+   * `confirm()` for something the user needs to acknowledge rather
+   * than decide (e.g. being signed out because the account logged in
+   * elsewhere), where offering a "Cancel" wouldn't make sense. */
+  alert(options: { message: string; header?: string; okLabel?: string }): Promise<void> {
+    return new Promise((resolve) => {
+      this.confirmationService.confirm({
+        message: options.message,
+        header: options.header ?? 'Notice',
+        icon: 'pi pi-info-circle',
+        acceptLabel: options.okLabel ?? 'OK',
+        rejectVisible: false,
+        acceptButtonProps: {
+          severity: 'info',
+        },
+        accept: () => resolve(),
+        // No reject button, but Escape/outside-click still dismisses —
+        // treat that the same as clicking OK.
+        reject: () => resolve(),
+      });
+    });
+  }
+
   /** Resolves true if the user accepted, false if they rejected or
    * dismissed the dialog (Escape, clicking outside, etc). */
   confirm(options: ConfirmOptions): Promise<boolean> {

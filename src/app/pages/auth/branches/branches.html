@@ -1,4 +1,16 @@
 <div class="branches-page">
+  @if (isFirstBranchSetup()) {
+    <div class="first-branch-banner">
+      <div class="first-branch-banner-icon">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="first-branch-banner-text">
+        <h3>Welcome to FitNexus! Let's create your first branch</h3>
+        <p>Members, employees, and most other screens need at least one branch before you can use them. Click <strong>"Add Branch"</strong> below to get started.</p>
+      </div>
+    </div>
+  }
+
   <div class="page-header">
     <p-iconfield iconPosition="left" class="search-field">
       <p-inputicon styleClass="pi pi-search" />
@@ -12,7 +24,7 @@
     </p-iconfield>
 
     @if (canWrite()) {
-      <button pButton type="button" (click)="openCreate()">
+      <button pButton type="button" [class.first-branch-cta]="isFirstBranchSetup()" (click)="openCreate()">
         <i class="pi pi-plus" style="margin-right: 0.4rem"></i>
         {{ 'branches.addBranch' | translate }}
       </button>

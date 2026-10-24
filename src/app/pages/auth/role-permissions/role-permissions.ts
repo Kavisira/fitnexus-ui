@@ -18,7 +18,7 @@ import {
 // Fixed row/column order — kept here (not just derived from whatever
 // the backend returns) so the table always shows a full grid even
 // before RolesService.ensureSeeded has run for a given cell.
-const ROLES: StaffRole[] = ['BRANCH_MANAGER', 'TRAINER', 'FRONT_DESK'];
+const ROLES: StaffRole[] = ['BRANCH_MANAGER', 'TRAINER', 'FRONT_DESK', 'STAFF'];
 // DASHBOARD is deliberately excluded — it's always-on for every role
 // (server-enforced in RolesService.can/getForRole) and has no write
 // action, so there's nothing here for an owner to configure.

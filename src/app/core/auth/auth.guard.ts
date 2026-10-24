@@ -1,10 +1,11 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { Observable, map, of } from 'rxjs';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
+import { Observable, catchError, map, of } from 'rxjs';
 
 import { TokenStorage } from './token-storage.service';
 import { ToastService } from '../toast/toast.service';
 import { PermissionsService, PermissionScreen } from '../roles/permissions.service';
+import { BranchApiService } from '../branches/branch-api.service';
 
 /** Protects every route nested under Layout (dashboard, branches,
  * members, ...). Typing an authenticated URL directly without a valid
@@ -76,4 +77,44 @@ export const ownerGuard: CanActivateFn = () => {
     return true;
   }
   return router.createUrlTree(['/dashboard']);
+};
+
+// Set true for the rest of the session the first time we confirm at
+// least one branch exists, so firstBranchGuard only ever hits the API
+// once per session instead of on every single navigation under
+// Layout. Deliberately module-level (not a service field) — nothing
+// resets it mid-session since branches, once created, are never all
+// deleted again short of the UAT full-tenant-wipe script, which logs
+// everyone out anyway.
+let branchConfirmed = false;
+
+/** Forces a brand-new Owner (or one whose org has had every branch
+ * removed) straight to Branches before anything else — almost every
+ * other screen requires a branchId (Member, Employee, ...) and is
+ * useless/confusing with zero branches to pick from. Staff logins
+ * never hit this: an Employee record requires a branchId to exist at
+ * all, so a staff login can't exist yet either until a branch does.
+ * Attach as the Layout route's canActivateChild so it runs on every
+ * nested navigation, not just once. */
+export const firstBranchGuard: CanActivateChildFn = (_childRoute, state) => {
+  const tokenStorage = inject(TokenStorage);
+  const branchApi = inject(BranchApiService);
+  const router = inject(Router);
+
+  if (branchConfirmed || !tokenStorage.isOwner() || state.url.startsWith('/branches')) {
+    return of(true);
+  }
+
+  return branchApi.list().pipe(
+    map((branches) => {
+      if (branches.length > 0) {
+        branchConfirmed = true;
+        return true;
+      }
+      return router.createUrlTree(['/branches'], { queryParams: { firstBranch: '1' } });
+    }),
+    // Fail OPEN on a network hiccup — never lock the owner out of the
+    // whole app just because this one check's request failed.
+    catchError(() => of(true)),
+  );
 };

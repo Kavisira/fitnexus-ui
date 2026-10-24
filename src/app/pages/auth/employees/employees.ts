@@ -328,6 +328,15 @@ export class Employees implements OnInit {
     list.update((components) => [...components, { name: '', type: 'EARNING', percent: 0 }]);
   }
 
+  // Backend's SalaryComponentDto validates percent with @IsNumberString
+  // (matching the Prisma Decimal column it's stored in) — the signals
+  // above keep percent as a plain JS number for the live net-pay math
+  // (updateComponentField/basicPay calc), so it has to be stringified
+  // right before it goes over the wire, same as basicPay below.
+  private toComponentsPayload(components: SalaryComponent[]): SalaryComponent[] {
+    return components.map((c) => ({ ...c, percent: String(c.percent) }));
+  }
+
   removeComponent(target: 'create' | 'detail', index: number): void {
     const list = target === 'create' ? this.createComponents : this.detailComponents;
     list.update((components) => components.filter((_, i) => i !== index));
@@ -450,7 +459,7 @@ export class Employees implements OnInit {
       dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth.toISOString() : undefined,
       basicPay: raw.basicPay != null ? String(raw.basicPay) : undefined,
       createLogin: raw.createLogin ?? false,
-      components: this.createComponents(),
+      components: this.toComponentsPayload(this.createComponents()),
     };
 
     this.employeeApi.create(payload).subscribe({
@@ -600,7 +609,7 @@ export class Employees implements OnInit {
       joinDate: raw.joinDate!.toISOString(),
       dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth.toISOString() : null,
       basicPay: raw.basicPay != null ? String(raw.basicPay) : null,
-      components: this.detailComponents(),
+      components: this.toComponentsPayload(this.detailComponents()),
     };
 
     this.employeeApi.update(employee.id, payload).subscribe({
