@@ -7,6 +7,7 @@ import { TokenStorage } from './token-storage.service';
 import { ToastService } from '../toast/toast.service';
 import { PermissionsService } from '../roles/permissions.service';
 import { ConfirmService } from '../confirm/confirm.service';
+import { SubscriptionStatusService } from './subscription-status.service';
 
 // Module-level (not per-call) so it survives across every request this
 // interceptor sees — several parallel requests can all come back 401
@@ -35,6 +36,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const toast = inject(ToastService);
   const permissions = inject(PermissionsService);
   const confirmDialog = inject(ConfirmService);
+  const subscriptionStatus = inject(SubscriptionStatusService);
 
   const token = tokenStorage.get();
   const authedReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
@@ -42,10 +44,32 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const logoutLocally = (): void => {
     tokenStorage.clear();
     permissions.clear();
+    subscriptionStatus.clear();
   };
 
   return next(authedReq).pipe(
     catchError((error) => {
+      // Not a 401 (the account is still validly logged in) — the
+      // subscription itself has run out, so this is a 403 from
+      // SubscriptionGuard instead. This is purely a backstop: the
+      // route guard (subscriptionGuard, re-checked at most every 2
+      // minutes — see SubscriptionStatusService) is what's meant to
+      // catch this on the very next navigation, but a write/read can
+      // slip through in the gap between periodic re-checks, so this
+      // interceptor catches it immediately instead of waiting. No
+      // dialog here — just mark the cache expired and let the
+      // dedicated lock page (reachable for Owner and staff alike) show
+      // the actual message, since staff can't reach /billing at all
+      // (ownerGuard) and a dialog offering "Go to Billing" would be
+      // wrong for them.
+      if (error?.status === 403 && error?.error?.code === 'SUBSCRIPTION_EXPIRED') {
+        subscriptionStatus.isExpired.set(true);
+        if (!router.url.startsWith('/subscription-locked') && !router.url.startsWith('/billing')) {
+          router.navigate(['/subscription-locked']);
+        }
+        return throwError(() => error);
+      }
+
       if (error?.status === 401 && token) {
         const sessionReplaced = error?.error?.code === 'SESSION_REPLACED';
 

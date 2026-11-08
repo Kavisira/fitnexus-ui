@@ -56,7 +56,7 @@ export class TourService {
    * is a staff (non-Owner) login (the tour is written for the Owner's
    * first-time setup flow), or if browser storage isn't available. */
   maybeStart(): void {
-    if (!this.tokenStorage.isOwner()) {
+    if (!this.tokenStorage.isOwner() || this.hasSeen()) {
       return;
     }
     this.start();
@@ -68,34 +68,24 @@ export class TourService {
   }
 
   private start(): void {
-    // The whole thing — buildSteps() included, not just drive() — has
-    // to wait a tick: buildSteps() itself does the `document.querySelector`
-    // lookups that decide which steps even exist (see step() below), and
-    // right when Layout.ngOnInit() fires, the sidenav hasn't painted its
-    // nav items into the DOM yet. Building the steps immediately found
-    // nothing for every selector-based step (Dashboard, Branches, ...)
-    // and silently dropped them all, leaving only the selector-less
-    // Welcome step — so the tour looked like it "only had one step".
-    // Delaying buildSteps() itself (not just drive()) is what actually
-    // fixes that.
-    setTimeout(() => {
-      const steps = this.buildSteps();
-      if (!steps.length) return;
+    const steps = this.buildSteps();
+    if (!steps.length) return;
 
-      const d = driver({
-        showProgress: true,
-        allowClose: true,
-        overlayOpacity: 0.55,
-        steps,
-        onDestroyStarted: () => {
-          this.markSeen();
-          d.destroy();
-        },
-        onPopoverRender: undefined,
-      });
+    const d = driver({
+      showProgress: true,
+      allowClose: true,
+      overlayOpacity: 0.55,
+      steps,
+      onDestroyStarted: () => {
+        this.markSeen();
+        d.destroy();
+      },
+      onPopoverRender: undefined,
+    });
 
-      d.drive();
-    }, 150);
+    // Give the sidenav a tick to render the targeted elements after
+    // navigation, rather than driver.js failing to find them.
+    setTimeout(() => d.drive(), 150);
   }
 
   private step(selectorOrNone: string | null, title: string, description: string, side: 'left' | 'right' | 'top' | 'bottom' = 'right'): DriveStep | null {
@@ -114,9 +104,9 @@ export class TourService {
       [null, 'Welcome to FitNexus 👋', "Let's take a quick look around before you get started. You can skip this anytime."],
       ['[data-tour="nav-DASHBOARD"]', 'Dashboard', 'Your at-a-glance view of the gym — members, revenue, and activity.'],
       ['[data-tour="nav-BRANCHES"]', 'Branches', 'Start here — create your first branch. Most other screens (Members, Employees) need at least one branch to work with.'],
+      ['[data-tour="nav-PLANS"]', 'Plans & Offers', 'Define your membership plans and any offers before adding members.'],
       ['[data-tour="nav-MEMBERS"]', 'Members', 'Add and manage your gym members, their plans, and check-ins here.'],
       ['[data-tour="nav-EMPLOYEES"]', 'Employees', "Add your staff here, and create their logins so they can use FitNexus themselves."],
-      ['[data-tour="nav-PLANS"]', 'Plans & Offers', 'Define your membership plans and any offers before adding members.'],
       ['[data-tour="nav-ATTENDANCE"]', 'Attendance', 'Track staff attendance, punches, and biometric devices here.'],
       ['[data-tour="nav-NOTIFICATIONS"]', 'Notifications', 'Configure WhatsApp/notification alerts for your team here.'],
     ];

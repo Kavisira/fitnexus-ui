@@ -12,6 +12,7 @@ const CATEGORY_BY_TYPE: Record<NotificationType, NotificationCategory> = {
   BIRTHDAY_EMPLOYEE: 'BIRTHDAYS',
   BIRTHDAY_MEMBER: 'BIRTHDAYS',
   MEMBERSHIP_EXPIRY: 'RENEWALS',
+  PT_EXPIRY: 'RENEWALS',
 };
 
 export interface NotificationGroup {

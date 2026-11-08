@@ -1,0 +1,549 @@
+.billing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-bottom: 2rem;
+}
+
+/* ---- Loading skeleton ---- */
+.skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.skeleton-block {
+  border-radius: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--p-content-background, #f3f4f6) 25%,
+    var(--p-content-border-color, #e5e7eb) 50%,
+    var(--p-content-background, #f3f4f6) 75%
+  );
+  background-size: 200% 100%;
+  animation: billing-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes billing-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- Top bar ---- */
+.billing-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.billing-heading {
+  margin: 0 0 0.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.billing-subheading {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+/* ---- Status card ---- */
+::ng-deep .status-card {
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+::ng-deep .status-card .p-card-body {
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+::ng-deep .status-card .p-card-content {
+  padding: 0;
+}
+
+/* Single-row compact layout: plan/tag on the left, countdown + bar on
+   the right — replaces the old two-stacked-rows design that ate too
+   much vertical space. */
+.status-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.status-eyebrow {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--p-text-muted-color, #6b7280);
+  font-weight: 600;
+}
+
+.status-tier {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.status-warning-icon {
+  color: var(--p-red-500, #ef4444);
+  font-size: 1rem;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 220px;
+  flex: 1;
+  max-width: 340px;
+  justify-content: flex-end;
+}
+
+.countdown-date {
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+  white-space: nowrap;
+}
+
+.countdown-bar {
+  flex: 1;
+  min-width: 70px;
+}
+
+/* A plain tinted track made the filled portion hard to tell apart from
+   the empty portion in some themes — using a solid neutral track plus
+   a saturated fill (and the percentage label below) makes the two
+   unmistakable at a glance. */
+::ng-deep .countdown-bar .p-progressbar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--p-surface-200, #d1d5db);
+  overflow: hidden;
+}
+
+::ng-deep .countdown-bar .p-progressbar-value {
+  background: var(--p-blue-500, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+::ng-deep .countdown-bar.expired .p-progressbar {
+  background: color-mix(in srgb, var(--p-red-500, #ef4444) 18%, var(--p-surface-200, #d1d5db));
+}
+
+::ng-deep .countdown-bar.expired .p-progressbar-value {
+  background: var(--p-red-500, #ef4444);
+}
+
+.countdown-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--p-blue-500, #3b82f6);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.countdown-percent.expired {
+  color: var(--p-red-500, #ef4444);
+}
+
+.expired-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--p-red-500, #ef4444) 10%, transparent);
+  color: var(--p-red-600, #dc2626);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ---- Pricing section header ---- */
+.pricing-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pricing-header h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1.15rem;
+}
+
+.pricing-subtitle {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+  line-height: 1.5;
+}
+
+.cycle-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 999px;
+  padding: 0.25rem;
+  flex-shrink: 0;
+}
+
+.cycle-toggle button {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.cycle-toggle button.active {
+  background: var(--p-content-border-color, #ffffff);
+  color: var(--p-text-color, #1f2937);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.save-badge {
+  background: var(--p-green-100, #dcfce7);
+  color: var(--p-green-700, #15803d);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+/* ---- Tier grid ---- */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+::ng-deep .tier-card {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  overflow: visible;
+}
+
+::ng-deep .tier-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+  border-color: var(--p-primary-200, #bfdbfe);
+}
+
+::ng-deep .tier-card.current {
+  border-color: var(--p-primary-color, #2563eb);
+  box-shadow: 0 0 0 1px var(--p-primary-color, #2563eb);
+}
+
+::ng-deep .tier-card.popular {
+  border-color: var(--p-primary-300, #93c5fd);
+}
+
+::ng-deep .tier-card .p-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  height: 100%;
+}
+
+::ng-deep .tier-card .p-card-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1;
+}
+
+.popular-ribbon,
+.current-ribbon {
+  position: absolute;
+  top: -11px;
+  left: 1.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.popular-ribbon {
+  background: var(--p-primary-color, #2563eb);
+  color: var(--p-primary-contrast-color, #ffffff);
+}
+
+.current-ribbon {
+  background: var(--p-green-500, #22c55e);
+  color: #ffffff;
+}
+
+.tier-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--p-primary-50, #eff6ff);
+  color: var(--p-primary-color, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.tier-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.tier-tagline {
+  margin: -0.4rem 0 0;
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+  line-height: 1.4;
+  min-height: 2.2em;
+}
+
+.tier-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.price-amount {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.price-amount--custom {
+  font-size: 1.2rem;
+}
+
+.price-period {
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.price-billed-as {
+  flex-basis: 100%;
+  font-size: 0.7rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.tier-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.tier-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-muted {
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.feature-check {
+  color: var(--p-green-500, #22c55e);
+  font-size: 0.8rem;
+}
+
+.feature-x {
+  color: var(--p-text-muted-color, #9ca3af);
+  font-size: 0.8rem;
+}
+
+.tier-action {
+  margin-top: auto;
+}
+
+.footnote {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color, #9ca3af);
+  text-align: center;
+  margin: 0;
+}
+
+.sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--p-primary-50, #eff6ff);
+  color: var(--p-primary-color, #2563eb);
+  border: 1px solid var(--p-primary-200, #bfdbfe);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.test-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px dashed var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+  background: var(--p-content-background, #f3f4f6);
+}
+
+.test-tools-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.test-tools-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.test-tools-label {
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #6b7280);
+  white-space: nowrap;
+}
+
+.test-tools-divider {
+  font-size: 0.78rem;
+  color: var(--p-text-muted-color, #9ca3af);
+}
+
+.test-tools-days-input {
+  width: 4.5rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--p-content-border-color, #d1d5db);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--p-content-background, #ffffff);
+  color: inherit;
+}
+
+::ng-deep .history-dialog .p-dialog-content {
+  padding-top: 1rem;
+}
+
+.history-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.history-table {
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1.6fr 1fr 0.7fr 0.8fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 1rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-head {
+  background: var(--p-content-background, #f3f4f6);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.history-date {
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.history-desc {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .history-head {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .status-compact {
+    align-items: flex-start;
+  }
+
+  .status-right {
+    max-width: none;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

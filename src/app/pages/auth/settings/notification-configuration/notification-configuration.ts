@@ -26,6 +26,7 @@ const TYPE_LABEL_KEY: Record<NotificationType, string> = {
   BIRTHDAY_EMPLOYEE: 'notificationConfig.typeBirthdayEmployee',
   BIRTHDAY_MEMBER: 'notificationConfig.typeBirthdayMember',
   MEMBERSHIP_EXPIRY: 'notificationConfig.typeMembershipExpiry',
+  PT_EXPIRY: 'notificationConfig.typePtExpiry',
 };
 
 @Component({

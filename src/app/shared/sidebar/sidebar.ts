@@ -19,6 +19,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { PermissionsService, PermissionScreen } from '../../core/roles/permissions.service';
+import { SubscriptionStatusService } from '../../core/auth/subscription-status.service';
 import { TokenStorage } from '../../core/auth/token-storage.service';
 import { AuthApiService } from '../../core/auth/auth-api.service';
 import { SettingsDialog } from '../settings-dialog/settings-dialog';
@@ -96,6 +97,7 @@ interface NavGroup {
 })
 export class Sidebar {
   private permissions = inject(PermissionsService);
+  private subscriptionStatus = inject(SubscriptionStatusService);
   private tokenStorage = inject(TokenStorage);
   private authApi = inject(AuthApiService);
   private router = inject(Router);
@@ -182,6 +184,7 @@ export class Sidebar {
     this.authApi.logout().subscribe({ next: () => {}, error: () => {} });
     this.tokenStorage.clear();
     this.permissions.clear();
+    this.subscriptionStatus.clear();
     this.toast.success('You have been logged out.');
     this.router.navigateByUrl('/login');
   }
@@ -254,6 +257,7 @@ export class Sidebar {
         { labelKey: 'common.rolePermissions', route: '/roles-permissions', icon: 'shield', ownerOnly: true },
         { labelKey: 'common.alerts', route: '/alerts', icon: 'alert', ownerOnly: true },
         { labelKey: 'common.payroll', route: '/payroll', icon: 'wallet', ownerOnly: true },
+        { labelKey: 'common.billing', route: '/billing', icon: 'credit-card', ownerOnly: true },
       ],
     },
   ];

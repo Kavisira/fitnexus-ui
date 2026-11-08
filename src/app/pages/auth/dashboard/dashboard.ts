@@ -22,6 +22,10 @@ import {
 import { currencySymbol } from '../../../core/constants/currencies';
 import { BranchStore } from '../../../core/branches/branch-store.service';
 import { PageHeaderService } from '../../../shared/page-header/page-header.service';
+import { AuthApiService } from '../../../core/auth/auth-api.service';
+import { TokenStorage } from '../../../core/auth/token-storage.service';
+import { SubscriptionSummary } from '../../../core/billing/billing-api.service';
+import { Router } from '@angular/router';
 
 const PALETTE = {
   blue: '#3b82f6',
@@ -69,6 +73,27 @@ export class Dashboard implements OnInit {
   private branchStore = inject(BranchStore);
   private i18n = inject(TranslationService);
   private theme = inject(ThemeService);
+  private authApi = inject(AuthApiService);
+  private tokenStorage = inject(TokenStorage);
+  private router = inject(Router);
+
+  // Plan name + expiry countdown widget — shown to every role (not
+  // just Owner) per the explicit requirement ("if trial means if any
+  // plan means need to show expiry date"); only Owner gets the
+  // "Manage billing" link since billing itself is owner-only.
+  subscription = signal<SubscriptionSummary | null>(null);
+  isOwner = computed(() => this.tokenStorage.getRole() === 'OWNER');
+
+  subscriptionDaysRemaining = computed(() => {
+    const s = this.subscription();
+    const date = s?.currentPeriodEnd ?? s?.trialEndsAt;
+    if (!date) return null;
+    return Math.ceil((new Date(date).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  });
+
+  goToBilling(): void {
+    this.router.navigate(['/billing']);
+  }
 
   loading = signal(true);
   errorMessage = signal<string | null>(null);
@@ -177,6 +202,10 @@ export class Dashboard implements OnInit {
     this.destroyRef.onDestroy(() => this.pageHeader.clear());
     this.branchStore.ensureLoaded();
     this.load();
+    this.authApi.me().subscribe({
+      next: (me) => this.subscription.set(me.subscription),
+      error: () => {},
+    });
   }
 
   load(): void {
