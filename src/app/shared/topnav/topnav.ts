@@ -18,6 +18,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { PermissionsService, PermissionScreen } from '../../core/roles/permissions.service';
+import { SubscriptionStatusService } from '../../core/auth/subscription-status.service';
 import { TokenStorage } from '../../core/auth/token-storage.service';
 import { AuthApiService } from '../../core/auth/auth-api.service';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
@@ -94,6 +95,7 @@ interface NavGroup {
 })
 export class Topnav {
   private permissions = inject(PermissionsService);
+  private subscriptionStatus = inject(SubscriptionStatusService);
   private tokenStorage = inject(TokenStorage);
   private authApi = inject(AuthApiService);
   private router = inject(Router);
@@ -168,6 +170,7 @@ export class Topnav {
     this.authApi.logout().subscribe({ next: () => {}, error: () => {} });
     this.tokenStorage.clear();
     this.permissions.clear();
+    this.subscriptionStatus.clear();
     this.toast.success('You have been logged out.');
     this.router.navigateByUrl('/login');
   }

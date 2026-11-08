@@ -140,6 +140,14 @@
                 @if (member.isTrial) {
                   <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
                 }
+                @if (member.hasPersonalTrainer) {
+                  <span
+                    class="pt-badge"
+                    [pTooltip]="('members.ptDurationLabel' | translate) + ': ' + (member.ptDuration ?? '') + ' — ' + ('members.ptEndDateLabel' | translate) + ' ' + (member.ptEndDate | date: 'MMM d, y')"
+                  >
+                    PT
+                  </span>
+                }
               </div>
               <div class="member-table-sub">{{ member.phone }}</div>
             </div>
@@ -195,6 +203,14 @@
                 {{ member.name }}
                 @if (member.isTrial) {
                   <span class="trial-badge">{{ 'members.trialBadge' | translate }}</span>
+                }
+                @if (member.hasPersonalTrainer) {
+                  <span
+                    class="pt-badge"
+                    [pTooltip]="('members.ptDurationLabel' | translate) + ': ' + (member.ptDuration ?? '') + ' — ' + ('members.ptEndDateLabel' | translate) + ' ' + (member.ptEndDate | date: 'MMM d, y')"
+                  >
+                    PT
+                  </span>
                 }
               </div>
               <div class="member-card-sub">{{ member.phone }}</div>
@@ -418,293 +434,617 @@
   <p-dialog
     [(visible)]="dialogVisible"
     [modal]="true"
-    [style]="{ width: '60rem' }"
+    [style]="{ width: '56rem' }"
     [breakpoints]="{ '992px': '90vw', '768px': '98vw' }"
     [header]="(editingId() ? 'members.editMember' : 'members.addMember') | translate"
+    styleClass="member-wizard-dialog"
   >
-    <form [formGroup]="form" (ngSubmit)="save()" class="member-form" novalidate>
-      <div class="field">
-        <label for="m-photo">{{ 'members.profilePhotoLabel' | translate }}</label>
-        @if (profilePhotoDataUrl()) {
-          <div class="checkin-photo-preview">
-            <img [src]="profilePhotoDataUrl()" alt="" />
-            <button pButton type="button" [text]="true" [rounded]="true" severity="danger" (click)="clearProfilePhoto()">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-        } @else {
-          <input
-            id="m-photo"
-            type="file"
-            accept="image/*"
-            (change)="onProfilePhotoSelected($event)"
-            [disabled]="profilePhotoProcessing()"
-          />
+    <!-- ---- Step indicator ---- -->
+    <div class="wizard-steps">
+      @for (step of wizardSteps; track step.label; let i = $index) {
+        <div
+          class="wizard-step-chip"
+          [class.active]="wizardStep() === i"
+          [class.done]="wizardStep() > i"
+          [class.clickable]="i <= wizardStep()"
+          (click)="goToStep(i)"
+        >
+          <span class="wizard-step-circle">
+            @if (wizardStep() > i) {
+              <i class="pi pi-check"></i>
+            } @else {
+              {{ i + 1 }}
+            }
+          </span>
+          <span class="wizard-step-label">{{ step.label }}</span>
+        </div>
+        @if (i < wizardSteps.length - 1) {
+          <div class="wizard-step-connector" [class.done]="wizardStep() > i"></div>
         }
-        <small class="field-hint">{{ 'members.profilePhotoHint' | translate }}</small>
-      </div>
+      }
+    </div>
 
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-branch">{{ 'members.branchLabel' | translate }} *</label>
-          <p-select
-            inputId="m-branch"
-            formControlName="branchId"
-            [options]="branchOptions()"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-            [filter]="true"
-            filterBy="label"
-          />
-        </div>
-        <div class="field">
-          <label for="m-plan">{{ 'members.planLabel' | translate }} *</label>
-          <p-select
-            inputId="m-plan"
-            formControlName="planId"
-            [options]="planOptions()"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-            [filter]="true"
-            filterBy="label"
-          />
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-name">{{ 'members.nameLabel' | translate }} *</label>
-          <input pInputText id="m-name" type="text" formControlName="name" class="w-full" />
-        </div>
-        <div class="field">
-          <label for="m-phone">{{ 'members.phoneLabel' | translate }} *</label>
-          <input pInputText id="m-phone" type="text" formControlName="phone" class="w-full" />
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-email">{{ 'members.emailLabel' | translate }}</label>
-          <input pInputText id="m-email" type="email" formControlName="email" class="w-full" />
-        </div>
-        <div class="field">
-          <label for="m-source">{{ 'members.sourceLabel' | translate }}</label>
-          <p-select
-            inputId="m-source"
-            formControlName="source"
-            [options]="sourceOptions"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-          />
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-offer">{{ 'members.offerLabel' | translate }}</label>
-          <p-select
-            inputId="m-offer"
-            formControlName="offerId"
-            [options]="offerOptions()"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-          />
-        </div>
-        <div class="field">
-          <label for="m-trainer">{{ 'members.trainerLabel' | translate }}</label>
-          <p-select
-            inputId="m-trainer"
-            formControlName="assignedTrainerEmployeeId"
-            [options]="trainerOptions()"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-            [showClear]="true"
-            [placeholder]="'members.noTrainer' | translate"
-          />
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-startDate">{{ 'members.startDateLabel' | translate }} *</label>
-          <p-datepicker
-            inputId="m-startDate"
-            formControlName="startDate"
-            dateFormat="M d, yy"
-            [showIcon]="true"
-            appendTo="body"
-            class="w-full"
-          />
-        </div>
-        <div class="field">
-          <label>{{ 'members.endDateLabel' | translate }}</label>
-          <div class="computed-value">
-            {{ endDatePreview() ? (endDatePreview() | date: 'MMM d, y') : '—' }}
-          </div>
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field">
-          <label for="m-paymentMode">{{ 'members.paymentModeLabel' | translate }}</label>
-          <p-select
-            inputId="m-paymentMode"
-            formControlName="paymentMode"
-            [options]="paymentModeOptions"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="w-full"
-            appendTo="body"
-          />
-        </div>
-        <div class="field">
-          <label>{{ 'members.priceLabel' | translate }}</label>
-          <div class="computed-value computed-value-price">
-            {{ pricePreview() ?? '—' }}
-          </div>
-        </div>
-      </div>
-
-      <div class="field-row-2">
-        <div class="field checkbox-field">
-          <p-checkbox formControlName="isTrial" [binary]="true" inputId="m-isTrial" />
-          <label for="m-isTrial">{{ 'members.trialLabel' | translate }}</label>
-        </div>
-        @if (editingId()) {
+    <form [formGroup]="form" (ngSubmit)="save()" class="member-form wizard-form" novalidate>
+      <!-- ============ STEP 1 — Personal information ============ -->
+      @if (wizardStep() === 0) {
+        <div class="wizard-step-panel">
           <div class="field">
-            <label for="m-status">{{ 'members.statusLabel' | translate }}</label>
-            <p-select
-              inputId="m-status"
-              formControlName="status"
-              [options]="statusOptions"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="w-full"
-              appendTo="body"
-            />
-          </div>
-        }
-      </div>
-
-      <div class="couple-section">
-        <div class="couple-section-title">{{ 'members.healthProfileTitle' | translate }}</div>
-        <div class="field-row-2">
-          <div class="field">
-            <label for="m-dob">{{ 'members.dobLabel' | translate }}</label>
-            <p-datepicker
-              inputId="m-dob"
-              formControlName="dateOfBirth"
-              dateFormat="M d, yy"
-              [showIcon]="true"
-              appendTo="body"
-              class="w-full"
-            />
-          </div>
-          <div class="field">
-            <label for="m-gender">{{ 'members.genderLabel' | translate }}</label>
-            <p-select
-              inputId="m-gender"
-              formControlName="gender"
-              [options]="genderOptions"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="w-full"
-              appendTo="body"
-              [showClear]="true"
-            />
-          </div>
-        </div>
-        <div class="field-row-2" style="margin-top: 0.75rem">
-          <div class="field">
-            <label for="m-bloodGroup">{{ 'members.bloodGroupLabel' | translate }}</label>
-            <p-select
-              inputId="m-bloodGroup"
-              formControlName="bloodGroup"
-              [options]="bloodGroupOptions"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="w-full"
-              appendTo="body"
-              [showClear]="true"
-            />
-          </div>
-          <div class="field">
-            <label for="m-height">{{ 'members.heightLabel' | translate }}</label>
-            <p-inputnumber inputId="m-height" formControlName="heightCm" [min]="30" suffix=" cm" styleClass="w-full" />
-          </div>
-        </div>
-        <div class="field-row-2" style="margin-top: 0.75rem">
-          <div class="field">
-            <label for="m-goalWeight">{{ 'members.goalWeightLabel' | translate }}</label>
-            <p-inputnumber inputId="m-goalWeight" formControlName="goalWeightKg" [min]="1" suffix=" kg" styleClass="w-full" />
-          </div>
-        </div>
-      </div>
-
-      @if (!editingId() && isCoupleOffer()) {
-        <div class="couple-section">
-          <div class="couple-section-title">{{ 'members.couplePartnerTitle' | translate }}</div>
-          <p-selectbutton
-            [options]="[
-              { label: ('members.partnerNew' | translate), value: 'new' },
-              { label: ('members.partnerExisting' | translate), value: 'existing' },
-            ]"
-            optionLabel="label"
-            optionValue="value"
-            [ngModel]="partnerMode()"
-            [ngModelOptions]="{ standalone: true }"
-            (ngModelChange)="partnerMode.set($event)"
-          />
-
-          @if (partnerMode() === 'new') {
-            <form [formGroup]="partnerForm" class="field-row-2" style="margin-top: 0.75rem">
-              <div class="field">
-                <label for="p-name">{{ 'members.nameLabel' | translate }} *</label>
-                <input pInputText id="p-name" type="text" formControlName="name" class="w-full" />
+            <label for="m-photo">{{ 'members.profilePhotoLabel' | translate }}</label>
+            @if (profilePhotoDataUrl()) {
+              <div class="checkin-photo-preview">
+                <img [src]="profilePhotoDataUrl()" alt="" />
+                <button pButton type="button" [text]="true" [rounded]="true" severity="danger" (click)="clearProfilePhoto()">
+                  <i class="pi pi-times"></i>
+                </button>
               </div>
-              <div class="field">
-                <label for="p-phone">{{ 'members.phoneLabel' | translate }} *</label>
-                <input pInputText id="p-phone" type="text" formControlName="phone" class="w-full" />
-              </div>
-              <div class="field">
-                <label for="p-email">{{ 'members.emailLabel' | translate }}</label>
-                <input pInputText id="p-email" type="email" formControlName="email" class="w-full" />
-              </div>
-              <div class="field">
-                <label>{{ 'members.priceLabel' | translate }}</label>
-                <div class="computed-value computed-value-price">{{ partnerPricePreview() ?? '—' }}</div>
-              </div>
-            </form>
-          } @else {
-            <div class="field" style="margin-top: 0.75rem">
-              <label for="p-existing">{{ 'members.selectExistingMember' | translate }} *</label>
+            } @else {
+              <input
+                id="m-photo"
+                type="file"
+                accept="image/*"
+                (change)="onProfilePhotoSelected($event)"
+                [disabled]="profilePhotoProcessing()"
+              />
+            }
+            <small class="field-hint">{{ 'members.profilePhotoHint' | translate }}</small>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-name">{{ 'members.nameLabel' | translate }} *</label>
+              <input
+                pInputText
+                id="m-name"
+                type="text"
+                formControlName="name"
+                class="w-full"
+                [class.ng-invalid]="f.name.invalid && f.name.touched"
+              />
+              @if (f.name.invalid && f.name.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label for="m-phone">{{ 'members.phoneLabel' | translate }} *</label>
+              <input
+                pInputText
+                id="m-phone"
+                type="text"
+                formControlName="phone"
+                class="w-full"
+                [class.ng-invalid]="f.phone.invalid && f.phone.touched"
+              />
+              @if (f.phone.invalid && f.phone.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-email">{{ 'members.emailLabel' | translate }}</label>
+              <input pInputText id="m-email" type="email" formControlName="email" class="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-source">{{ 'members.sourceLabel' | translate }}</label>
               <p-select
-                inputId="p-existing"
-                [options]="existingMemberOptions()"
+                inputId="m-source"
+                formControlName="source"
+                [options]="sourceOptions"
                 optionLabel="label"
                 optionValue="value"
-                [ngModel]="null"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="partnerMemberIdControl.setValue($event)"
+                styleClass="w-full"
+                appendTo="body"
+              />
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ============ STEP 2 — Membership details ============ -->
+      @if (wizardStep() === 1) {
+        <div class="wizard-step-panel">
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-branch">{{ 'members.branchLabel' | translate }} *</label>
+              <p-select
+                inputId="m-branch"
+                formControlName="branchId"
+                [options]="branchOptions()"
+                optionLabel="label"
+                optionValue="value"
                 styleClass="w-full"
                 appendTo="body"
                 [filter]="true"
                 filterBy="label"
+                [invalid]="f.branchId.invalid && f.branchId.touched"
               />
-              <div class="computed-value computed-value-price" style="margin-top: 0.4rem">
-                {{ partnerPricePreview() ?? '—' }}
+              @if (f.branchId.invalid && f.branchId.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label for="m-plan">{{ 'members.planLabel' | translate }} *</label>
+              <p-select
+                inputId="m-plan"
+                formControlName="planId"
+                [options]="planOptions()"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+                [filter]="true"
+                filterBy="label"
+                [invalid]="f.planId.invalid && f.planId.touched"
+              />
+              @if (f.planId.invalid && f.planId.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-offer">{{ 'members.offerLabel' | translate }}</label>
+              <p-select
+                inputId="m-offer"
+                formControlName="offerId"
+                [options]="offerOptions()"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+              />
+            </div>
+            <div class="field">
+              <label for="m-trainer">{{ 'members.trainerLabel' | translate }}{{ f.hasPersonalTrainer.value ? ' *' : '' }}</label>
+              <p-select
+                inputId="m-trainer"
+                formControlName="assignedTrainerEmployeeId"
+                [options]="trainerOptions()"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+                [showClear]="true"
+                [placeholder]="'members.noTrainer' | translate"
+                [invalid]="f.assignedTrainerEmployeeId.invalid && f.assignedTrainerEmployeeId.touched"
+              />
+              @if (f.assignedTrainerEmployeeId.invalid && f.assignedTrainerEmployeeId.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field checkbox-field">
+              <p-checkbox
+                formControlName="hasPersonalTrainer"
+                [binary]="true"
+                inputId="m-hasPersonalTrainer"
+                (onChange)="onPersonalTrainerToggle()"
+              />
+              <label for="m-hasPersonalTrainer">{{ 'members.hasPersonalTrainerLabel' | translate }}</label>
+            </div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-startDate">{{ 'members.startDateLabel' | translate }} *</label>
+              <p-datepicker
+                inputId="m-startDate"
+                formControlName="startDate"
+                dateFormat="M d, yy"
+                [showIcon]="true"
+                appendTo="body"
+                class="w-full"
+                [invalid]="f.startDate.invalid && f.startDate.touched"
+              />
+              @if (f.startDate.invalid && f.startDate.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label>{{ 'members.endDateLabel' | translate }}</label>
+              <div class="computed-value">
+                {{ endDatePreview() ? (endDatePreview() | date: 'MMM d, y') : '—' }}
               </div>
             </div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="field checkbox-field">
+              <p-checkbox formControlName="isTrial" [binary]="true" inputId="m-isTrial" />
+              <label for="m-isTrial">{{ 'members.trialLabel' | translate }}</label>
+            </div>
+            @if (editingId()) {
+              <div class="field">
+                <label for="m-status">{{ 'members.statusLabel' | translate }}</label>
+                <p-select
+                  inputId="m-status"
+                  formControlName="status"
+                  [options]="statusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="w-full"
+                  appendTo="body"
+                />
+              </div>
+            }
+          </div>
+
+          @if (!editingId() && isCoupleOffer()) {
+            <div class="couple-section">
+              <div class="couple-section-title">{{ 'members.couplePartnerTitle' | translate }}</div>
+              <p-selectbutton
+                [options]="[
+                  { label: ('members.partnerNew' | translate), value: 'new' },
+                  { label: ('members.partnerExisting' | translate), value: 'existing' },
+                ]"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="partnerMode()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="partnerMode.set($event)"
+              />
+
+              @if (partnerMode() === 'new') {
+                <form [formGroup]="partnerForm" class="field-row-2" style="margin-top: 0.75rem">
+                  <div class="field">
+                    <label for="p-name">{{ 'members.nameLabel' | translate }} *</label>
+                    <input pInputText id="p-name" type="text" formControlName="name" class="w-full" />
+                  </div>
+                  <div class="field">
+                    <label for="p-phone">{{ 'members.phoneLabel' | translate }} *</label>
+                    <input pInputText id="p-phone" type="text" formControlName="phone" class="w-full" />
+                  </div>
+                  <div class="field">
+                    <label for="p-email">{{ 'members.emailLabel' | translate }}</label>
+                    <input pInputText id="p-email" type="email" formControlName="email" class="w-full" />
+                  </div>
+                  <div class="field">
+                    <label>{{ 'members.priceLabel' | translate }}</label>
+                    <div class="computed-value computed-value-price">{{ partnerPricePreview() ?? '—' }}</div>
+                  </div>
+                </form>
+              } @else {
+                <div class="field" style="margin-top: 0.75rem">
+                  <label for="p-existing">{{ 'members.selectExistingMember' | translate }} *</label>
+                  <p-select
+                    inputId="p-existing"
+                    [options]="existingMemberOptions()"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="null"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="partnerMemberIdControl.setValue($event)"
+                    styleClass="w-full"
+                    appendTo="body"
+                    [filter]="true"
+                    filterBy="label"
+                  />
+                  <div class="computed-value computed-value-price" style="margin-top: 0.4rem">
+                    {{ partnerPricePreview() ?? '—' }}
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============ STEP 3 — Payment ============ -->
+      @if (wizardStep() === 2) {
+        <div class="wizard-step-panel">
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-paymentMode">{{ 'members.paymentModeLabel' | translate }} *</label>
+              <p-select
+                inputId="m-paymentMode"
+                formControlName="paymentMode"
+                [options]="paymentModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+                [invalid]="f.paymentMode.invalid && f.paymentMode.touched"
+              />
+              @if (f.paymentMode.invalid && f.paymentMode.touched) {
+                <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label>{{ 'members.priceLabel' | translate }}</label>
+              <div class="computed-value computed-value-price">
+                {{ pricePreview() ?? '—' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Payment status</label>
+            <p-selectbutton
+              [options]="[
+                { label: 'Full payment', value: 'FULL' },
+                { label: 'Partial payment', value: 'PARTIAL' },
+              ]"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="paymentType()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="setPaymentType($event)"
+            />
+          </div>
+
+          @if (f.hasPersonalTrainer.value) {
+            <div class="payment-pt-panel">
+              <div class="field-hint pt-panel-title">{{ 'members.ptSectionTitle' | translate }}</div>
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="m-ptStartDate">{{ 'members.ptStartDateLabel' | translate }} *</label>
+                  <p-datepicker
+                    inputId="m-ptStartDate"
+                    formControlName="ptStartDate"
+                    dateFormat="M d, yy"
+                    [showIcon]="true"
+                    appendTo="body"
+                    class="w-full"
+                    [invalid]="f.ptStartDate.invalid && f.ptStartDate.touched"
+                  />
+                  @if (f.ptStartDate.invalid && f.ptStartDate.touched) {
+                    <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+                  }
+                </div>
+                <div class="field">
+                  <label for="m-ptDuration">{{ 'members.ptDurationLabel' | translate }} *</label>
+                  <p-select
+                    inputId="m-ptDuration"
+                    formControlName="ptDuration"
+                    [options]="ptDurationOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full"
+                    appendTo="body"
+                    [invalid]="f.ptDuration.invalid && f.ptDuration.touched"
+                  />
+                  @if (f.ptDuration.invalid && f.ptDuration.touched) {
+                    <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+                  }
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="m-ptRatePerMonth">{{ 'members.ptRateLabel' | translate }} *</label>
+                  <p-inputnumber
+                    inputId="m-ptRatePerMonth"
+                    formControlName="ptRatePerMonth"
+                    [min]="0"
+                    mode="currency"
+                    [currency]="selectedBranch()?.currency ?? 'INR'"
+                    styleClass="w-full"
+                    [invalid]="f.ptRatePerMonth.invalid && f.ptRatePerMonth.touched"
+                  />
+                  @if (f.ptRatePerMonth.invalid && f.ptRatePerMonth.touched) {
+                    <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+                  }
+                </div>
+                <div class="field">
+                  <label>{{ 'members.ptTotalLabel' | translate }}</label>
+                  <div class="computed-value">
+                    {{ ptTotalPreview() ?? '—' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label>{{ 'members.ptEndDateLabel' | translate }}</label>
+                  <div class="computed-value">
+                    {{ ptEndDatePreview() ? (ptEndDatePreview() | date: 'MMM d, y') : '—' }}
+                  </div>
+                </div>
+              </div>
+
+              @if (ptDurationExceedsMembership()) {
+                <small class="field-error">{{ 'members.ptDurationExceedsMembership' | translate }}</small>
+              }
+            </div>
+          }
+
+          @if (paymentType() === 'PARTIAL') {
+            <div class="payment-partial-panel">
+              @if (showSettleBalance()) {
+                <div class="field checkbox-field settle-balance-field">
+                  <p-checkbox formControlName="settleBalance" [binary]="true" inputId="m-settleBalance" />
+                  <label for="m-settleBalance">Settle remaining balance now</label>
+                </div>
+                <small class="field-hint">
+                  Marks the balance as fully paid, clears the follow-up reminder, and sends an updated invoice with
+                  both payments.
+                </small>
+              }
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="m-amountPaid">Amount paid now *</label>
+                  <p-inputnumber
+                    inputId="m-amountPaid"
+                    formControlName="amountPaid"
+                    [min]="0"
+                    [max]="totalPayableValue() ?? undefined"
+                    [disabled]="!!f.settleBalance.value"
+                    mode="currency"
+                    [currency]="selectedBranch()?.currency ?? 'INR'"
+                    styleClass="w-full"
+                    [invalid]="amountPaidInvalid() && f.amountPaid.touched"
+                  />
+                  @if (amountPaidInvalid() && f.amountPaid.touched) {
+                    <small class="field-error">{{ 'members.requiredFieldsError' | translate }}</small>
+                  }
+                </div>
+                <div class="field">
+                  <label>Balance due</label>
+                  <div class="computed-value computed-value-balance">
+                    {{ balanceDueLabel() ?? '—' }}
+                  </div>
+                </div>
+              </div>
+
+              @if (showFollowUpSection()) {
+                <div class="field">
+                  <label for="m-followUp">Follow-up date for balance</label>
+                  <p-datepicker
+                    inputId="m-followUp"
+                    formControlName="paymentFollowUpDate"
+                    dateFormat="M d, yy"
+                    [showIcon]="true"
+                    [minDate]="f.startDate.value ?? undefined"
+                    appendTo="body"
+                    class="w-full"
+                  />
+                </div>
+
+                <div class="field">
+                  <label>Send WhatsApp payment reminder to</label>
+                  <div class="notify-checkboxes">
+                    <div class="field checkbox-field">
+                      <p-checkbox formControlName="notifyMemberOnPaymentDue" [binary]="true" inputId="m-notifyMember" />
+                      <label for="m-notifyMember">Member</label>
+                    </div>
+                    <div class="field checkbox-field">
+                      <p-checkbox formControlName="notifyGymOnPaymentDue" [binary]="true" inputId="m-notifyGym" />
+                      <label for="m-notifyGym">Gym (you)</label>
+                    </div>
+                  </div>
+                  <small class="field-hint">Check both to notify everyone, or just one.</small>
+                </div>
+              }
+            </div>
+          }
+
+          <p-message severity="info" styleClass="w-full">
+            A payment invoice will be sent over WhatsApp once this member is saved.
+          </p-message>
+        </div>
+      }
+
+      <!-- ============ STEP 4 — Measurements ============ -->
+      @if (wizardStep() === 3) {
+        <div class="wizard-step-panel">
+          <div class="couple-section-title">{{ 'members.healthProfileTitle' | translate }}</div>
+          <div class="field-row-2">
+            <div class="field">
+              <label for="m-dob">{{ 'members.dobLabel' | translate }}</label>
+              <p-datepicker
+                inputId="m-dob"
+                formControlName="dateOfBirth"
+                dateFormat="M d, yy"
+                [showIcon]="true"
+                appendTo="body"
+                class="w-full"
+              />
+            </div>
+            <div class="field">
+              <label for="m-gender">{{ 'members.genderLabel' | translate }}</label>
+              <p-select
+                inputId="m-gender"
+                formControlName="gender"
+                [options]="genderOptions"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+                [showClear]="true"
+              />
+            </div>
+          </div>
+          <div class="field-row-2" style="margin-top: 0.75rem">
+            <div class="field">
+              <label for="m-bloodGroup">{{ 'members.bloodGroupLabel' | translate }}</label>
+              <p-select
+                inputId="m-bloodGroup"
+                formControlName="bloodGroup"
+                [options]="bloodGroupOptions"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="w-full"
+                appendTo="body"
+                [showClear]="true"
+              />
+            </div>
+            <div class="field">
+              <label for="m-height">{{ 'members.heightLabel' | translate }}</label>
+              <p-inputnumber inputId="m-height" formControlName="heightCm" [min]="30" suffix=" cm" styleClass="w-full" />
+            </div>
+          </div>
+
+          <div class="measurements-section-title">Body measurements (optional check-in)</div>
+          <div class="field-row-3">
+            <div class="field">
+              <label for="m-weight">{{ 'members.weightLabel' | translate }}</label>
+              <p-inputnumber inputId="m-weight" formControlName="weightKg" [min]="1" suffix=" kg" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-goalWeight">{{ 'members.goalWeightLabel' | translate }}</label>
+              <p-inputnumber inputId="m-goalWeight" formControlName="goalWeightKg" [min]="1" suffix=" kg" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-chest">{{ 'members.chestLabel' | translate }}</label>
+              <p-inputnumber inputId="m-chest" formControlName="chestCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+          </div>
+          <div class="field-row-3">
+            <div class="field">
+              <label for="m-waist">{{ 'members.waistLabel' | translate }}</label>
+              <p-inputnumber inputId="m-waist" formControlName="waistCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-hips">{{ 'members.hipsLabel' | translate }}</label>
+              <p-inputnumber inputId="m-hips" formControlName="hipsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-shoulders">Shoulders</label>
+              <p-inputnumber inputId="m-shoulders" formControlName="shouldersCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+          </div>
+          <div class="field-row-3">
+            <div class="field">
+              <label for="m-arms">Arms</label>
+              <p-inputnumber inputId="m-arms" formControlName="armsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-thigh">Thigh</label>
+              <p-inputnumber inputId="m-thigh" formControlName="thighCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label for="m-calf">Calf</label>
+              <p-inputnumber inputId="m-calf" formControlName="calfCm" [min]="1" suffix=" cm" styleClass="w-full" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="m-metric-photo">{{ 'members.photoLabel' | translate }}</label>
+            @if (metricPhotoDataUrl()) {
+              <div class="checkin-photo-preview">
+                <img [src]="metricPhotoDataUrl()" alt="" />
+                <button pButton type="button" [text]="true" [rounded]="true" severity="danger" (click)="clearMetricPhoto()">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            } @else {
+              <input
+                id="m-metric-photo"
+                type="file"
+                accept="image/*"
+                (change)="onMetricPhotoSelected($event)"
+                [disabled]="metricPhotoProcessing()"
+              />
+            }
+          </div>
+
+          @if (wizardBmiPreview()) {
+            <div class="computed-value computed-value-price">{{ wizardBmiPreview() }}</div>
           }
         </div>
       }
@@ -713,11 +1053,24 @@
         <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
       }
 
-      <div class="dialog-actions">
+      <div class="dialog-actions wizard-actions">
         <button pButton type="button" severity="secondary" [text]="true" (click)="closeDialog()">
           {{ 'common.cancel' | translate }}
         </button>
-        <button pButton type="submit" [loading]="saving()">{{ 'plans.save' | translate }}</button>
+        <div class="wizard-actions-right">
+          @if (wizardStep() > 0) {
+            <button pButton type="button" severity="secondary" [outlined]="true" (click)="prevStep()">
+              <i class="pi pi-arrow-left" style="margin-right: 0.4rem"></i> Back
+            </button>
+          }
+          @if (wizardStep() < wizardSteps.length - 1) {
+            <button pButton type="button" (click)="nextStep()">
+              Next <i class="pi pi-arrow-right" style="margin-left: 0.4rem"></i>
+            </button>
+          } @else {
+            <button pButton type="submit" [loading]="saving()">{{ 'plans.save' | translate }}</button>
+          }
+        </div>
       </div>
     </form>
   </p-dialog>
@@ -756,9 +1109,29 @@
           <p-inputnumber inputId="c-waist" formControlName="waistCm" [min]="1" suffix=" cm" styleClass="w-full" />
         </div>
       </div>
+      <div class="field-row-2">
+        <div class="field">
+          <label for="c-hips">{{ 'members.hipsLabel' | translate }}</label>
+          <p-inputnumber inputId="c-hips" formControlName="hipsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="c-shoulders">Shoulders</label>
+          <p-inputnumber inputId="c-shoulders" formControlName="shouldersCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+      </div>
+      <div class="field-row-2">
+        <div class="field">
+          <label for="c-arms">Arms</label>
+          <p-inputnumber inputId="c-arms" formControlName="armsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="c-thigh">Thigh</label>
+          <p-inputnumber inputId="c-thigh" formControlName="thighCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        </div>
+      </div>
       <div class="field">
-        <label for="c-hips">{{ 'members.hipsLabel' | translate }}</label>
-        <p-inputnumber inputId="c-hips" formControlName="hipsCm" [min]="1" suffix=" cm" styleClass="w-full" />
+        <label for="c-calf">Calf</label>
+        <p-inputnumber inputId="c-calf" formControlName="calfCm" [min]="1" suffix=" cm" styleClass="w-full" />
       </div>
 
       <div class="field">

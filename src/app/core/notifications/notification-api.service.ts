@@ -4,7 +4,13 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config/api.config';
 
-export type NotificationType = 'LEAD_OVERDUE' | 'LEAD_ASSIGNED' | 'BIRTHDAY_EMPLOYEE' | 'BIRTHDAY_MEMBER' | 'MEMBERSHIP_EXPIRY';
+export type NotificationType =
+  | 'LEAD_OVERDUE'
+  | 'LEAD_ASSIGNED'
+  | 'BIRTHDAY_EMPLOYEE'
+  | 'BIRTHDAY_MEMBER'
+  | 'MEMBERSHIP_EXPIRY'
+  | 'PT_EXPIRY';
 export type NotificationSeverity = 'INFO' | 'WARNING' | 'URGENT';
 
 export interface AppNotification {

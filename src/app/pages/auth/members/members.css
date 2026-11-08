@@ -188,6 +188,18 @@
   border-radius: 999px;
 }
 
+.pt-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--p-blue-600, #2563eb);
+  background: var(--p-blue-100, #dbeafe);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  margin-left: 0.3rem;
+}
+
 .member-details {
   display: flex;
   flex-direction: column;
@@ -653,6 +665,16 @@
   font-size: 0.75rem;
 }
 
+/* Plain native inputs (pInputText) with formControlName get Angular's
+   own ng-invalid/ng-touched classes automatically — PrimeNG's own
+   components (p-select, p-datepicker, p-inputnumber) are instead given
+   an explicit [invalid] input in the template, since Angular's
+   auto-applied classes don't reliably reach their inner native
+   control. */
+input.ng-invalid.ng-touched {
+  border-color: var(--p-red-500, #ef4444);
+}
+
 .checkbox-field {
   flex-direction: row;
   align-items: center;
@@ -701,6 +723,155 @@
   margin-top: 0.5rem;
 }
 
+/* ---- Add/edit wizard (4 steps: Personal / Membership / Payment /
+   Measurements) ---- */
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  margin: 0 0 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.wizard-step-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  cursor: default;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.wizard-step-chip.clickable {
+  cursor: pointer;
+}
+
+.wizard-step-chip.active,
+.wizard-step-chip.done {
+  opacity: 1;
+}
+
+.wizard-step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--p-content-background, #f3f4f6);
+  border: 2px solid var(--p-content-border-color, #d1d5db);
+  color: var(--p-text-muted-color, #6b7280);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-step-chip.active .wizard-step-circle {
+  background: var(--p-primary-color, #2563eb);
+  border-color: var(--p-primary-color, #2563eb);
+  color: #ffffff;
+}
+
+.wizard-step-chip.done .wizard-step-circle {
+  background: var(--p-green-500, #22c55e);
+  border-color: var(--p-green-500, #22c55e);
+  color: #ffffff;
+}
+
+.wizard-step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wizard-step-connector {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--p-content-border-color, #d1d5db);
+  margin: 0 -0.25rem;
+  margin-bottom: 1.1rem;
+  transition: background 0.15s ease;
+}
+
+.wizard-step-connector.done {
+  background: var(--p-green-500, #22c55e);
+}
+
+.wizard-step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 18rem;
+}
+
+.field-row-3 {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.field-row-3 .field {
+  flex: 1 1 150px;
+}
+
+.measurements-section-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--p-text-muted-color, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+}
+
+.payment-partial-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px dashed var(--p-content-border-color, #d1d5db);
+  border-radius: 10px;
+  background: var(--p-content-background, #f9fafb);
+}
+
+.payment-pt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px dashed var(--p-blue-300, #93c5fd);
+  border-radius: 10px;
+  background: var(--p-blue-50, #eff6ff);
+}
+
+.pt-panel-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.computed-value-balance {
+  color: var(--p-orange-600, #d97706);
+}
+
+.notify-checkboxes {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.wizard-actions {
+  justify-content: space-between;
+}
+
+.wizard-actions-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
 /* ---- Dark mode ---- */
 
 :host-context(.my-app-dark) ::ng-deep .member-card {
@@ -731,6 +902,29 @@
 
 :host-context(.my-app-dark) .couple-section {
   border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .wizard-step-circle {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .wizard-step-connector {
+  background: #1f2937;
+}
+
+:host-context(.my-app-dark) .measurements-section-title {
+  border-top-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .payment-partial-panel {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .payment-pt-panel {
+  background: #0f1b2d;
+  border-color: #1e3a5f;
 }
 
 :host-context(.my-app-dark) .member-card-health-actions {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config/api.config';
+import { SubscriptionSummary } from '../billing/billing-api.service';
 
 export interface RegisterPayload {
   ownerName: string;
@@ -26,6 +27,12 @@ export interface LoginPayload {
 
 export interface TokenResponse {
   accessToken: string;
+  // Present on /login (not /register/verify-otp) — read fresh at
+  // login time so an expired subscription can be surfaced immediately
+  // rather than discovered later from a failed write (see
+  // SubscriptionGuard on the backend for the per-request check that
+  // actually blocks actions).
+  subscription?: SubscriptionSummary | null;
 }
 
 export interface MeResponse {
@@ -37,6 +44,8 @@ export interface MeResponse {
   branch: { id: string; location: string } | null;
   employeeId: string | null;
   employeeName: string | null;
+  // Powers the dashboard's plan-name + expiry-countdown widget.
+  subscription: SubscriptionSummary | null;
 }
 
 /** Thin wrapper over the NestJS `/api/auth/*` endpoints — one method per

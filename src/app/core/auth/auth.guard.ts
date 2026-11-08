@@ -6,6 +6,7 @@ import { TokenStorage } from './token-storage.service';
 import { ToastService } from '../toast/toast.service';
 import { PermissionsService, PermissionScreen } from '../roles/permissions.service';
 import { BranchApiService } from '../branches/branch-api.service';
+import { SubscriptionStatusService } from './subscription-status.service';
 
 /** Protects every route nested under Layout (dashboard, branches,
  * members, ...). Typing an authenticated URL directly without a valid
@@ -30,7 +31,19 @@ export const authGuard: CanActivateFn = (_route, state) => {
     return of(router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } }));
   }
 
-  return permissions.ensureLoaded().pipe(map(() => true));
+  return permissions.ensureLoaded().pipe(
+    map(() => true),
+    // Fail OPEN on a network hiccup (including a 403 from
+    // SubscriptionGuard on an org that's since been locked out —
+    // the permission matrix is allowlisted there too, but this is a
+    // second line of defense) — never let a failed metadata fetch
+    // strand the navigation itself. subscriptionGuard (this file,
+    // below) is what actually enforces the lockout; this guard's job
+    // is only "is there a valid session", and nothing it does here
+    // should get in the way of that even if the permissions fetch
+    // errors out. Same reasoning as firstBranchGuard's own catchError.
+    catchError(() => of(true)),
+  );
 };
 
 /** Opposite guard for the noauth pages (login/signup/forgot-password):
@@ -77,6 +90,34 @@ export const ownerGuard: CanActivateFn = () => {
     return true;
   }
   return router.createUrlTree(['/dashboard']);
+};
+
+/** Hard-lockout route guard — attached as Layout's canActivateChild
+ * (ahead of firstBranchGuard; Angular runs an array of guards in
+ * sequence and short-circuits on the first UrlTree, so this always
+ * gets the final say before firstBranchGuard's own redirect logic
+ * even runs) so it fires on every nested navigation, not just once.
+ * Redirects anywhere except /billing and /subscription-locked itself
+ * to the lock page the instant an org's trial/paid period has run
+ * out — reads included, not just writes (the backend's
+ * SubscriptionGuard enforces the same thing server-side, so this is
+ * strictly the "insist to pay" UX layer, not the only thing standing
+ * between an expired org and its data).
+ *
+ * /billing stays reachable so the Owner can actually pay (ownerGuard
+ * already keeps staff off that route entirely, so staff never get a
+ * path off the lock page — see SubscriptionLocked's own doc comment). */
+export const subscriptionGuard: CanActivateChildFn = (_childRoute, state) => {
+  const subscriptionStatus = inject(SubscriptionStatusService);
+  const router = inject(Router);
+
+  if (state.url.startsWith('/billing') || state.url.startsWith('/subscription-locked')) {
+    return of(true);
+  }
+
+  return subscriptionStatus.ensureLoaded().pipe(
+    map((isExpired) => (isExpired ? router.createUrlTree(['/subscription-locked']) : true)),
+  );
 };
 
 // Set true for the rest of the session the first time we confirm at

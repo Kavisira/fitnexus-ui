@@ -9,4 +9,7 @@
 export const environment = {
   production: true,
   apiBaseUrl: 'https://fitnexus-api.vercel.app/api',
+  // Flip to 'production' once CASHFREE_ENV on the backend is switched
+  // from TEST to PROD and real (non-sandbox) keys are in place.
+  cashfreeMode: 'sandbox' as const,
 };

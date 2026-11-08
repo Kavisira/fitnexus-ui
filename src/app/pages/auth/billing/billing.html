@@ -1,0 +1,240 @@
+<div class="billing-page">
+  @if (syncing()) {
+    <div class="sync-banner">
+      <i class="pi pi-spin pi-spinner"></i>
+      Confirming your payment with Cashfree…
+    </div>
+  }
+  @if (loading()) {
+    <div class="skeleton-row">
+      <div class="skeleton-block" style="height: 110px;"></div>
+      <div class="skeleton-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="skeleton-block" style="height: 280px;"></div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- ---- Top bar: page intro + payment history trigger ---- -->
+    <div class="billing-topbar">
+      <div>
+        <h1 class="billing-heading">Billing</h1>
+        <p class="billing-subheading">Manage your FitNexus subscription and plan.</p>
+      </div>
+      <p-button
+        label="View payment history"
+        icon="pi pi-history"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="openHistory()"
+      ></p-button>
+    </div>
+
+    <!-- ---- Current plan summary (compact single-row) ---- -->
+    <p-card class="status-card">
+      <div class="status-compact">
+        <div class="status-left">
+          <span class="status-eyebrow">Your plan</span>
+          <span class="status-tier">{{ status()?.tier ?? 'Free trial' }}</span>
+          <p-tag [value]="statusLabel()" [severity]="statusSeverity()" [rounded]="true"></p-tag>
+          @if (status()?.isExpired) {
+            <i class="pi pi-exclamation-triangle status-warning-icon"></i>
+          }
+        </div>
+
+        <div class="status-right">
+          <span class="countdown-date">
+            {{ status()?.tier ? 'Billing period ends' : 'Trial ends' }} {{ expiryLabel() }}
+            @if (daysRemaining() !== null) {
+              · {{ daysRemaining() }}{{ daysRemaining()! >= 0 ? ' days left' : ' days overdue' }}
+            }
+          </span>
+          <p-progressbar
+            class="countdown-bar"
+            [class.expired]="status()?.isExpired"
+            [value]="daysRemainingPercent()"
+            [showValue]="false"
+          ></p-progressbar>
+          <span class="countdown-percent" [class.expired]="status()?.isExpired">
+            {{ daysRemainingPercent() | number: '1.0-0' }}%
+          </span>
+        </div>
+      </div>
+
+      @if (status()?.isExpired) {
+        <p class="expired-notice">
+          <i class="pi pi-info-circle"></i>
+          Your subscription has ended — choose a plan below to regain full access. Every write action is paused
+          until then.
+        </p>
+      }
+    </p-card>
+
+    <!-- ---- Pricing ---- -->
+    <div class="pricing-header">
+      <div>
+        <h2>Choose your plan</h2>
+        <p class="pricing-subtitle">Pricing scales with how many members you manage — your branch allowance rides along with it. Upgrades only; you can always move up, never down.</p>
+      </div>
+
+      <div class="cycle-toggle">
+        <button type="button" [class.active]="billingCycle() === 'MONTHLY'" (click)="billingCycle.set('MONTHLY')">
+          Monthly
+        </button>
+        <button type="button" [class.active]="billingCycle() === 'ANNUAL'" (click)="billingCycle.set('ANNUAL')">
+          Annual <span class="save-badge">2 months free</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="tier-grid">
+      @for (t of tiers; track t.tier) {
+        <p-card
+          class="tier-card"
+          [class.current]="isCurrentTier(t.tier)"
+          [class.popular]="t.popular && !isCurrentTier(t.tier)"
+        >
+          @if (t.popular && !isCurrentTier(t.tier)) {
+            <span class="popular-ribbon">Most popular</span>
+          }
+          @if (isCurrentTier(t.tier)) {
+            <span class="current-ribbon"><i class="pi pi-check"></i> Current plan</span>
+          }
+
+          <div class="tier-icon"><i class="pi" [ngClass]="t.icon"></i></div>
+          <h3 class="tier-name">{{ t.label }}</h3>
+          <p class="tier-tagline">{{ t.tagline }}</p>
+
+          <div class="tier-price">
+            @if (t.monthlyPriceInr !== null) {
+              <span class="price-amount">
+                ₹{{ billingCycle() === 'ANNUAL' ? annualMonthlyEquivalent(t.monthlyPriceInr) : t.monthlyPriceInr }}
+              </span>
+              <span class="price-period">/ month</span>
+              @if (billingCycle() === 'ANNUAL') {
+                <span class="price-billed-as">billed ₹{{ annualPriceInr(t.monthlyPriceInr) }} / year</span>
+              }
+            } @else {
+              <span class="price-amount price-amount--custom">Custom</span>
+              <span class="price-period">talk to us</span>
+            }
+          </div>
+
+          <ul class="tier-features">
+            <li>
+              <i class="pi pi-check feature-check"></i>
+              Up to {{ t.maxBranches === Infinity ? 'unlimited' : t.maxBranches }} branch{{ t.maxBranches === 1 ? '' : 'es' }}
+            </li>
+            <li>
+              <i class="pi pi-check feature-check"></i>
+              Up to {{ t.maxMembers === Infinity ? 'unlimited' : (t.maxMembers | number) }} members
+            </li>
+            <li [class.feature-muted]="!t.staffLoginsUnlimited">
+              <i class="pi" [ngClass]="t.staffLoginsUnlimited ? 'pi-check feature-check' : 'pi-times feature-x'"></i>
+              Staff / trainer logins
+            </li>
+            <li [class.feature-muted]="!t.biometricAttendance">
+              <i class="pi" [ngClass]="t.biometricAttendance ? 'pi-check feature-check' : 'pi-times feature-x'"></i>
+              Biometric attendance
+            </li>
+          </ul>
+
+          <div class="tier-action">
+            @if (isCurrentTier(t.tier)) {
+              <p-button label="Current plan" [disabled]="true" styleClass="w-full" severity="secondary" [outlined]="true"></p-button>
+            } @else if (t.tier === 'ENTERPRISE') {
+              <p-button label="Contact us" (onClick)="upgrade(t.tier)" styleClass="w-full" severity="secondary"></p-button>
+            } @else if (isUpgradeTarget(t.tier)) {
+              <p-button
+                label="Upgrade"
+                icon="pi pi-arrow-up"
+                (onClick)="upgrade(t.tier)"
+                [loading]="checkingOutTier() === t.tier"
+                styleClass="w-full"
+              ></p-button>
+            } @else {
+              <p-button label="Not available" [disabled]="true" severity="secondary" [outlined]="true" styleClass="w-full"></p-button>
+            }
+          </div>
+        </p-card>
+      }
+    </div>
+
+    <p class="footnote">
+      <i class="pi pi-shield"></i>
+      Payments are processed securely by Cashfree. Upgrading charges the new plan's price immediately
+      (prorated against your current cycle where applicable) and switches you over right away.
+    </p>
+
+    @if (isTestEnvironment) {
+      <div class="test-tools">
+        <div class="test-tools-text">
+          <i class="pi pi-wrench"></i>
+          <span>Testing tools — only visible in a non-production build, never in production.</span>
+        </div>
+        <div class="test-tools-controls">
+          <p-button
+            label="Reset to free trial"
+            icon="pi pi-refresh"
+            severity="secondary"
+            [outlined]="true"
+            [loading]="resetting()"
+            (onClick)="resetToFreshTrial()"
+          ></p-button>
+          <span class="test-tools-divider">or</span>
+          <label for="test-trial-days" class="test-tools-label">Set days remaining</label>
+          <input
+            id="test-trial-days"
+            type="number"
+            class="test-tools-days-input"
+            [value]="testTrialDays()"
+            (input)="onTestTrialDaysInput($event)"
+          />
+          <p-button
+            label="Set"
+            icon="pi pi-clock"
+            severity="secondary"
+            [outlined]="true"
+            [loading]="resetting()"
+            (onClick)="resetToTrial()"
+          ></p-button>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ---- Billing history modal — invoice list + audit trail ---- -->
+  <p-dialog
+    header="Billing history"
+    [(visible)]="historyVisible"
+    [modal]="true"
+    [style]="{ width: '55rem' }"
+    [breakpoints]="{ '960px': '90vw' }"
+    styleClass="history-dialog"
+  >
+    @if (historyLoading()) {
+      <div class="skeleton-block" style="height: 220px;"></div>
+    } @else if (history().length === 0) {
+      <p class="history-empty">No billing activity yet — this fills in once you upgrade or a payment is processed.</p>
+    } @else {
+      <div class="history-table">
+        <div class="history-row history-head">
+          <span>Date</span>
+          <span>Event</span>
+          <span>Plan</span>
+          <span>Amount</span>
+          <span>Status</span>
+        </div>
+        @for (row of history(); track row.id) {
+          <div class="history-row">
+            <span class="history-date">{{ historyDate(row.createdAt) }}</span>
+            <span class="history-desc">{{ row.description ?? row.eventType }}</span>
+            <span>{{ row.tier ?? '—' }}{{ row.billingCycle ? ' · ' + (row.billingCycle === 'ANNUAL' ? 'Annual' : 'Monthly') : '' }}</span>
+            <span>{{ row.amountInr ? '₹' + row.amountInr : '—' }}</span>
+            <span><p-tag [value]="row.outcome" [severity]="historyOutcomeSeverity(row.outcome)" [rounded]="true"></p-tag></span>
+          </div>
+        }
+      </div>
+    }
+  </p-dialog>
+</div>

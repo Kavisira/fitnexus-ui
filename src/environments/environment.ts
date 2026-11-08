@@ -4,4 +4,8 @@
 export const environment = {
   production: false,
   apiBaseUrl: 'http://localhost:3000/api',
+  // Matches the backend's CASHFREE_ENV=TEST — the Cashfree JS SDK takes
+  // its own separate 'sandbox'/'production' mode string (see
+  // billing.ts, which loads it).
+  cashfreeMode: 'sandbox' as const,
 };

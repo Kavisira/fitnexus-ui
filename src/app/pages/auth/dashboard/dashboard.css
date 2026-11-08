@@ -858,3 +858,54 @@
 .chart-row-fill {
   flex: 1 1 320px;
 }
+
+.subscription-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--p-content-background, #f3f4f6);
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.subscription-banner.expired {
+  border-color: var(--p-red-300, #fca5a5);
+  background: color-mix(in srgb, var(--p-red-500, #ef4444) 8%, var(--p-content-background, #f3f4f6));
+}
+
+.subscription-text {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.subscription-manage-btn {
+  border: 1px solid var(--p-primary-color, #2563eb);
+  background: transparent;
+  color: var(--p-primary-color, #2563eb);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.subscription-manage-btn:hover {
+  background: var(--p-primary-50, #eff6ff);
+}
+
+.subscription-banner.expired .subscription-manage-btn {
+  border-color: var(--p-red-500, #ef4444);
+  color: var(--p-red-500, #ef4444);
+}
+
+.subscription-banner.expired .subscription-manage-btn:hover {
+  background: color-mix(in srgb, var(--p-red-500, #ef4444) 10%, transparent);
+}

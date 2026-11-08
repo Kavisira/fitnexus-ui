@@ -26,8 +26,10 @@ import { LeaveManagement } from './pages/auth/leave-management/leave-management'
 import { Todo } from './pages/auth/todo/todo';
 import { Attendance } from './pages/auth/attendance/attendance';
 import { Alerts } from './pages/auth/alerts/alerts';
+import { Billing } from './pages/auth/billing/billing';
 import { Placeholder } from './shared/placeholder/placeholder';
-import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard } from './core/auth/auth.guard';
+import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard, subscriptionGuard } from './core/auth/auth.guard';
+import { SubscriptionLocked } from './pages/auth/subscription-locked/subscription-locked';
 
 export const routes: Routes = [
   // Public (no auth required) routes. noAuthGuard bounces an already
@@ -73,11 +75,23 @@ export const routes: Routes = [
   // without read access on it redirects to /dashboard instead of
   // rendering — the same matrix the sidenav uses to hide the link in
   // the first place.
+  // Full-page hard lock — deliberately OUTSIDE Layout (no sidebar/nav
+  // at all) so it can't be worked around by anything Layout renders.
+  // Still requires a valid session (authGuard) so a logged-out visitor
+  // goes to /login as normal, not here.
+  {
+    path: 'subscription-locked',
+    component: SubscriptionLocked,
+    canActivate: [authGuard],
+    title: 'Subscription expired · FitNexus',
+  },
   {
     path: '',
     component: Layout,
     canActivate: [authGuard],
-    canActivateChild: [firstBranchGuard],
+    // subscriptionGuard runs first and short-circuits firstBranchGuard
+    // when expired (see its own doc comment in auth.guard.ts).
+    canActivateChild: [subscriptionGuard, firstBranchGuard],
     children: [
       {
         path: 'dashboard',
@@ -179,6 +193,16 @@ export const routes: Routes = [
         component: Payroll,
         canActivate: [ownerGuard],
         title: 'Payroll · FitNexus',
+      },
+      {
+        // Subscription/billing is the organization's own paid plan
+        // for FitNexus itself — same ownerGuard reasoning as
+        // Alerts/Payroll/Roles above (nothing for a Manager/Trainer/
+        // Front Desk login to configure here).
+        path: 'billing',
+        component: Billing,
+        canActivate: [ownerGuard],
+        title: 'Billing · FitNexus',
       },
       {
         // The pending-decision queue (approve/reject) — the To-Do

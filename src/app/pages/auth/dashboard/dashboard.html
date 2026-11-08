@@ -1,4 +1,20 @@
 <div class="dashboard-page">
+  @if (subscription(); as sub) {
+    <div class="subscription-banner" [class.expired]="sub.isExpired">
+      <span class="subscription-text">
+        @if (sub.isExpired) {
+          Your {{ sub.tier ? 'plan' : 'trial' }} has expired.
+        } @else {
+          {{ sub.tier ? sub.tier : 'Free trial' }} — {{ subscriptionDaysRemaining() }} day{{ subscriptionDaysRemaining() === 1 ? '' : 's' }} left
+        }
+      </span>
+      @if (isOwner()) {
+        <button type="button" class="subscription-manage-btn" (click)="goToBilling()">
+          {{ sub.isExpired ? 'Upgrade now' : 'Manage billing' }}
+        </button>
+      }
+    </div>
+  }
   @if (loading()) {
     <p class="loading-text">{{ 'common.loading' | translate }}</p>
   } @else if (errorMessage()) {
