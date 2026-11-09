@@ -120,6 +120,36 @@ export const subscriptionGuard: CanActivateChildFn = (_childRoute, state) => {
   );
 };
 
+/** Mandatory post-registration gate — attached to Layout's
+ * canActivateChild ahead of firstBranchGuard (same array-order
+ * short-circuit reasoning as subscriptionGuard above it) so a
+ * brand-new org, which is created with subscriptionTier left unset
+ * (see AuthService.register), can't reach the dashboard or any other
+ * screen until a plan has actually been chosen on /select-plan. Once
+ * BillingService.selectTrialPlan assigns a tier there, this guard
+ * passes for the rest of the session (subscriptionStatus.tier is
+ * only ever cleared back to null on logout).
+ *
+ * /select-plan itself, plus /billing and /subscription-locked (which
+ * subscriptionGuard already handles and which should never bounce
+ * back into a plan-selection loop), are excluded from the check. */
+export const planSelectionGuard: CanActivateChildFn = (_childRoute, state) => {
+  const subscriptionStatus = inject(SubscriptionStatusService);
+  const router = inject(Router);
+
+  if (
+    state.url.startsWith('/select-plan') ||
+    state.url.startsWith('/billing') ||
+    state.url.startsWith('/subscription-locked')
+  ) {
+    return of(true);
+  }
+
+  return subscriptionStatus.ensureTierLoaded().pipe(
+    map((tier) => (tier === null ? router.createUrlTree(['/select-plan']) : true)),
+  );
+};
+
 // Set true for the rest of the session the first time we confirm at
 // least one branch exists, so firstBranchGuard only ever hits the API
 // once per session instead of on every single navigation under

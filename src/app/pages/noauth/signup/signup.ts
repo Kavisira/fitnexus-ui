@@ -15,7 +15,11 @@ import { ToastService } from '../../../core/toast/toast.service';
 
 /** Collects the account details, then hands off to the dedicated
  * /verify-otp screen (shared with the login flow's "not verified yet"
- * redirect) rather than embedding an OTP step here. */
+ * redirect) rather than embedding an OTP step here. Which plan the
+ * trial is scoped to is NOT decided here — a brand-new org starts
+ * with no tier at all, and planSelectionGuard (see auth.guard.ts)
+ * forces the first post-login/post-verify navigation to /select-plan
+ * instead of the dashboard until one is actually chosen there. */
 @Component({
   selector: 'app-signup',
   standalone: true,

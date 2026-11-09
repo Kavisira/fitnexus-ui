@@ -4,16 +4,7 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config/api.config';
 
-export type SubscriptionTier =
-  | 'BASIC'
-  | 'STARTER'
-  | 'PLUS'
-  | 'PLUS_PLUS'
-  | 'PRO'
-  | 'GROWTH'
-  | 'GROWTH_PLUS'
-  | 'SCALE'
-  | 'ENTERPRISE';
+export type SubscriptionTier = 'STARTER' | 'PLUS' | 'GROWTH' | 'PRO' | 'SCALE' | 'ENTERPRISE';
 
 export type BillingCycle = 'MONTHLY' | 'ANNUAL';
 
@@ -82,6 +73,23 @@ export class BillingApiService {
    * BillingService.history on the backend. */
   history(): Observable<SubscriptionEvent[]> {
     return this.http.get<SubscriptionEvent[]>(`${this.base}/history`);
+  }
+
+  /** Which self-serve tiers currently fit this org's usage (branches/
+   * members/employees already created, plus whether biometric
+   * attendance is already in use) — see BillingService.eligibleTiers
+   * on the backend. Drives the "doesn't fit your current usage"
+   * disabled state on the pricing cards. */
+  eligibleTiers(): Observable<{ tier: SubscriptionTier; eligible: boolean }[]> {
+    return this.http.get<{ tier: SubscriptionTier; eligible: boolean }[]>(`${this.base}/eligible-tiers`);
+  }
+
+  /** Changes which tier a still-TRIALING org's trial is scoped to —
+   * free, no checkout, works up or down as long as the target tier
+   * fits current usage (see BillingService.selectTrialPlan). Once the
+   * org is paying, checkout() below is the only path. */
+  selectTrialPlan(tier: SubscriptionTier): Observable<{ subscriptionTier: SubscriptionTier }> {
+    return this.http.post<{ subscriptionTier: SubscriptionTier }>(`${this.base}/select-trial-plan`, { tier });
   }
 
   checkout(tier: SubscriptionTier, billingCycle: BillingCycle): Observable<CheckoutResponse> {

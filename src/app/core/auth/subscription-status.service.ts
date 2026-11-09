@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of, map, tap, catchError } from 'rxjs';
 
-import { BillingApiService } from '../billing/billing-api.service';
+import { BillingApiService, SubscriptionTier } from '../billing/billing-api.service';
 
 /** In-memory cache of "is this org's subscription currently expired",
  * backing the hard-lockout route guard (see subscriptionGuard in
@@ -25,6 +25,11 @@ export class SubscriptionStatusService {
 
   readonly isExpired = signal(false);
 
+  /** Null until a tier has actually been chosen (either at checkout or
+   * via /select-plan's selectTrialPlan call) — a brand-new org has no
+   * tier at all, which is exactly what planSelectionGuard checks for. */
+  readonly tier = signal<SubscriptionTier | null>(null);
+
   /** Returns the cached value when it's still fresh, otherwise fetches
    * /billing/status first. Fails OPEN on a network hiccup — never lock
    * someone out of the app just because this one status check's
@@ -36,11 +41,32 @@ export class SubscriptionStatusService {
     return this.billingApi.status().pipe(
       tap((summary) => {
         this.isExpired.set(summary.isExpired);
+        this.tier.set(summary.tier);
         this.loaded = true;
         this.loadedAt = Date.now();
       }),
       map(() => this.isExpired()),
       catchError(() => of(this.isExpired())),
+    );
+  }
+
+  /** Same freshness/caching behavior as ensureLoaded(), but resolves to
+   * whether a plan still needs to be chosen (tier === null) — what
+   * planSelectionGuard actually needs. Shares the same cache window so
+   * the two guards don't double-fetch /billing/status on one navigation. */
+  ensureTierLoaded(): Observable<SubscriptionTier | null> {
+    if (this.loaded && Date.now() - this.loadedAt < this.REFRESH_MS) {
+      return of(this.tier());
+    }
+    return this.billingApi.status().pipe(
+      tap((summary) => {
+        this.isExpired.set(summary.isExpired);
+        this.tier.set(summary.tier);
+        this.loaded = true;
+        this.loadedAt = Date.now();
+      }),
+      map(() => this.tier()),
+      catchError(() => of(this.tier())),
     );
   }
 
@@ -57,5 +83,6 @@ export class SubscriptionStatusService {
   clear(): void {
     this.loaded = false;
     this.isExpired.set(false);
+    this.tier.set(null);
   }
 }

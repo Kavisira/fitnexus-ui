@@ -69,6 +69,22 @@
   justify-self: end;
 }
 
+.profile-btn {
+  margin-left: 0.3rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.profile-btn:hover {
+  opacity: 0.85;
+}
+
 .app-header ::ng-deep .nav-toggle-btn {
   color: #475569 !important;
 }

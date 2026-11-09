@@ -41,5 +41,20 @@
       <app-notification-bell></app-notification-bell>
     }
     <app-theme-toggle></app-theme-toggle>
+
+    <button
+      type="button"
+      class="profile-btn"
+      aria-label="Profile menu"
+      aria-haspopup="true"
+      (click)="profileMenu.toggle($event)"
+    >
+      <p-avatar [label]="userInitial" shape="circle" size="normal" />
+    </button>
+    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
   </div>
 </header>
+
+<app-org-info-dialog [(visible)]="orgInfoVisible"></app-org-info-dialog>
+<app-settings-dialog [(visible)]="settingsVisible"></app-settings-dialog>
+<app-version-dialog [(visible)]="versionVisible"></app-version-dialog>

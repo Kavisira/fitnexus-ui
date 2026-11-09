@@ -226,196 +226,391 @@
 
   <!-- Create dialog -->
   <p-dialog
-    [(visible)]="createDialogVisible"
+    [(visible)]="wizardDialogVisible"
     [modal]="true"
-    [style]="{ width: '54rem' }"
-    [breakpoints]="{ '1100px': '92vw', '768px': '96vw' }"
-    [header]="'employees.addEmployee' | translate"
+    [style]="{ width: '58rem' }"
+    [breakpoints]="{ '1100px': '94vw', '768px': '98vw' }"
+    [header]="(editingId() ? (detailEmployee()?.name || ('employees.employeeDetails' | translate)) : ('employees.addEmployee' | translate))"
+    styleClass="member-wizard-dialog"
+    (onHide)="closeWizard()"
   >
-    <form [formGroup]="createForm" (ngSubmit)="saveCreate()" class="employee-form" novalidate>
-      <div class="field-row-3">
-        <div class="field">
-          <label for="c-name">{{ 'employees.nameLabel' | translate }} *</label>
-          <input pInputText id="c-name" type="text" formControlName="name" class="w-full" />
-          @if (cf.name.invalid && cf.name.touched) {
-            <small class="field-error">{{ 'employees.nameRequired' | translate }}</small>
-          }
+    <!-- ---- Step indicator ---- -->
+    <div class="wizard-steps">
+      @for (step of wizardSteps; track step.label; let i = $index) {
+        <div
+          class="wizard-step-chip"
+          [class.active]="wizardStep() === i"
+          [class.done]="wizardStep() > i"
+          [class.clickable]="editingId() || i <= wizardStep()"
+          (click)="goToStep(i)"
+        >
+          <span class="wizard-step-circle">
+            @if (wizardStep() > i) {
+              <i class="pi pi-check"></i>
+            } @else {
+              {{ i + 1 }}
+            }
+          </span>
+          <span class="wizard-step-label">{{ step.label }}</span>
         </div>
-        <div class="field">
-          <label for="c-phone">{{ 'employees.phoneLabel' | translate }} *</label>
-          <input pInputText id="c-phone" type="tel" formControlName="phone" class="w-full" />
-          @if (cf.phone.invalid && cf.phone.touched) {
-            <small class="field-error">{{ 'employees.phoneRequired' | translate }}</small>
-          }
-        </div>
-        <div class="field">
-          <label for="c-email">{{ 'employees.emailLabel' | translate }}</label>
-          <input pInputText id="c-email" type="email" formControlName="email" class="w-full" />
-        </div>
-      </div>
+        @if (i < wizardSteps.length - 1) {
+          <div class="wizard-step-connector" [class.done]="wizardStep() > i"></div>
+        }
+      }
+    </div>
 
-      <div class="field-row-3">
-        <div class="field">
-          <label for="c-branch">{{ 'employees.branchLabel' | translate }} *</label>
-          <p-select
-            inputId="c-branch"
-            formControlName="branchId"
-            [options]="branchOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [filter]="true"
-            filterBy="label"
-            styleClass="w-full"
-          />
-          @if (cf.branchId.invalid && cf.branchId.touched) {
-            <small class="field-error">{{ 'employees.branchRequired' | translate }}</small>
-          }
-        </div>
-        <div class="field">
-          <label for="c-role">{{ 'employees.roleLabel' | translate }} *</label>
-          <p-select
-            inputId="c-role"
-            formControlName="role"
-            [options]="roleOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [editable]="true"
-            [filter]="true"
-            filterBy="label"
-            [pTooltip]="'employees.roleEditableHint' | translate"
-            tooltipPosition="top"
-            styleClass="w-full"
-          />
-        </div>
-        <div class="field">
-          <label for="c-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
-          <p-datepicker
-            inputId="c-joinDate"
-            formControlName="joinDate"
-            dateFormat="M d, yy"
-            [showIcon]="true"
-            appendTo="body"
-            class="w-full"
-          />
-        </div>
-      </div>
+    <form [formGroup]="employeeForm" (ngSubmit)="save()" class="employee-form wizard-form" novalidate>
+      <!-- ============ STEP 1 — Personal information ============ -->
+      @if (wizardStep() === 0) {
+        <div class="wizard-step-panel">
+          <div class="field-row-3">
+            <div class="field">
+              <label for="e-name">{{ 'employees.nameLabel' | translate }} *</label>
+              <input pInputText id="e-name" type="text" formControlName="name" class="w-full" />
+              @if (ef.name.invalid && ef.name.touched) {
+                <small class="field-error">{{ 'employees.nameRequired' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label for="e-phone">{{ 'employees.phoneLabel' | translate }} *</label>
+              <input pInputText id="e-phone" type="tel" formControlName="phone" class="w-full" />
+              @if (ef.phone.invalid && ef.phone.touched) {
+                <small class="field-error">{{ 'employees.phoneRequired' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label for="e-email">{{ 'employees.emailLabel' | translate }}</label>
+              <input pInputText id="e-email" type="email" formControlName="email" class="w-full" />
+            </div>
+          </div>
 
-      <div class="field-row-3">
-        <div class="field">
-          <label for="c-dob">{{ 'employees.dobLabel' | translate }}</label>
-          <p-datepicker
-            inputId="c-dob"
-            formControlName="dateOfBirth"
-            dateFormat="M d, yy"
-            [showIcon]="true"
-            appendTo="body"
-            class="w-full"
-          />
-        </div>
-        <div class="field">
-          <label for="c-basicPay">{{ 'employees.basicPayLabel' | translate }}</label>
-          <p-inputnumber
-            inputId="c-basicPay"
-            formControlName="basicPay"
-            mode="decimal"
-            [minFractionDigits]="0"
-            [maxFractionDigits]="2"
-            class="w-full"
-          />
-        </div>
-        <div class="field"></div>
-      </div>
-
-      <div class="salary-components">
-        <div class="salary-components-header">
-          <span class="salary-components-title">{{ 'employees.salaryComponentsLabel' | translate }}</span>
-          <button pButton type="button" [text]="true" size="small" (click)="addComponent('create')">
-            <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
-            {{ 'employees.addComponentAction' | translate }}
-          </button>
-        </div>
-        @if (createComponents().length === 0) {
-          <small class="salary-components-empty">{{ 'employees.noComponentsHint' | translate }}</small>
-        } @else {
-          @for (component of createComponents(); track $index) {
-            <div class="salary-component-row">
-              <input
-                type="text"
-                class="salary-component-name"
-                [placeholder]="'employees.componentNamePlaceholder' | translate"
-                [value]="component.name"
-                (input)="updateComponentField('create', $index, 'name', $any($event.target).value)"
+          <div class="field-row-3">
+            <div class="field">
+              <label for="e-branch">{{ 'employees.branchLabel' | translate }} *</label>
+              <p-select
+                inputId="e-branch"
+                formControlName="branchId"
+                [options]="branchOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [filter]="true"
+                filterBy="label"
+                appendTo="body"
+                styleClass="w-full"
               />
-              <select
-                class="salary-component-type"
-                [value]="component.type"
-                (change)="updateComponentField('create', $index, 'type', $any($event.target).value)"
-              >
-                <option value="EARNING">{{ 'employees.earningOption' | translate }}</option>
-                <option value="DEDUCTION">{{ 'employees.deductionOption' | translate }}</option>
-              </select>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                class="salary-component-percent"
-                [value]="component.percent"
-                (input)="updateComponentField('create', $index, 'percent', $any($event.target).value)"
+              @if (ef.branchId.invalid && ef.branchId.touched) {
+                <small class="field-error">{{ 'employees.branchRequired' | translate }}</small>
+              }
+            </div>
+            <div class="field">
+              <label for="e-role">{{ 'employees.roleLabel' | translate }} *</label>
+              <p-select
+                inputId="e-role"
+                formControlName="role"
+                [options]="roleOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [editable]="true"
+                [filter]="true"
+                filterBy="label"
+                [pTooltip]="'employees.roleEditableHint' | translate"
+                tooltipPosition="top"
+                appendTo="body"
+                styleClass="w-full"
               />
-              <span class="salary-component-percent-sign">%</span>
-              <button
-                pButton
-                type="button"
-                [text]="true"
-                severity="danger"
-                size="small"
-                (click)="removeComponent('create', $index)"
-              >
-                <i class="pi pi-trash"></i>
+            </div>
+            @if (editingId()) {
+              <div class="field">
+                <label for="e-status">{{ 'employees.statusLabel' | translate }}</label>
+                <p-select
+                  inputId="e-status"
+                  formControlName="status"
+                  [options]="statusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  appendTo="body"
+                  styleClass="w-full"
+                />
+              </div>
+            } @else {
+              <div class="field">
+                <label for="e-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
+                <p-datepicker
+                  inputId="e-joinDate"
+                  formControlName="joinDate"
+                  dateFormat="M d, yy"
+                  [showIcon]="true"
+                  appendTo="body"
+                  class="w-full"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="field-row-3">
+            @if (editingId()) {
+              <div class="field">
+                <label for="e-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
+                <p-datepicker
+                  inputId="e-joinDate"
+                  formControlName="joinDate"
+                  dateFormat="M d, yy"
+                  [showIcon]="true"
+                  appendTo="body"
+                  class="w-full"
+                />
+              </div>
+            }
+            <div class="field">
+              <label for="e-dob">{{ 'employees.dobLabel' | translate }} *</label>
+              <p-datepicker
+                inputId="e-dob"
+                formControlName="dateOfBirth"
+                dateFormat="M d, yy"
+                [showIcon]="true"
+                appendTo="body"
+                class="w-full"
+              />
+              @if (ef.dateOfBirth.invalid && ef.dateOfBirth.touched) {
+                <small class="field-error">{{ 'employees.dobRequired' | translate }}</small>
+              }
+            </div>
+            <div class="field"></div>
+          </div>
+
+          @if (editingId() && credentialAffectingChanges().length > 0) {
+            <p-message severity="warn" styleClass="w-full">
+              {{ 'employees.credentialRegenMessage' | translate }}
+            </p-message>
+          }
+        </div>
+      }
+
+      <!-- ============ STEP 2 — Salary structure ============ -->
+      @if (wizardStep() === 1) {
+        <div class="wizard-step-panel">
+          <div class="field-row-3">
+            <div class="field">
+              <label for="e-basicPay">{{ 'employees.basicPayLabel' | translate }}</label>
+              <p-inputnumber
+                inputId="e-basicPay"
+                formControlName="basicPay"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                class="w-full"
+              />
+            </div>
+            <div class="field"></div>
+            <div class="field"></div>
+          </div>
+
+          <div class="salary-components">
+            <div class="salary-components-header">
+              <span class="salary-components-title">{{ 'employees.salaryComponentsLabel' | translate }}</span>
+              <button pButton type="button" [text]="true" size="small" (click)="addComponent()">
+                <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
+                {{ 'employees.addComponentAction' | translate }}
               </button>
             </div>
-          }
-        }
-        <div class="salary-net-preview">
-          <span>{{ 'employees.netPayPreviewLabel' | translate }}</span>
-          <strong>{{ netPayPreview('create') | number: '1.0-2' }}</strong>
+            @if (components().length === 0) {
+              <small class="salary-components-empty">{{ 'employees.noComponentsHint' | translate }}</small>
+            } @else {
+              @for (component of components(); track $index) {
+                <div class="salary-component-row">
+                  <input
+                    type="text"
+                    class="salary-component-name"
+                    [placeholder]="'employees.componentNamePlaceholder' | translate"
+                    [value]="component.name"
+                    (input)="updateComponentField($index, 'name', $any($event.target).value)"
+                  />
+                  <select
+                    class="salary-component-type"
+                    [value]="component.type"
+                    (change)="updateComponentField($index, 'type', $any($event.target).value)"
+                  >
+                    <option value="EARNING">{{ 'employees.earningOption' | translate }}</option>
+                    <option value="DEDUCTION">{{ 'employees.deductionOption' | translate }}</option>
+                  </select>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    class="salary-component-percent"
+                    [value]="component.percent"
+                    (input)="updateComponentField($index, 'percent', $any($event.target).value)"
+                  />
+                  <span class="salary-component-percent-sign">%</span>
+                  <button
+                    pButton
+                    type="button"
+                    [text]="true"
+                    severity="danger"
+                    size="small"
+                    (click)="removeComponent($index)"
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              }
+            }
+            <div class="salary-net-preview">
+              <span>{{ 'employees.netPayPreviewLabel' | translate }}</span>
+              <strong>{{ netPayPreview() | number: '1.0-2' }}</strong>
+            </div>
+          </div>
         </div>
-      </div>
+      }
 
-      <div class="employee-login-field">
-        <label class="employee-login-checkbox">
-          <input
-            type="checkbox"
-            formControlName="createLogin"
-            [disabled]="!isLoginEligibleRole(cf.role.value)"
-          />
-          {{ 'employees.createLoginLabel' | translate }}
-        </label>
-        @if (!isLoginEligibleRole(cf.role.value)) {
-          <small class="employee-login-hint">{{ 'employees.loginNeedsEligibleRole' | translate }}</small>
-        } @else if (cf.createLogin.value) {
-          <small class="employee-login-hint">{{ 'employees.createLoginHint' | translate }}</small>
-        }
-      </div>
+      <!-- ============ STEP 3 — Login credentials ============ -->
+      @if (wizardStep() === 2) {
+        <div class="wizard-step-panel">
+          @if (!editingId()) {
+            <div class="employee-login-field">
+              <label class="employee-login-checkbox">
+                <input
+                  type="checkbox"
+                  formControlName="createLogin"
+                  [disabled]="!isLoginEligibleRole(ef.role.value)"
+                />
+                {{ 'employees.createLoginLabel' | translate }}
+              </label>
+              @if (!isLoginEligibleRole(ef.role.value)) {
+                <small class="employee-login-hint">{{ 'employees.loginNeedsEligibleRole' | translate }}</small>
+              } @else if (ef.createLogin.value) {
+                <small class="employee-login-hint">{{ 'employees.createLoginHint' | translate }}</small>
+              }
+            </div>
+          } @else if (detailEmployee(); as employee) {
+            @if (credentialAffectingChanges().length > 0) {
+              <p-message severity="warn" styleClass="w-full">
+                {{ 'employees.credentialRegenMessage' | translate }}
+              </p-message>
+            }
+            <div class="employee-login-status">
+              @if (employee.user) {
+                @if (isOwner) {
+                  <div class="employee-login-credentials-row">
+                    <span class="employee-login-active">
+                      <i class="pi pi-check-circle"></i>
+                      {{ 'employees.loginActiveLabel' | translate }}
+                    </span>
+                    @if (loadingCredentials()) {
+                      <span class="employee-credentials-loading">{{ 'employees.credentialsLoading' | translate }}</span>
+                    } @else if (employeeCredentials(); as creds) {
+                      <span class="employee-login-credential">
+                        <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
+                        <span class="employee-login-credential-value">{{ creds.username }}</span>
+                      </span>
+                      <span class="employee-login-credential">
+                        <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
+                        <span class="employee-login-credential-value">{{ creds.password }}</span>
+                      </span>
+                    } @else if (credentialsError()) {
+                      <span class="employee-credentials-error">{{ credentialsError() }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="employee-login-active">
+                    <i class="pi pi-check-circle"></i>
+                    {{ 'employees.loginActiveLabel' | translate }}: {{ employee.user.email }}
+                  </span>
+                }
+              } @else if (canWrite() && isLoginEligibleRole(employee.role)) {
+                <button
+                  pButton
+                  type="button"
+                  [text]="true"
+                  [loading]="creatingLogin()"
+                  (click)="createLoginForEmployee(employee)"
+                >
+                  <i class="pi pi-key" style="margin-right: 0.4rem"></i>
+                  {{ 'employees.createLoginAction' | translate }}
+                </button>
+              } @else {
+                <span class="employee-login-ineligible">{{ 'employees.loginNeedsEligibleRole' | translate }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
 
       @if (errorMessage()) {
         <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
       }
 
-      <div class="dialog-actions">
-        <button pButton type="button" severity="secondary" [text]="true" (click)="closeCreate()">
+      <div class="dialog-actions wizard-actions">
+        <button pButton type="button" severity="secondary" [text]="true" (click)="closeWizard()">
           {{ 'common.cancel' | translate }}
         </button>
-        <button pButton type="submit" [loading]="saving()">{{ 'employees.save' | translate }}</button>
+        <div class="wizard-actions-right">
+          @if (wizardStep() > 0) {
+            <button pButton type="button" severity="secondary" [outlined]="true" (click)="prevStep()">
+              <i class="pi pi-arrow-left" style="margin-right: 0.4rem"></i> Back
+            </button>
+          }
+          @if (wizardStep() < wizardSteps.length - 1) {
+            <button pButton type="button" (click)="nextStep()">
+              Next <i class="pi pi-arrow-right" style="margin-left: 0.4rem"></i>
+            </button>
+          } @else {
+            <button pButton type="submit" [loading]="saving()">{{ 'employees.save' | translate }}</button>
+          }
+        </div>
       </div>
     </form>
   </p-dialog>
 
-  <!-- Generated login credentials — shown once, right after a login is
-       created (checkbox or the retroactive action). The password is
-       never retrievable again after this, so this is the one chance to
-       copy/share it. -->
+  <!-- Performance hub — a separate, small dialog reached from the row's
+       "..." menu, not embedded in the edit wizard. Each row below is
+       its own clickable option that opens the existing Reviews/
+       Appraisals list dialog, so everything stays reachable from one
+       place without stacking extra content inside the main wizard. -->
+  <p-dialog
+    [(visible)]="performanceHubDialogVisible"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '26rem' }"
+    [header]="(detailEmployee()?.name || ('employees.performanceHubTitle' | translate)) + ' — ' + ('employees.performanceHubTitle' | translate)"
+  >
+    <div class="performance-hub-options">
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        class="performance-hub-option"
+        (click)="performanceHubDialogVisible.set(false); openReviewsList()"
+      >
+        <span class="performance-hub-option-main">
+          <i class="pi pi-star" style="margin-right: 0.4rem"></i>
+          {{ 'employees.performance.reviewsSubtitle' | translate }} ({{ reviews().length }})
+        </span>
+        <span class="performance-hub-option-action">
+          {{ 'employees.viewAllOption' | translate }}
+          <i class="pi pi-chevron-right" style="margin-left: 0.35rem"></i>
+        </span>
+      </button>
+      <button
+        pButton
+        type="button"
+        [text]="true"
+        class="performance-hub-option"
+        (click)="performanceHubDialogVisible.set(false); openAppraisalsList()"
+      >
+        <span class="performance-hub-option-main">
+          <i class="pi pi-file" style="margin-right: 0.4rem"></i>
+          {{ 'employees.performance.appraisalsSubtitle' | translate }} ({{ appraisals().length }})
+        </span>
+        <span class="performance-hub-option-action">
+          {{ 'employees.viewAllOption' | translate }}
+          <i class="pi pi-chevron-right" style="margin-left: 0.35rem"></i>
+        </span>
+      </button>
+    </div>
+  </p-dialog>
+
   <p-dialog
     [visible]="generatedLogin() !== null"
     [modal]="true"
@@ -435,286 +630,6 @@
       </div>
       <div class="dialog-actions">
         <button pButton type="button" (click)="closeGeneratedLogin()">{{ 'common.close' | translate }}</button>
-      </div>
-    }
-  </p-dialog>
-
-  <!-- Detail dialog -->
-  <p-dialog
-    [(visible)]="detailDialogVisible"
-    [modal]="true"
-    [style]="{ width: '58rem' }"
-    [breakpoints]="{ '1100px': '94vw', '768px': '96vw' }"
-    [header]="detailEmployee()?.name || ('employees.employeeDetails' | translate)"
-    (onHide)="closeDetail()"
-  >
-    @if (detailEmployee(); as employee) {
-      <button
-        type="button"
-        pButton
-        [text]="true"
-        severity="secondary"
-        class="employee-details-toggle"
-        (click)="detailsExpanded.set(!detailsExpanded())"
-      >
-        <i class="pi" [class.pi-chevron-right]="!detailsExpanded()" [class.pi-chevron-down]="detailsExpanded()"></i>
-        {{ 'employees.employeeDetailsSection' | translate }}
-      </button>
-
-      @if (detailsExpanded()) {
-      <form [formGroup]="detailForm" (ngSubmit)="saveDetail()" class="employee-form" novalidate>
-        <div class="field-row-3">
-          <div class="field">
-            <label for="d-name">{{ 'employees.nameLabel' | translate }} *</label>
-            <input pInputText id="d-name" type="text" formControlName="name" class="w-full" />
-            @if (df.name.invalid && df.name.touched) {
-              <small class="field-error">{{ 'employees.nameRequired' | translate }}</small>
-            }
-          </div>
-          <div class="field">
-            <label for="d-phone">{{ 'employees.phoneLabel' | translate }} *</label>
-            <input pInputText id="d-phone" type="tel" formControlName="phone" class="w-full" />
-            @if (df.phone.invalid && df.phone.touched) {
-              <small class="field-error">{{ 'employees.phoneRequired' | translate }}</small>
-            }
-          </div>
-          <div class="field">
-            <label for="d-email">{{ 'employees.emailLabel' | translate }}</label>
-            <input pInputText id="d-email" type="email" formControlName="email" class="w-full" />
-          </div>
-        </div>
-
-        <div class="field-row-3">
-          <div class="field">
-            <label for="d-branch">{{ 'employees.branchLabel' | translate }} *</label>
-            <p-select
-              inputId="d-branch"
-              formControlName="branchId"
-              [options]="branchOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [filter]="true"
-              filterBy="label"
-              styleClass="w-full"
-            />
-          </div>
-          <div class="field">
-            <label for="d-role">{{ 'employees.roleLabel' | translate }} *</label>
-            <p-select
-              inputId="d-role"
-              formControlName="role"
-              [options]="roleOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [editable]="true"
-              [filter]="true"
-              filterBy="label"
-              [pTooltip]="'employees.roleEditableHint' | translate"
-              tooltipPosition="top"
-              styleClass="w-full"
-            />
-          </div>
-          <div class="field">
-            <label for="d-status">{{ 'employees.statusLabel' | translate }}</label>
-            <p-select
-              inputId="d-status"
-              formControlName="status"
-              [options]="statusOptions"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="w-full"
-            />
-          </div>
-        </div>
-
-        <div class="field-row-3">
-          <div class="field">
-            <label for="d-joinDate">{{ 'employees.joinDateLabel' | translate }} *</label>
-            <p-datepicker
-              inputId="d-joinDate"
-              formControlName="joinDate"
-              dateFormat="M d, yy"
-              [showIcon]="true"
-              appendTo="body"
-              class="w-full"
-            />
-          </div>
-          <div class="field">
-            <label for="d-dob">{{ 'employees.dobLabel' | translate }}</label>
-            <p-datepicker
-              inputId="d-dob"
-              formControlName="dateOfBirth"
-              dateFormat="M d, yy"
-              [showIcon]="true"
-              appendTo="body"
-              class="w-full"
-            />
-          </div>
-          <div class="field">
-            <label for="d-basicPay">{{ 'employees.basicPayLabel' | translate }}</label>
-            <p-inputnumber
-              inputId="d-basicPay"
-              formControlName="basicPay"
-              mode="decimal"
-              [minFractionDigits]="0"
-              [maxFractionDigits]="2"
-              class="w-full"
-            />
-          </div>
-        </div>
-
-        <div class="salary-components">
-          <div class="salary-components-header">
-            <span class="salary-components-title">{{ 'employees.salaryComponentsLabel' | translate }}</span>
-            <button pButton type="button" [text]="true" size="small" (click)="addComponent('detail')">
-              <i class="pi pi-plus" style="margin-right: 0.35rem"></i>
-              {{ 'employees.addComponentAction' | translate }}
-            </button>
-          </div>
-          @if (detailComponents().length === 0) {
-            <small class="salary-components-empty">{{ 'employees.noComponentsHint' | translate }}</small>
-          } @else {
-            @for (component of detailComponents(); track $index) {
-              <div class="salary-component-row">
-                <input
-                  type="text"
-                  class="salary-component-name"
-                  [placeholder]="'employees.componentNamePlaceholder' | translate"
-                  [value]="component.name"
-                  (input)="updateComponentField('detail', $index, 'name', $any($event.target).value)"
-                />
-                <select
-                  class="salary-component-type"
-                  [value]="component.type"
-                  (change)="updateComponentField('detail', $index, 'type', $any($event.target).value)"
-                >
-                  <option value="EARNING">{{ 'employees.earningOption' | translate }}</option>
-                  <option value="DEDUCTION">{{ 'employees.deductionOption' | translate }}</option>
-                </select>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  class="salary-component-percent"
-                  [value]="component.percent"
-                  (input)="updateComponentField('detail', $index, 'percent', $any($event.target).value)"
-                />
-                <span class="salary-component-percent-sign">%</span>
-                <button
-                  pButton
-                  type="button"
-                  [text]="true"
-                  severity="danger"
-                  size="small"
-                  (click)="removeComponent('detail', $index)"
-                >
-                  <i class="pi pi-trash"></i>
-                </button>
-              </div>
-            }
-          }
-          <div class="salary-net-preview">
-            <span>{{ 'employees.netPayPreviewLabel' | translate }}</span>
-            <strong>{{ netPayPreview('detail') | number: '1.0-2' }}</strong>
-          </div>
-        </div>
-      </form>
-      }
-
-      <div class="employee-login-accordion">
-        <button
-          type="button"
-          pButton
-          [text]="true"
-          severity="secondary"
-          class="employee-details-toggle"
-          (click)="loginSectionExpanded.set(!loginSectionExpanded())"
-        >
-          <i class="pi" [class.pi-chevron-right]="!loginSectionExpanded()" [class.pi-chevron-down]="loginSectionExpanded()"></i>
-          {{ 'employees.loginSectionTitle' | translate }}
-          @if (employee.user) {
-            <i class="pi pi-check-circle employee-login-accordion-badge"></i>
-          }
-        </button>
-
-        @if (loginSectionExpanded()) {
-          <div class="employee-login-status">
-            @if (employee.user) {
-              @if (isOwner) {
-                <!-- Owner-only, always-visible credentials — not just the
-                     one-time reveal at creation. Laid out as a single
-                     horizontal row (label:value, label:value) instead of
-                     stacked blocks, to stay compact. -->
-                <div class="employee-login-credentials-row">
-                  <span class="employee-login-active">
-                    <i class="pi pi-check-circle"></i>
-                    {{ 'employees.loginActiveLabel' | translate }}
-                  </span>
-                  @if (loadingCredentials()) {
-                    <span class="employee-credentials-loading">{{ 'employees.credentialsLoading' | translate }}</span>
-                  } @else if (employeeCredentials(); as creds) {
-                    <span class="employee-login-credential">
-                      <span class="employee-login-credential-label">{{ 'employees.usernameLabel' | translate }}</span>
-                      <span class="employee-login-credential-value">{{ creds.username }}</span>
-                    </span>
-                    <span class="employee-login-credential">
-                      <span class="employee-login-credential-label">{{ 'employees.passwordLabel' | translate }}</span>
-                      <span class="employee-login-credential-value">{{ creds.password }}</span>
-                    </span>
-                  } @else if (credentialsError()) {
-                    <span class="employee-credentials-error">{{ credentialsError() }}</span>
-                  }
-                   <div class="dialog-actions">
-          <button pButton type="button" severity="secondary" [text]="true" (click)="closeDetail()">
-            {{ 'common.close' | translate }}
-          </button>
-          @if (canWrite()) {
-            <button pButton type="button" [loading]="saving()" (click)="saveDetail()">{{ 'employees.save' | translate }}</button>
-          }
-        </div>
-                </div>
-              } @else {
-                <span class="employee-login-active">
-                  <i class="pi pi-check-circle"></i>
-                  {{ 'employees.loginActiveLabel' | translate }}: {{ employee.user.email }}
-                </span>
-              }
-            } @else if (canWrite() && isLoginEligibleRole(employee.role)) {
-              <button
-                pButton
-                type="button"
-                [text]="true"
-                [loading]="creatingLogin()"
-                (click)="createLoginForEmployee(employee)"
-              >
-                <i class="pi pi-key" style="margin-right: 0.4rem"></i>
-                {{ 'employees.createLoginAction' | translate }}
-              </button>
-            } @else {
-              <span class="employee-login-ineligible">{{ 'employees.loginNeedsEligibleRole' | translate }}</span>
-            }
-          </div>
-        }
-
-        @if (errorMessage()) {
-          <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
-        }
-      </div>
-
-
-      <div class="employee-performance-section">
-        <h3>{{ 'employees.performance.title' | translate }}</h3>
-        <div class="employee-performance-actions">
-          <button pButton type="button" [text]="true" (click)="openReviewsList()">
-            <i class="pi pi-star" style="margin-right: 0.4rem"></i>
-            {{ 'employees.performance.reviewsSubtitle' | translate }} ({{ reviews().length }})
-          </button>
-          <button pButton type="button" [text]="true" (click)="openAppraisalsList()">
-            <i class="pi pi-file" style="margin-right: 0.4rem"></i>
-            {{ 'employees.performance.appraisalsSubtitle' | translate }} ({{ appraisals().length }})
-          </button>
-        </div>
       </div>
     }
   </p-dialog>

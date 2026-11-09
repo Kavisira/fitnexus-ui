@@ -62,6 +62,12 @@ export interface Employee {
   salaryComponents?: SalaryComponent[];
 }
 
+// Carried on an UpdateEmployeeDto retry only — see
+// EmployeesService.update's LOGIN_CREDENTIALS_AFFECTED doc comment.
+export interface UpdateEmployeePayload extends Partial<EmployeePayload> {
+  confirmCredentialRegeneration?: boolean;
+}
+
 export interface EmployeePayload {
   name: string;
   phone: string;
@@ -88,6 +94,16 @@ export interface GeneratedLogin {
 
 export interface CreateEmployeeResult {
   employee: Employee;
+  login: GeneratedLogin | null;
+}
+
+export interface UpdateEmployeeResult {
+  employee: Employee;
+  // Set when name/dateOfBirth/phone changed for an employee that
+  // already had a login — the regenerated (or, if only one of the two
+  // credential halves actually changed, the still-current) username
+  // and password, shown once the same way a brand-new login is. See
+  // EmployeesService.update on the backend.
   login: GeneratedLogin | null;
 }
 
@@ -171,8 +187,8 @@ export class EmployeeApiService {
     return this.http.get<GeneratedLogin>(`${this.base}/${id}/credentials`);
   }
 
-  update(id: string, payload: Partial<EmployeePayload>): Observable<Employee> {
-    return this.http.patch<Employee>(`${this.base}/${id}`, payload);
+  update(id: string, payload: UpdateEmployeePayload): Observable<UpdateEmployeeResult> {
+    return this.http.patch<UpdateEmployeeResult>(`${this.base}/${id}`, payload);
   }
 
   remove(id: string): Observable<void> {

@@ -1,0 +1,98 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '640px': '95vw' }"
+  [header]="'orgInfoDialog.title' | translate"
+  (onShow)="onShow()"
+>
+  <div class="org-info-block">
+    <div class="org-info-block-title">{{ 'orgInfoDialog.yourProfile' | translate }}</div>
+    <div class="org-info-profile-row">
+      <p-avatar [label]="userInitial" shape="circle" size="large" />
+      <div class="org-info-profile-text">
+        <span class="org-info-profile-email">{{ userEmail }}</span>
+        <p-tag [value]="userRoleLabel" severity="secondary" />
+      </div>
+    </div>
+  </div>
+
+  <div class="org-info-block">
+    <div class="org-info-block-title">{{ 'orgInfoDialog.organization' | translate }}</div>
+
+    @if (loading()) {
+      <p class="org-info-hint">{{ 'common.loading' | translate }}</p>
+    } @else if (org(); as o) {
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.orgName' | translate }}</span>
+        <span class="org-info-value">{{ o.name }}</span>
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.ownerName' | translate }}</span>
+        <span class="org-info-value">{{ o.ownerName }}</span>
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.orgEmail' | translate }}</span>
+        <span class="org-info-value">{{ o.email }}</span>
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.orgPhone' | translate }}</span>
+        <span class="org-info-value">{{ o.phone }}</span>
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.orgStatus' | translate }}</span>
+        <p-tag
+          [value]="(o.status === 'ACTIVE' ? 'orgInfoDialog.statusActive' : 'orgInfoDialog.statusNotActive') | translate"
+          [severity]="o.status === 'ACTIVE' ? 'success' : 'warn'"
+        />
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.branchCount' | translate }}</span>
+        <span class="org-info-value">{{ o.branchCount }}</span>
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.memberSince' | translate }}</span>
+        <span class="org-info-value">{{ o.createdAt | date: 'mediumDate' }}</span>
+      </div>
+
+      <div class="org-info-divider"></div>
+
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.plan' | translate }}</span>
+        @if (o.subscriptionTier) {
+          <p-tag [value]="tierLabel(o.subscriptionTier)" severity="info" />
+        } @else {
+          <span class="org-info-value org-info-muted">{{ 'orgInfoDialog.noPlanYet' | translate }}</span>
+        }
+      </div>
+      <div class="org-info-row">
+        <span class="org-info-label">{{ 'orgInfoDialog.subscriptionStatus' | translate }}</span>
+        <span class="org-info-value">{{ subStatusKey(o.subscriptionStatus) | translate }}</span>
+      </div>
+      @if (o.billingCycle) {
+        <div class="org-info-row">
+          <span class="org-info-label">{{ 'orgInfoDialog.billingCycle' | translate }}</span>
+          <span class="org-info-value">{{ o.billingCycle }}</span>
+        </div>
+      }
+      @if (o.subscriptionStatus === 'TRIALING' && o.trialEndsAt) {
+        <div class="org-info-row">
+          <span class="org-info-label">{{ 'orgInfoDialog.trialEndsAt' | translate }}</span>
+          <span class="org-info-value">{{ o.trialEndsAt | date: 'mediumDate' }}</span>
+        </div>
+      }
+      @if (o.subscriptionStatus !== 'TRIALING' && o.currentPeriodEnd) {
+        <div class="org-info-row">
+          <span class="org-info-label">{{ 'orgInfoDialog.renewsOn' | translate }}</span>
+          <span class="org-info-value">{{ o.currentPeriodEnd | date: 'mediumDate' }}</span>
+        </div>
+      }
+
+      @if (isOwner) {
+        <button pButton type="button" [outlined]="true" class="org-info-billing-btn" (click)="goToBilling()">
+          {{ 'orgInfoDialog.goToBilling' | translate }}
+        </button>
+      }
+    }
+  </div>
+</p-dialog>

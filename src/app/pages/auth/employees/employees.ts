@@ -35,6 +35,7 @@ import {
   JobTitle,
   SalaryComponent,
   SalaryComponentType,
+  UpdateEmployeePayload,
 } from '../../../core/employees/employee-api.service';
 import { PerformanceApiService, Review, Appraisal } from '../../../core/performance/performance-api.service';
 import { EmployeeStore } from '../../../core/employees/employee-store.service';
@@ -158,6 +159,11 @@ export class Employees implements OnInit {
         icon: 'pi pi-eye',
         command: () => this.openDetail(employee),
       },
+      {
+        label: this.i18n.t('employees.performanceMenuLabel'),
+        icon: 'pi pi-chart-line',
+        command: () => this.openPerformance(employee),
+      },
     ];
     if (this.canWrite()) {
       items.push({ label: this.i18n.t('common.delete'), icon: 'pi pi-trash', command: () => this.deleteEmployee(employee) });
@@ -165,24 +171,105 @@ export class Employees implements OnInit {
     return items;
   });
 
-  createDialogVisible = signal(false);
-  detailDialogVisible = signal(false);
+  wizardDialogVisible = signal(false);
   detailEmployee = signal<Employee | null>(null);
   errorMessage = signal<string | null>(null);
-  detailsExpanded = signal(false);
-  loginSectionExpanded = signal(false);
 
+  // ---- Add/Edit wizard — 3 steps: Personal Information, Salary
+  // Structure, Login Credentials. Editing an existing employee jumps
+  // straight into the same wizard as creating, just pre-filled — any
+  // step chip is directly clickable in edit mode (see goToStep()
+  // below), same convention as the Members wizard
+  // (pages/auth/members/members.ts). ----
+  wizardSteps: { label: string; icon: string }[] = [
+    { label: 'Personal', icon: 'pi-user' },
+    { label: 'Salary', icon: 'pi-wallet' },
+    { label: 'Login', icon: 'pi-key' },
+  ];
+  wizardStep = signal(0);
+
+  // The employee currently being edited, or null when creating a new
+  // one — drives both the wizard's free-jump-to-any-step behavior and
+  // the Performance section's visibility (create has no history yet).
+  editingId = computed(() => this.detailEmployee()?.id ?? null);
+
+  goToStep(index: number): void {
+    // Editing an existing employee: every field already came from a
+    // valid, saved record, so free jump to any step directly. Creating
+    // a new employee: only allow jumping backward (or staying put) by
+    // clicking a step chip — forward navigation always goes through
+    // nextStep() so each step's own fields get validated first.
+    if (this.editingId() || index <= this.wizardStep()) {
+      this.errorMessage.set(null);
+      this.wizardStep.set(index);
+    }
+  }
+
+  /** Marks just the controls relevant to the given step as touched —
+   * so an invalid field surfaces its error immediately on "Next"
+   * without force-touching fields on later steps the person hasn't
+   * reached yet. */
+  private touchControls(names: string[]): void {
+    for (const name of names) {
+      this.employeeForm.get(name)?.markAsTouched();
+    }
+  }
+
+  private stepValid(step: number): boolean {
+    switch (step) {
+      case 0:
+        this.touchControls(['name', 'phone', 'branchId', 'role', 'dateOfBirth']);
+        return (
+          this.ef.name.valid &&
+          this.ef.phone.valid &&
+          this.ef.branchId.valid &&
+          this.ef.role.valid &&
+          this.ef.dateOfBirth.valid
+        );
+      case 1:
+        // No hard requirement here — an employee can have zero salary
+        // components and just a basic pay.
+        return true;
+      case 2:
+        return this.loginStepValid();
+      default:
+        return true;
+    }
+  }
+
+  /** Maps a field name back to whichever step owns it — used when
+   * save() comes back invalid (jump to the first invalid step) and
+   * mirrors Members.stepForControl's purpose exactly. */
+  private stepForControl(name: string): number {
+    if (['name', 'phone', 'email', 'branchId', 'role', 'status', 'joinDate', 'dateOfBirth'].includes(name)) {
+      return 0;
+    }
+    if (name === 'basicPay') {
+      return 1;
+    }
+    return 2;
+  }
+
+  nextStep(): void {
+    if (!this.stepValid(this.wizardStep())) {
+      return;
+    }
+    this.wizardStep.set(Math.min(this.wizardStep() + 1, this.wizardSteps.length - 1));
+  }
+
+  prevStep(): void {
+    this.wizardStep.set(Math.max(this.wizardStep() - 1, 0));
+  }
 
   // Shows the auto-generated username/password exactly once right after
-  // a login is created (create-with-checkbox or the retroactive
-  // action) — the backend never returns the plaintext password again
-  // after this, so it has to be captured here.
+  // a login is created OR regenerated — the backend never returns the
+  // plaintext password again after this, so it has to be captured here.
   generatedLogin = signal<GeneratedLogin | null>(null);
   creatingLogin = signal(false);
 
-  // Owner-only, always-visible credentials on the detail dialog — fetched
-  // fresh each time the dialog opens for an employee that already has a
-  // login (see openDetail). null while loading/unavailable/not-owner;
+  // Owner-only, always-visible credentials on the Login step — fetched
+  // fresh each time the wizard opens for an employee that already has a
+  // login (see openEdit). null while loading/unavailable/not-owner;
   // loadingCredentials distinguishes "still fetching" from "none to show".
   employeeCredentials = signal<GeneratedLogin | null>(null);
   loadingCredentials = signal(false);
@@ -280,23 +367,11 @@ export class Employees implements OnInit {
     );
   });
 
-  createForm = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    phone: ['', [Validators.required, Validators.minLength(5)]],
-    email: ['', [Validators.email]],
-    branchId: ['', [Validators.required]],
-    role: ['OTHER' as EmployeeRole, [Validators.required]],
-    joinDate: [new Date(), [Validators.required]],
-    dateOfBirth: [null as Date | null],
-    basicPay: [null as number | null],
-    // Checking this requires dateOfBirth (username depends on it) and
-    // only makes sense for a login-eligible role — both enforced in
-    // saveCreate() below, not as static Validators, since they depend
-    // on other fields' current values.
-    createLogin: [false],
-  });
-
-  detailForm = this.fb.group({
+  // ---- Single form shared by both Add and Edit (see the wizard doc
+  // comment above) — status only matters in edit mode (create always
+  // starts ACTIVE server-side); the Personal Information step hides
+  // the control on create.
+  employeeForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     phone: ['', [Validators.required, Validators.minLength(5)]],
     email: ['', [Validators.email]],
@@ -304,53 +379,45 @@ export class Employees implements OnInit {
     role: ['OTHER' as EmployeeRole, [Validators.required]],
     status: ['ACTIVE' as EmploymentStatus],
     joinDate: [new Date(), [Validators.required]],
-    dateOfBirth: [null as Date | null],
+    dateOfBirth: [null as Date | null, [Validators.required]],
     basicPay: [null as number | null],
+    // Create-mode only — requires dateOfBirth (username depends on it),
+    // enforced in saveCreate() below, not as a static Validator, since
+    // it depends on another field's current value.
+    createLogin: [false],
   });
 
-  get cf() {
-    return this.createForm.controls;
-  }
-  get df() {
-    return this.detailForm.controls;
+  get ef() {
+    return this.employeeForm.controls;
   }
 
   // Salary structure — a free-form list of percentage-of-basicPay lines,
   // entirely per-employee (see SalaryComponent model comment on the
-  // backend). Kept as plain signals rather than a FormArray since each
+  // backend). Kept as a plain signal rather than a FormArray since each
   // row is only 3 simple fields and we never need per-field validation
   // messages, just the 0-100 range check the backend also enforces.
-  createComponents = signal<SalaryComponent[]>([]);
-  detailComponents = signal<SalaryComponent[]>([]);
+  components = signal<SalaryComponent[]>([]);
 
-  addComponent(target: 'create' | 'detail'): void {
-    const list = target === 'create' ? this.createComponents : this.detailComponents;
-    list.update((components) => [...components, { name: '', type: 'EARNING', percent: 0 }]);
+  addComponent(): void {
+    this.components.update((list) => [...list, { name: '', type: 'EARNING', percent: 0 }]);
   }
 
   // Backend's SalaryComponentDto validates percent with @IsNumberString
-  // (matching the Prisma Decimal column it's stored in) — the signals
-  // above keep percent as a plain JS number for the live net-pay math
+  // (matching the Prisma Decimal column it's stored in) — the signal
+  // above keeps percent as a plain JS number for the live net-pay math
   // (updateComponentField/basicPay calc), so it has to be stringified
   // right before it goes over the wire, same as basicPay below.
   private toComponentsPayload(components: SalaryComponent[]): SalaryComponent[] {
     return components.map((c) => ({ ...c, percent: String(c.percent) }));
   }
 
-  removeComponent(target: 'create' | 'detail', index: number): void {
-    const list = target === 'create' ? this.createComponents : this.detailComponents;
-    list.update((components) => components.filter((_, i) => i !== index));
+  removeComponent(index: number): void {
+    this.components.update((list) => list.filter((_, i) => i !== index));
   }
 
-  updateComponentField(
-    target: 'create' | 'detail',
-    index: number,
-    field: 'name' | 'type' | 'percent',
-    value: string,
-  ): void {
-    const list = target === 'create' ? this.createComponents : this.detailComponents;
-    list.update((components) =>
-      components.map((component, i) => {
+  updateComponentField(index: number, field: 'name' | 'type' | 'percent', value: string): void {
+    this.components.update((list) =>
+      list.map((component, i) => {
         if (i !== index) {
           return component;
         }
@@ -370,21 +437,18 @@ export class Employees implements OnInit {
   // detection pass (see Header.profileMenuItems), so this stays in sync
   // with both the basicPay form control and the components signal
   // without any extra valueChanges wiring.
-  netPayPreview(target: 'create' | 'detail'): number {
-    const basicPay = Number(
-      (target === 'create' ? this.createForm : this.detailForm).controls.basicPay.value ?? 0,
-    );
-    const components = target === 'create' ? this.createComponents() : this.detailComponents();
+  netPayPreview(): number {
+    const basicPay = Number(this.employeeForm.controls.basicPay.value ?? 0);
     let net = basicPay;
-    for (const component of components) {
+    for (const component of this.components()) {
       const amount = (basicPay * Number(component.percent || 0)) / 100;
       net += component.type === 'DEDUCTION' ? -amount : amount;
     }
     return net;
   }
 
-  private destroyRef = inject(DestroyRef);
-  private pageHeader = inject(PageHeaderService);
+  destroyRef = inject(DestroyRef);
+  pageHeader = inject(PageHeaderService);
 
   ngOnInit(): void {
     this.pageHeader.setTitleKey('employees.title');
@@ -407,12 +471,15 @@ export class Employees implements OnInit {
   openCreate(): void {
     this.errorMessage.set(null);
     this.generatedLogin.set(null);
-    this.createForm.reset({
+    this.detailEmployee.set(null);
+    this.wizardStep.set(0);
+    this.employeeForm.reset({
       name: '',
       phone: '',
       email: '',
       branchId: '',
       role: 'OTHER',
+      status: 'ACTIVE',
       joinDate: new Date(),
       dateOfBirth: null,
       basicPay: null,
@@ -420,32 +487,86 @@ export class Employees implements OnInit {
     });
     // New employees start with a blank salary structure — no template
     // inherited from role or branch.
-    this.createComponents.set([]);
-    this.createDialogVisible.set(true);
+    this.components.set([]);
+    this.employeeCredentials.set(null);
+    this.credentialsError.set(null);
+    this.wizardDialogVisible.set(true);
   }
 
-  closeCreate(): void {
-    this.createDialogVisible.set(false);
+  closeWizard(): void {
+    this.wizardDialogVisible.set(false);
+    this.detailEmployee.set(null);
+    this.employeeCredentials.set(null);
+    this.credentialsError.set(null);
   }
 
-  saveCreate(): void {
+  // Alias — deleteEmployee() below (untouched) still calls this by its
+  // original name.
+  closeDetail(): void {
+    this.closeWizard();
+  }
+
+  /** Whichever of name/dateOfBirth/phone currently differ from the
+   * last-loaded employee record AND that employee already has a login
+   * — drives the inline warning on Personal Information and the
+   * confirm dialog at save(). Empty when creating a new employee, or
+   * editing one with no login yet, since there's nothing to regenerate
+   * in either case. */
+  credentialAffectingChanges(): string[] {
+    const employee = this.detailEmployee();
+    if (!employee || !employee.user) {
+      return [];
+    }
+    const raw = this.employeeForm.getRawValue();
+    const changed: string[] = [];
+    if (raw.name !== employee.name) changed.push(this.i18n.t('employees.fieldName'));
+    const rawDob = raw.dateOfBirth ? raw.dateOfBirth.toISOString().slice(0, 10) : null;
+    const existingDob = employee.dateOfBirth ? employee.dateOfBirth.slice(0, 10) : null;
+    if (rawDob !== existingDob) changed.push(this.i18n.t('employees.fieldDob'));
+    if (raw.phone !== employee.phone) changed.push(this.i18n.t('employees.fieldPhone'));
+    return changed;
+  }
+
+  private loginStepValid(): boolean {
+    // dateOfBirth is now a mandatory field validated on step 0 — this
+    // just guards against a login being requested without it, which
+    // can no longer actually happen, but is kept as a defensive check.
+    const raw = this.employeeForm.getRawValue();
+    if (!this.editingId() && raw.createLogin && !raw.dateOfBirth) {
+      this.errorMessage.set(this.i18n.t('employees.loginNeedsDob'));
+      return false;
+    }
+    return true;
+  }
+
+  save(): void {
     this.errorMessage.set(null);
-    if (this.createForm.invalid) {
-      this.createForm.markAllAsTouched();
+    if (!this.stepValid(this.wizardStep())) {
+      return;
+    }
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
+      const firstInvalidName = Object.keys(this.employeeForm.controls).find(
+        (name) => this.employeeForm.get(name)?.invalid,
+      );
+      this.wizardStep.set(firstInvalidName ? this.stepForControl(firstInvalidName) : 0);
       return;
     }
 
-    const raw = this.createForm.getRawValue();
+    if (this.editingId()) {
+      void this.saveEdit();
+    } else {
+      this.saveCreate();
+    }
+  }
 
-    if (raw.createLogin) {
-      if (!raw.dateOfBirth) {
-        this.errorMessage.set(this.i18n.t('employees.loginNeedsDob'));
-        return;
-      }
-      if (!this.isLoginEligibleRole(raw.role)) {
-        this.errorMessage.set(this.i18n.t('employees.loginNeedsEligibleRole'));
-        return;
-      }
+  private saveCreate(): void {
+    const raw = this.employeeForm.getRawValue();
+
+    if (raw.createLogin && !raw.dateOfBirth) {
+      this.errorMessage.set(this.i18n.t('employees.loginNeedsDob'));
+      this.wizardStep.set(2);
+      return;
     }
 
     this.saving.set(true);
@@ -459,13 +580,13 @@ export class Employees implements OnInit {
       dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth.toISOString() : undefined,
       basicPay: raw.basicPay != null ? String(raw.basicPay) : undefined,
       createLogin: raw.createLogin ?? false,
-      components: this.toComponentsPayload(this.createComponents()),
+      components: this.toComponentsPayload(this.components()),
     };
 
     this.employeeApi.create(payload).subscribe({
       next: (result) => {
         this.saving.set(false);
-        this.createDialogVisible.set(false);
+        this.wizardDialogVisible.set(false);
         this.toast.success(this.i18n.t('employees.createdSuccess'));
         this.loadEmployees();
         // Show the generated credentials once — the password is never
@@ -483,11 +604,70 @@ export class Employees implements OnInit {
     });
   }
 
+  /** Edit save — goes through the credential-regeneration confirm
+   * flow first when name/dateOfBirth/phone changed for an employee
+   * that already has a login (see credentialAffectingChanges()). A
+   * decline blocks the WHOLE save — nothing commits, existing data
+   * stays exactly as it was, same as if Save was never clicked. */
+  private async saveEdit(): Promise<void> {
+    const employee = this.detailEmployee();
+    if (!employee) {
+      return;
+    }
+
+    const changes = this.credentialAffectingChanges();
+    if (changes.length > 0) {
+      const accepted = await this.confirmService.confirm({
+        header: this.i18n.t('employees.credentialRegenHeader'),
+        message: this.i18n.t('employees.credentialRegenMessage').replace('{fields}', changes.join(', ')),
+        acceptLabel: this.i18n.t('common.continue'),
+      });
+      if (!accepted) {
+        return;
+      }
+    }
+
+    const raw = this.employeeForm.getRawValue();
+    this.saving.set(true);
+    const payload: UpdateEmployeePayload = {
+      name: raw.name!,
+      phone: raw.phone!,
+      email: raw.email || undefined,
+      branchId: raw.branchId!,
+      role: raw.role!,
+      status: raw.status!,
+      joinDate: raw.joinDate!.toISOString(),
+      dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth.toISOString() : null,
+      basicPay: raw.basicPay != null ? String(raw.basicPay) : null,
+      components: this.toComponentsPayload(this.components()),
+      confirmCredentialRegeneration: true,
+    };
+
+    this.employeeApi.update(employee.id, payload).subscribe({
+      next: ({ employee: updated, login }) => {
+        this.saving.set(false);
+        this.detailEmployee.set(updated);
+        this.toast.success(this.i18n.t('employees.updatedSuccess'));
+        this.loadEmployees();
+        if (login) {
+          this.generatedLogin.set(login);
+          this.employeeCredentials.set(login);
+        }
+      },
+      error: (err) => {
+        this.saving.set(false);
+        const message = err?.error?.message ?? this.i18n.t('employees.saveError');
+        this.errorMessage.set(Array.isArray(message) ? message.join(' ') : message);
+        this.toast.error(Array.isArray(message) ? message.join(' ') : message);
+      },
+    });
+  }
+
   closeGeneratedLogin(): void {
     this.generatedLogin.set(null);
   }
 
-  /** Retroactive login creation from the detail dialog, for an employee
+  /** Retroactive login creation from the Login step, for an employee
    * that doesn't have one yet. */
   createLoginForEmployee(employee: Employee): void {
     if (!employee.dateOfBirth) {
@@ -520,12 +700,11 @@ export class Employees implements OnInit {
 
   // ---- Detail / edit / timeline ----
 
-  openDetail(employee: Employee): void {
+  openEdit(employee: Employee): void {
     this.errorMessage.set(null);
-    this.detailsExpanded.set(false);
-    this.loginSectionExpanded.set(false);
+    this.wizardStep.set(0);
     this.detailEmployee.set(employee);
-    this.detailDialogVisible.set(true);
+    this.wizardDialogVisible.set(true);
     this.applyDetailForm(employee);
     this.employeeCredentials.set(null);
     this.credentialsError.set(null);
@@ -539,6 +718,13 @@ export class Employees implements OnInit {
       },
       error: () => this.toast.error(this.i18n.t('employees.loadError')),
     });
+  }
+
+  // openDetail() is what the row/menu click handlers already call —
+  // "edit" and "view detail" are the same action now that both live in
+  // one wizard.
+  openDetail(employee: Employee): void {
+    this.openEdit(employee);
   }
 
   /** Fetches the always-visible username/password block — only called
@@ -564,7 +750,7 @@ export class Employees implements OnInit {
   }
 
   private applyDetailForm(employee: Employee): void {
-    this.detailForm.reset({
+    this.employeeForm.reset({
       name: employee.name,
       phone: employee.phone,
       email: employee.email ?? '',
@@ -574,64 +760,31 @@ export class Employees implements OnInit {
       joinDate: new Date(employee.joinDate),
       dateOfBirth: employee.dateOfBirth ? new Date(employee.dateOfBirth) : null,
       basicPay: employee.basicPay != null ? Number(employee.basicPay) : null,
+      createLogin: false,
     });
-    this.detailComponents.set(employee.salaryComponents ?? []);
-  }
-
-  closeDetail(): void {
-    this.detailDialogVisible.set(false);
-    this.detailEmployee.set(null);
-    this.employeeCredentials.set(null);
-    this.credentialsError.set(null);
-  }
-
-  saveDetail(): void {
-    this.errorMessage.set(null);
-    if (this.detailForm.invalid) {
-      this.detailForm.markAllAsTouched();
-      return;
-    }
-
-    const employee = this.detailEmployee();
-    if (!employee) {
-      return;
-    }
-
-    const raw = this.detailForm.getRawValue();
-    this.saving.set(true);
-    const payload: Partial<EmployeePayload> = {
-      name: raw.name!,
-      phone: raw.phone!,
-      email: raw.email || undefined,
-      branchId: raw.branchId!,
-      role: raw.role!,
-      status: raw.status!,
-      joinDate: raw.joinDate!.toISOString(),
-      dateOfBirth: raw.dateOfBirth ? raw.dateOfBirth.toISOString() : null,
-      basicPay: raw.basicPay != null ? String(raw.basicPay) : null,
-      components: this.toComponentsPayload(this.detailComponents()),
-    };
-
-    this.employeeApi.update(employee.id, payload).subscribe({
-      next: (updated) => {
-        this.saving.set(false);
-        this.detailEmployee.set(updated);
-        this.toast.success(this.i18n.t('employees.updatedSuccess'));
-        this.loadEmployees();
-      },
-      error: (err) => {
-        this.saving.set(false);
-        const message = err?.error?.message ?? this.i18n.t('employees.saveError');
-        this.errorMessage.set(Array.isArray(message) ? message.join(' ') : message);
-        this.toast.error(Array.isArray(message) ? message.join(' ') : message);
-      },
-    });
+    this.components.set(employee.salaryComponents ?? []);
   }
 
   // ---- Performance: reviews (logged ad hoc, no fixed cadence) and
   // appraisals (a pay change + generated letter). Both ride on the
   // EMPLOYEES permission — see PerformanceController — same as the
-  // rest of this screen. ----
+  // rest of this screen. Performance now lives entirely behind its own
+  // "Performance" row-menu entry (see menuItems above) rather than
+  // inline in the edit wizard — openPerformance() opens a small hub
+  // dialog with two clickable options (Reviews / Appraisals), each of
+  // which opens its own existing list dialog. ----
+
+  performanceHubDialogVisible = signal(false);
+
+  openPerformance(employee: Employee): void {
+    this.detailEmployee.set(employee);
+    this.loadPerformance(employee.id);
+    this.performanceHubDialogVisible.set(true);
+  }
+
+  closePerformanceHub(): void {
+    this.performanceHubDialogVisible.set(false);
+  }
 
   reviews = signal<Review[]>([]);
   appraisals = signal<Appraisal[]>([]);

@@ -1186,3 +1186,141 @@
 :host-context(.my-app-dark) .employee-login-accordion {
   border-top-color: #1f2937;
 }
+
+/* ---- Add/edit wizard (3 steps: Personal / Salary / Login) ---- */
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  margin: 0 0 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.wizard-step-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  cursor: default;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.wizard-step-chip.clickable {
+  cursor: pointer;
+}
+
+.wizard-step-chip.active,
+.wizard-step-chip.done {
+  opacity: 1;
+}
+
+.wizard-step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--p-content-background, #f3f4f6);
+  border: 2px solid var(--p-content-border-color, #d1d5db);
+  color: var(--p-text-muted-color, #6b7280);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-step-chip.active .wizard-step-circle {
+  background: var(--p-primary-color, #2563eb);
+  border-color: var(--p-primary-color, #2563eb);
+  color: #ffffff;
+}
+
+.wizard-step-chip.done .wizard-step-circle {
+  background: var(--p-green-500, #22c55e);
+  border-color: var(--p-green-500, #22c55e);
+  color: #ffffff;
+}
+
+.wizard-step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wizard-step-connector {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--p-content-border-color, #d1d5db);
+  margin: 0 -0.25rem;
+  margin-bottom: 1.1rem;
+  transition: background 0.15s ease;
+}
+
+.wizard-step-connector.done {
+  background: var(--p-green-500, #22c55e);
+}
+
+.wizard-step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 14rem;
+}
+
+.wizard-actions {
+  justify-content: space-between;
+}
+
+.wizard-actions-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ---- Dark mode (wizard) ---- */
+
+:host-context(.my-app-dark) .wizard-step-circle {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.my-app-dark) .wizard-step-connector {
+  background: #1f2937;
+}
+
+/* ---- Performance hub dialog (reached from the row menu) ---- */
+
+.performance-hub-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.performance-hub-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.performance-hub-option-main {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.performance-hub-option-action {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+:host-context(.my-app-dark) .performance-hub-option {
+  border-color: #1f2937;
+}

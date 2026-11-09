@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Home } from '@primeicons/angular/home';
 import { Building } from '@primeicons/angular/building';
@@ -11,21 +11,11 @@ import { Shield } from '@primeicons/angular/shield';
 import { Tags } from '@primeicons/angular/tags';
 import { Percentage } from '@primeicons/angular/percentage';
 import { ListCheck } from '@primeicons/angular/list-check';
-import { ButtonModule } from 'primeng/button';
-import { MenuModule } from 'primeng/menu';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuItem } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { PermissionsService, PermissionScreen } from '../../core/roles/permissions.service';
-import { SubscriptionStatusService } from '../../core/auth/subscription-status.service';
 import { TokenStorage } from '../../core/auth/token-storage.service';
-import { AuthApiService } from '../../core/auth/auth-api.service';
-import { SettingsDialog } from '../settings-dialog/settings-dialog';
-import { VersionDialog } from '../version-dialog/version-dialog';
-import { TranslationService } from '../../core/i18n/translation.service';
-import { ToastService } from '../../core/toast/toast.service';
 import { TodoBadgeService } from '../../core/todo/todo-badge.service';
 import { SidebarStateService } from './sidebar-state.service';
 
@@ -61,9 +51,9 @@ interface NavGroup {
  * Business, Workforce, Admin) exactly like the old top nav did — every
  * group's items are always shown (no accordion to click through), so
  * the whole nav is visible at a glance. Dashboard and My Workspace are
- * standalone entries, same as before. The profile menu (with
- * settings/version/logout) lives in the footer instead of a top bar,
- * since the brand + primary identity now both live in this rail. On
+ * standalone entries, same as before. The user's own profile menu (settings/version/logout) now lives in
+ * the header's top-right avatar instead (see shared/header +
+ * shared/org-info-dialog) — this rail is purely navigation. On
  * small screens it becomes an off-canvas drawer instead (see
  * SidebarStateService + the 768px breakpoint in sidebar.css).
  */
@@ -85,24 +75,15 @@ interface NavGroup {
     Percentage,
     ListCheck,
     TranslatePipe,
-    ButtonModule,
-    MenuModule,
-    AvatarModule,
     TooltipModule,
-    SettingsDialog,
-    VersionDialog,
   ],
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css'],
 })
 export class Sidebar {
   private permissions = inject(PermissionsService);
-  private subscriptionStatus = inject(SubscriptionStatusService);
   private tokenStorage = inject(TokenStorage);
-  private authApi = inject(AuthApiService);
   private router = inject(Router);
-  private i18n = inject(TranslationService);
-  private toast = inject(ToastService);
   private todoBadge = inject(TodoBadgeService);
   // Collapse/expand + mobile drawer state now live here so the header's
   // nav-toggle button (see shared/header) can drive the same state.
@@ -120,74 +101,6 @@ export class Sidebar {
   // `collapsed` was left true from an earlier desktop session, since
   // an icon-only strip isn't usable as a phone drawer.
   showLabels = computed(() => !this.state.collapsed() || this.state.mobileOpen());
-
-  settingsVisible = signal(false);
-  versionVisible = signal(false);
-
-  get userEmail(): string {
-    return this.tokenStorage.getEmail() ?? '';
-  }
-
-  get userInitial(): string {
-    return (this.userEmail || 'U').charAt(0).toUpperCase();
-  }
-
-  private static readonly ROLE_LABELS: Record<string, string> = {
-    OWNER: 'Owner',
-    BRANCH_MANAGER: 'Branch Manager',
-    TRAINER: 'Trainer',
-    FRONT_DESK: 'Front Desk',
-  };
-
-  get userRoleLabel(): string {
-    const role = this.tokenStorage.getRole();
-    return role ? (Sidebar.ROLE_LABELS[role] ?? role) : '';
-  }
-
-  // A getter (not a fixed array) so the labels are re-translated on every
-  // change-detection pass — including right after the language changes.
-  get profileMenuItems(): MenuItem[] {
-    return [
-      { label: this.i18n.t('common.profile'), icon: 'pi pi-user' },
-      {
-        label: this.i18n.t('common.settings'),
-        icon: 'pi pi-cog',
-        command: () => this.openSettings(),
-      },
-      {
-        label: this.i18n.t('common.deployedVersion'),
-        icon: 'pi pi-info-circle',
-        command: () => this.openVersion(),
-      },
-      { separator: true },
-      {
-        label: this.i18n.t('common.logout'),
-        icon: 'pi pi-sign-out',
-        command: () => this.logout(),
-      },
-    ];
-  }
-
-  openSettings(): void {
-    this.settingsVisible.set(true);
-  }
-
-  openVersion(): void {
-    this.versionVisible.set(true);
-  }
-
-  private logout(): void {
-    // Best effort — clears this login's server-side session marker so
-    // the token can't be reused and a same-device re-login afterward
-    // isn't mistaken for a "signed in elsewhere" kickout. The local
-    // logout below happens either way, even if this call fails.
-    this.authApi.logout().subscribe({ next: () => {}, error: () => {} });
-    this.tokenStorage.clear();
-    this.permissions.clear();
-    this.subscriptionStatus.clear();
-    this.toast.success('You have been logged out.');
-    this.router.navigateByUrl('/login');
-  }
 
   readonly dashboard: NavLeaf = {
     labelKey: 'common.dashboard',
