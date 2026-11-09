@@ -74,7 +74,14 @@
     <div class="pricing-header">
       <div>
         <h2>Choose your plan</h2>
-        <p class="pricing-subtitle">Pricing scales with how many members you manage — your branch allowance rides along with it. Upgrades only; you can always move up, never down.</p>
+        <p class="pricing-subtitle">
+          Pricing scales with branches, members and employees together.
+          @if (isTrialing()) {
+            You're on a free trial — switch freely between any plan that fits what you already have.
+          } @else {
+            Upgrades only; you can always move up, never down.
+          }
+        </p>
       </div>
 
       <div class="cycle-toggle">
@@ -129,9 +136,9 @@
               <i class="pi pi-check feature-check"></i>
               Up to {{ t.maxMembers === Infinity ? 'unlimited' : (t.maxMembers | number) }} members
             </li>
-            <li [class.feature-muted]="!t.staffLoginsUnlimited">
-              <i class="pi" [ngClass]="t.staffLoginsUnlimited ? 'pi-check feature-check' : 'pi-times feature-x'"></i>
-              Staff / trainer logins
+            <li>
+              <i class="pi pi-check feature-check"></i>
+              Up to {{ t.maxEmployees === Infinity ? 'unlimited' : t.maxEmployees }} employees
             </li>
             <li [class.feature-muted]="!t.biometricAttendance">
               <i class="pi" [ngClass]="t.biometricAttendance ? 'pi-check feature-check' : 'pi-times feature-x'"></i>
@@ -144,6 +151,16 @@
               <p-button label="Current plan" [disabled]="true" styleClass="w-full" severity="secondary" [outlined]="true"></p-button>
             } @else if (t.tier === 'ENTERPRISE') {
               <p-button label="Contact us" (onClick)="upgrade(t.tier)" styleClass="w-full" severity="secondary"></p-button>
+            } @else if (isTrialing() && isTrialSelectable(t.tier)) {
+              <p-button
+                label="Select plan"
+                icon="pi pi-check"
+                (onClick)="selectPlan(t.tier)"
+                [loading]="selectingPlanTier() === t.tier"
+                styleClass="w-full"
+                severity="secondary"
+                [outlined]="true"
+              ></p-button>
             } @else if (isUpgradeTarget(t.tier)) {
               <p-button
                 label="Upgrade"
@@ -151,6 +168,16 @@
                 (onClick)="upgrade(t.tier)"
                 [loading]="checkingOutTier() === t.tier"
                 styleClass="w-full"
+              ></p-button>
+            } @else if (!fitsUsage(t.tier)) {
+              <p-button
+                label="Doesn't fit your usage"
+                [disabled]="true"
+                severity="secondary"
+                [outlined]="true"
+                styleClass="w-full"
+                pTooltip="This plan's branch/member/employee limits are below what your organization already has."
+                tooltipPosition="top"
               ></p-button>
             } @else {
               <p-button label="Not available" [disabled]="true" severity="secondary" [outlined]="true" styleClass="w-full"></p-button>

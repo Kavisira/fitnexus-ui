@@ -28,8 +28,9 @@ import { Attendance } from './pages/auth/attendance/attendance';
 import { Alerts } from './pages/auth/alerts/alerts';
 import { Billing } from './pages/auth/billing/billing';
 import { Placeholder } from './shared/placeholder/placeholder';
-import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard, subscriptionGuard } from './core/auth/auth.guard';
+import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard, planSelectionGuard, subscriptionGuard } from './core/auth/auth.guard';
 import { SubscriptionLocked } from './pages/auth/subscription-locked/subscription-locked';
+import { SelectPlan } from './pages/auth/select-plan/select-plan';
 
 export const routes: Routes = [
   // Public (no auth required) routes. noAuthGuard bounces an already
@@ -85,13 +86,26 @@ export const routes: Routes = [
     canActivate: [authGuard],
     title: 'Subscription expired · FitNexus',
   },
+  // Mandatory post-registration gate — same "outside Layout, still
+  // behind authGuard" pattern as subscription-locked above. A
+  // brand-new org has subscriptionTier left unset by AuthService
+  // .register; planSelectionGuard (below) sends every other nested
+  // navigation here until BillingService.selectTrialPlan assigns one.
+  {
+    path: 'select-plan',
+    component: SelectPlan,
+    canActivate: [authGuard],
+    title: 'Choose your plan · FitNexus',
+  },
   {
     path: '',
     component: Layout,
     canActivate: [authGuard],
-    // subscriptionGuard runs first and short-circuits firstBranchGuard
-    // when expired (see its own doc comment in auth.guard.ts).
-    canActivateChild: [subscriptionGuard, firstBranchGuard],
+    // planSelectionGuard runs first (an org with no tier yet should
+    // never even reach the subscription-expiry check), then
+    // subscriptionGuard, both short-circuiting firstBranchGuard when
+    // they redirect (see each guard's own doc comment in auth.guard.ts).
+    canActivateChild: [planSelectionGuard, subscriptionGuard, firstBranchGuard],
     children: [
       {
         path: 'dashboard',

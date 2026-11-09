@@ -5,6 +5,10 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config/api.config';
 import { SubscriptionSummary } from '../billing/billing-api.service';
 
+// No subscriptionTier here — registration never chooses a plan.
+// planSelectionGuard (auth.guard.ts) forces /select-plan before the
+// dashboard is reachable for any org whose tier is still unset; that
+// page's own selectTrialPlan call is the only thing that assigns one.
 export interface RegisterPayload {
   ownerName: string;
   organizationName: string;

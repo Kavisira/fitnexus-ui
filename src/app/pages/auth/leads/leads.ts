@@ -14,6 +14,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { AvatarModule } from 'primeng/avatar';
+import { TabsModule } from 'primeng/tabs';
 
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { TranslationService } from '../../../core/i18n/translation.service';
@@ -66,6 +67,7 @@ const STATUS_SEVERITY: Record<LeadStatus, StatusSeverity> = {
     TooltipModule,
     CardModule,
     AvatarModule,
+    TabsModule,
     FilterPanel,
     TranslatePipe,
   ],
@@ -140,7 +142,7 @@ export class Leads implements OnInit {
   // lead exists, so the edit-details form starts collapsed and only
   // expands on request — the accordion's own open/closed state, reset
   // to collapsed each time a lead is opened (see openDetail).
-  detailsExpanded = signal(false);
+  detailTab = signal('0');
 
   sourceOptions = LEAD_SOURCES;
 
@@ -429,7 +431,7 @@ export class Leads implements OnInit {
     this.errorMessage.set(null);
     this.noteText.set('');
     this.noteFollowUpAt.set(null);
-    this.detailsExpanded.set(false);
+    this.detailTab.set('0');
     this.detailLead.set(lead);
     this.detailDialogVisible.set(true);
     this.applyDetailForm(lead);

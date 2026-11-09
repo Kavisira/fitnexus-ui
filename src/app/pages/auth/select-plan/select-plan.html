@@ -1,0 +1,62 @@
+<div class="select-plan-screen">
+  <div class="select-plan-wrap">
+    <div class="select-plan-header">
+      <h1>Choose your plan</h1>
+      @if (isOwner) {
+        <p>Every plan starts with a free 30-day trial, scoped to the plan you pick — no card required. You can switch to a different fitting plan anytime during the trial.</p>
+      } @else {
+        <p>Your organization's owner still needs to pick a plan before this account can continue. Please check with them.</p>
+      }
+    </div>
+
+    @if (isOwner) {
+      <div class="plan-grid">
+        @for (plan of plans; track plan.tier) {
+          <div class="plan-card" [class.popular]="plan.popular">
+            @if (plan.popular) {
+              <span class="popular-badge">Recommended</span>
+            }
+            <div class="plan-card-head">
+              <span class="plan-name">{{ plan.label }}</span>
+              <div class="plan-price">
+                <span class="price">₹{{ plan.monthlyPriceInr | number }}</span>
+                <span class="price-period">/mo</span>
+              </div>
+              <span class="plan-tagline">{{ plan.tagline }}</span>
+            </div>
+
+            <div class="plan-divider"></div>
+
+            <ul class="plan-features">
+              <li><i class="pi pi-check"></i> {{ plan.maxBranches === 1 ? '1 branch' : plan.maxBranches + ' branches' }}</li>
+              <li><i class="pi pi-check"></i> Up to {{ plan.maxMembers | number }} members</li>
+              <li><i class="pi pi-check"></i> Up to {{ plan.maxEmployees }} employees</li>
+              <li [class.muted]="!plan.biometricAttendance">
+                <i class="pi" [class.pi-check]="plan.biometricAttendance" [class.pi-times]="!plan.biometricAttendance"></i>
+                Biometric attendance
+              </li>
+            </ul>
+
+            <p-button
+              [label]="selecting() === plan.tier ? 'Starting…' : 'Start free trial'"
+              [loading]="selecting() === plan.tier"
+              [disabled]="selecting() !== null"
+              styleClass="w-full"
+              (onClick)="choose(plan.tier)"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="enterprise-strip">
+        <div class="enterprise-text">
+          <span class="enterprise-title">Running a large chain?</span>
+          <span class="enterprise-sub">Enterprise is a custom plan with no fixed caps — set up by our team, not through self-serve checkout.</span>
+        </div>
+        <a href="mailto:support@fitnexus.app" class="enterprise-link">Contact sales →</a>
+      </div>
+    }
+
+    <button type="button" class="logout-link" (click)="logout()">Log out</button>
+  </div>
+</div>

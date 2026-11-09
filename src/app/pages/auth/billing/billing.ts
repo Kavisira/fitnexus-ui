@@ -6,6 +6,7 @@ import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { PageHeaderService } from '../../../shared/page-header/page-header.service';
 import { SubscriptionStatusService } from '../../../core/auth/subscription-status.service';
@@ -27,25 +28,22 @@ interface TierOption {
   monthlyPriceInr: number | null;
   maxBranches: number;
   maxMembers: number;
-  staffLoginsUnlimited: boolean;
+  maxEmployees: number;
   biometricAttendance: boolean;
   popular?: boolean;
 }
 
 // Mirrors billing.constants.ts on the backend exactly — this is display
-// data only (what the upgrade cards show); the backend is the only
+// data only (what the pricing cards show); the backend is the only
 // place that actually enforces prices/limits, so a mismatch here is
 // cosmetic, never a security issue.
 const TIER_OPTIONS: TierOption[] = [
-  { tier: 'BASIC', label: 'Basic', tagline: 'A single branch just getting started', icon: 'pi-home', monthlyPriceInr: 500, maxBranches: 1, maxMembers: 200, staffLoginsUnlimited: false, biometricAttendance: false },
-  { tier: 'STARTER', label: 'Starter', tagline: 'Add staff logins for your front desk & trainers', icon: 'pi-sparkles', monthlyPriceInr: 600, maxBranches: 1, maxMembers: 200, staffLoginsUnlimited: true, biometricAttendance: false },
-  { tier: 'PLUS', label: 'Plus', tagline: 'A second branch with biometric attendance', icon: 'pi-building', monthlyPriceInr: 800, maxBranches: 2, maxMembers: 500, staffLoginsUnlimited: true, biometricAttendance: true },
-  { tier: 'PLUS_PLUS', label: 'Plus+', tagline: 'More room to grow your member base', icon: 'pi-building', monthlyPriceInr: 1000, maxBranches: 2, maxMembers: 1000, staffLoginsUnlimited: true, biometricAttendance: true },
-  { tier: 'PRO', label: 'Pro', tagline: 'Our most popular plan for growing gyms', icon: 'pi-star', monthlyPriceInr: 1500, maxBranches: 3, maxMembers: 2000, staffLoginsUnlimited: true, biometricAttendance: true, popular: true },
-  { tier: 'GROWTH', label: 'Growth', tagline: 'Multiple branches, thousands of members', icon: 'pi-chart-line', monthlyPriceInr: 3000, maxBranches: 5, maxMembers: 3500, staffLoginsUnlimited: true, biometricAttendance: true },
-  { tier: 'GROWTH_PLUS', label: 'Growth+', tagline: 'For established multi-branch chains', icon: 'pi-chart-line', monthlyPriceInr: 5500, maxBranches: 7, maxMembers: 5000, staffLoginsUnlimited: true, biometricAttendance: true },
-  { tier: 'SCALE', label: 'Scale', tagline: 'Our largest self-serve plan', icon: 'pi-crown', monthlyPriceInr: 9000, maxBranches: 10, maxMembers: 10000, staffLoginsUnlimited: true, biometricAttendance: true },
-  { tier: 'ENTERPRISE', label: 'Enterprise', tagline: 'Custom limits, tailored to your chain', icon: 'pi-globe', monthlyPriceInr: null, maxBranches: Infinity, maxMembers: Infinity, staffLoginsUnlimited: true, biometricAttendance: true },
+  { tier: 'STARTER', label: 'Starter', tagline: 'A single branch just getting started', icon: 'pi-home', monthlyPriceInr: 700, maxBranches: 1, maxMembers: 300, maxEmployees: 5, biometricAttendance: false },
+  { tier: 'PLUS', label: 'Plus', tagline: 'A second branch and more staff on payroll', icon: 'pi-building', monthlyPriceInr: 1300, maxBranches: 2, maxMembers: 800, maxEmployees: 12, biometricAttendance: false },
+  { tier: 'GROWTH', label: 'Growth', tagline: 'Biometric attendance and room to add branches', icon: 'pi-chart-line', monthlyPriceInr: 2500, maxBranches: 3, maxMembers: 2000, maxEmployees: 25, biometricAttendance: true, popular: true },
+  { tier: 'PRO', label: 'Pro', tagline: 'For an established, growing multi-branch chain', icon: 'pi-star', monthlyPriceInr: 4500, maxBranches: 5, maxMembers: 5000, maxEmployees: 60, biometricAttendance: true },
+  { tier: 'SCALE', label: 'Scale', tagline: 'Our largest self-serve plan', icon: 'pi-crown', monthlyPriceInr: 7000, maxBranches: 10, maxMembers: 10000, maxEmployees: 150, biometricAttendance: true },
+  { tier: 'ENTERPRISE', label: 'Enterprise', tagline: 'Custom limits, tailored to your chain', icon: 'pi-globe', monthlyPriceInr: null, maxBranches: Infinity, maxMembers: Infinity, maxEmployees: Infinity, biometricAttendance: true },
 ];
 
 const SELF_SERVE_ORDER: SubscriptionTier[] = TIER_OPTIONS.filter((t) => t.tier !== 'ENTERPRISE').map((t) => t.tier);
@@ -66,7 +64,7 @@ const STATUS_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TagModule, CardModule, ProgressBarModule, DialogModule],
+  imports: [CommonModule, ButtonModule, TagModule, CardModule, ProgressBarModule, DialogModule, TooltipModule],
   templateUrl: './billing.html',
   styleUrls: ['./billing.css'],
 })
@@ -107,6 +105,14 @@ export class Billing implements OnInit {
 
   tiers = TIER_OPTIONS;
   statusLabels = STATUS_LABELS;
+  // Which self-serve tiers fit this org's current usage (branches/
+  // members/employees already created) — see
+  // BillingApiService.eligibleTiers. A brand-new org with no usage
+  // yet has every tier eligible; an org that's grown past a smaller
+  // tier's caps has that tier (and anything below it) disabled, with
+  // a reason shown instead of a silent greyed-out button.
+  eligibleTierSet = signal<Set<SubscriptionTier>>(new Set());
+  selectingPlanTier = signal<SubscriptionTier | null>(null);
   history = signal<SubscriptionEvent[]>([]);
   historyLoading = signal(true);
   historyVisible = signal(false);
@@ -211,6 +217,22 @@ export class Billing implements OnInit {
         this.toast.error('Could not load subscription status.');
       },
     });
+    this.billingApi.eligibleTiers().subscribe({
+      next: (rows) => {
+        this.eligibleTierSet.set(new Set(rows.filter((r) => r.eligible).map((r) => r.tier)));
+      },
+      // Fails open — an org whose eligibility check errored shouldn't
+      // have every tier look disabled; worst case a pick that doesn't
+      // actually fit still 403s server-side with a clear message.
+      error: () => this.eligibleTierSet.set(new Set(this.tiers.map((t) => t.tier))),
+    });
+  }
+
+  /** Does this tier's limits actually cover what the org already has?
+   * Independent of upgrade-direction — a brand-new TRIALING org can
+   * freely move between any two usage-fitting tiers, up or down. */
+  fitsUsage(tier: SubscriptionTier): boolean {
+    return this.eligibleTierSet().has(tier);
   }
 
   // Loaded lazily — only fetched the first time the owner opens the
@@ -244,15 +266,43 @@ export class Billing implements OnInit {
     return new Date(iso).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  // An org on TRIALING or with no tier yet can move to anything;
-  // otherwise only a strictly-higher tier is selectable — mirrors
-  // SELF_SERVE_TIER_ORDER validation on the backend so the button
-  // disables itself instead of letting the owner hit a 403.
+  // Still on the free trial — plan changes here are free (select-
+  // trial-plan), not a Cashfree checkout, and can move up OR down as
+  // long as the target tier fits current usage (fitsUsage above).
+  isTrialing(): boolean {
+    return this.status()?.status === 'TRIALING';
+  }
+
+  // Once actually paying, self-serve stays strictly upgrade-only —
+  // mirrors SELF_SERVE_TIER_ORDER validation on the backend so the
+  // button disables itself instead of letting the owner hit a 403.
   isUpgradeTarget(tier: SubscriptionTier): boolean {
     if (tier === 'ENTERPRISE') return false;
+    if (!this.fitsUsage(tier)) return false;
     const current = this.status()?.tier;
     if (!current) return true;
     return SELF_SERVE_ORDER.indexOf(tier) > SELF_SERVE_ORDER.indexOf(current);
+  }
+
+  // Selectable right now via the free trial-plan switch — any tier
+  // that fits current usage, not just a higher one.
+  isTrialSelectable(tier: SubscriptionTier): boolean {
+    return tier !== 'ENTERPRISE' && this.fitsUsage(tier);
+  }
+
+  selectPlan(tier: SubscriptionTier): void {
+    this.selectingPlanTier.set(tier);
+    this.billingApi.selectTrialPlan(tier).subscribe({
+      next: () => {
+        this.selectingPlanTier.set(null);
+        this.toast.success(`Your trial is now on ${tier}.`);
+        this.load();
+      },
+      error: (err) => {
+        this.selectingPlanTier.set(null);
+        this.toast.error(err?.error?.message ?? 'Could not switch plans.');
+      },
+    });
   }
 
   annualPriceInr(monthly: number | null): number | null {
