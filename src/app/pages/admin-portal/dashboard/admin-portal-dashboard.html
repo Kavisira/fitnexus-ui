@@ -1,0 +1,311 @@
+<div class="admin-portal-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="pi pi-bolt"></i></div>
+      <div>
+        <div class="brand-title">FitNexus Platform</div>
+        <div class="brand-sub">Operator overview — every organization, one screen</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <p-button label="Expenses" icon="pi pi-receipt" severity="secondary" [text]="true" routerLink="/admin-portal/expenses" />
+      <app-theme-toggle />
+      <p-button icon="pi pi-refresh" [text]="true" severity="secondary" (onClick)="load()" />
+      <p-button label="Log out" icon="pi pi-sign-out" severity="secondary" [text]="true" (onClick)="logout()" />
+    </div>
+  </header>
+<div class="admin-portal-body">
+  @if (loading()) {
+    <div class="state-message">Loading…</div>
+  } @else if (errorMessage()) {
+    <div class="state-message error">{{ errorMessage() }}</div>
+  } @else if (overview(); as data) {
+    <div class="kpi-grid">
+      <div class="kpi-card accent-blue clickable" (click)="openOrgDetail('all', 'All organizations')">
+        <div class="kpi-icon"><i class="pi pi-building"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Total organizations</div>
+          <div class="kpi-value">{{ data.totalOrganizations }}</div>
+          <div class="kpi-sub">
+            <a (click)="$event.stopPropagation(); openOrgDetail('trialing', 'Currently trialing')">{{ data.trialingCount }} currently trialing</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-green clickable" (click)="openOrgDetail('signups7', 'Signups — last 7 days')">
+        <div class="kpi-icon"><i class="pi pi-user-plus"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Signups, last 7 days</div>
+          <div class="kpi-value">
+            {{ data.signupsLast7Days }}
+            <span
+              class="delta"
+              [class.up]="data.signupWowDeltaPct >= 0"
+              [class.down]="data.signupWowDeltaPct < 0"
+            >
+              <i class="pi" [class.pi-arrow-up]="data.signupWowDeltaPct >= 0" [class.pi-arrow-down]="data.signupWowDeltaPct < 0"></i>
+              {{ data.signupWowDeltaPct | number: '1.0-1' }}%
+            </span>
+          </div>
+          <div class="kpi-sub">
+            <a (click)="$event.stopPropagation(); openOrgDetail('signups30', 'Signups — last 30 days')">{{ data.signupsLast30Days }} in the last 30 days</a> · vs. previous week
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-amber clickable" (click)="openOrgDetail('activePaying', 'Active paying organizations')">
+        <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Estimated MRR</div>
+          <div class="kpi-value">₹{{ data.mrrInr | number }}</div>
+          <div class="kpi-sub">{{ data.activePayingCount }} paying · ₹{{ data.arpaInr | number }} avg / org</div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-purple clickable" (click)="openCheckoutDetail('started', 'Checkout attempts — last 30 days')">
+        <div class="kpi-icon"><i class="pi pi-sync"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Checkout attempts (30d)</div>
+          <div class="kpi-value">{{ data.checkoutFunnel.started }}</div>
+          <div class="kpi-sub">
+            <a (click)="$event.stopPropagation(); openCheckoutDetail('converted', 'Checkout — converted')">{{ data.checkoutFunnel.converted }} converted</a> ·
+            <a class="warn-text" (click)="$event.stopPropagation(); openCheckoutDetail('failed', 'Checkout — failed')">{{ data.checkoutFunnel.failed }} failed</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-teal clickable" (click)="openOrgDetail('trialing', 'Currently trialing')">
+        <div class="kpi-icon"><i class="pi pi-percentage"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Trial → paid rate</div>
+          <div class="kpi-value">{{ data.trialToPaidRate !== null ? (data.trialToPaidRate + '%') : '—' }}</div>
+          <div class="kpi-sub">Of orgs whose trial has ended</div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-red clickable" (click)="openOrgDetail('churned30', 'Churned — last 30 days')">
+        <div class="kpi-icon"><i class="pi pi-user-minus"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Churned, last 30 days</div>
+          <div class="kpi-value">{{ data.churnedLast30Days }}</div>
+          <div class="kpi-sub">Cancelled or expired</div>
+        </div>
+      </div>
+
+      <div
+        class="kpi-card clickable"
+        [class.accent-green]="data.monthlyProfitInr >= 0"
+        [class.accent-red]="data.monthlyProfitInr < 0"
+        (click)="openOrgDetail('activePaying', 'Active paying organizations (MRR driver)')"
+      >
+        <div class="kpi-icon"><i class="pi pi-chart-line"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Est. monthly profit</div>
+          <div class="kpi-value" [class.profit-positive]="data.monthlyProfitInr >= 0" [class.profit-negative]="data.monthlyProfitInr < 0">
+            ₹{{ data.monthlyProfitInr | number }}
+          </div>
+          <div class="kpi-sub">
+            MRR ₹{{ data.mrrInr | number }} − costs
+            <a (click)="$event.stopPropagation()" routerLink="/admin-portal/expenses">₹{{ data.monthlyRecurringExpenseInr | number }}/mo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card accent-purple clickable" routerLink="/admin-portal/expenses">
+        <div class="kpi-icon"><i class="pi pi-shopping-bag"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">One-time spend (lifetime)</div>
+          <div class="kpi-value">₹{{ data.totalOneTimeExpenseInr | number }}</div>
+          <div class="kpi-sub">Dev work, one-off campaigns, setup fees — <a routerLink="/admin-portal/expenses">manage</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Plan-wise breakdown</div>
+    <div class="tier-grid">
+      @for (t of tierCards(); track t.tier) {
+        <div
+          class="tier-card clickable"
+          [style.borderLeftColor]="t.color"
+          (click)="openOrgDetail('tier:' + t.tier, 'Organizations — ' + t.tier + ' tier')"
+        >
+          <div class="tier-name">{{ t.tier }}</div>
+          <div class="tier-orgs">{{ t.orgCount }} org{{ t.orgCount === 1 ? '' : 's' }}</div>
+          @if (t.tier === 'ENTERPRISE') {
+            <div class="tier-mrr">Custom pricing</div>
+          } @else {
+            <div class="tier-mrr">₹{{ t.mrrInr | number }}<span class="tier-mrr-label">/mo</span></div>
+          }
+          <div class="tier-sub">{{ t.activePaying }} active paying</div>
+        </div>
+      }
+      
+    </div>
+
+    <div class="chart-grid">
+      <p-card header="Signups — last 30 days" styleClass="chart-card wide">
+        <div class="chart-holder">
+          <p-chart type="line" [data]="signupChartData()" [options]="lineChartOptions()" height="220px" />
+        </div>
+      </p-card>
+
+      <p-card header="Subscription mix" styleClass="chart-card">
+        <div class="chart-holder">
+          <p-chart type="doughnut" [data]="statusChartData()" [options]="doughnutOptions()" height="220px" (onDataSelect)="onStatusSliceSelect($event, data)" />
+        </div>
+        <div class="chart-hint">Click a slice to see those organizations</div>
+      </p-card>
+
+      <p-card header="Tier mix" styleClass="chart-card">
+        <div class="chart-holder">
+          <p-chart type="doughnut" [data]="tierChartData()" [options]="doughnutOptions()" height="220px" (onDataSelect)="onTierSliceSelect($event, data)" />
+        </div>
+        <div class="chart-hint">Click a slice to see those organizations</div>
+      </p-card>
+    </div>
+
+    <p-card styleClass="recent-card">
+      <div class="recent-header">
+        <div class="recent-title">Recent signups</div>
+        <p-iconfield iconPosition="left" class="search-field">
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" placeholder="Search by org, owner or email" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+        </p-iconfield>
+      </div>
+
+      <div class="filter-bar">
+        <p-select
+          [options]="statusFilterOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="statusFilter.set($event)"
+          placeholder="Status"
+          appendTo="body"
+        />
+        <p-datepicker [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)" placeholder="From date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+        <p-datepicker [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)" placeholder="To date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+        <p-button label="Clear" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="clearOrgFilters()" />
+      </div>
+
+      <p-table appTableScrollShadow [value]="filteredOrganizations()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 20, 50]" [scrollable]="true" scrollHeight="480px">
+        <ng-template #header>
+          <tr>
+            <th pSortableColumn="name">Organization <p-sort-icon field="name" /></th>
+            <th pSortableColumn="ownerName">Owner <p-sort-icon field="ownerName" /></th>
+            <th pSortableColumn="email">Email <p-sort-icon field="email" /></th>
+            <th pSortableColumn="subscriptionTier">Tier <p-sort-icon field="subscriptionTier" /></th>
+            <th pSortableColumn="subscriptionStatus">Status <p-sort-icon field="subscriptionStatus" /></th>
+            <th pSortableColumn="branchCount">Branches <p-sort-icon field="branchCount" /></th>
+            <th pSortableColumn="memberCount">Members <p-sort-icon field="memberCount" /></th>
+            <th pSortableColumn="employeeCount">Staff <p-sort-icon field="employeeCount" /></th>
+            <th pSortableColumn="createdAt">Signed up <p-sort-icon field="createdAt" /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-org>
+          <tr>
+            <td>{{ org.name }}</td>
+            <td>{{ org.ownerName }}</td>
+            <td>{{ org.email }}</td>
+            <td>{{ org.subscriptionTier ?? '—' }}</td>
+            <td><p-tag [value]="org.subscriptionStatus" [severity]="statusSeverity(org.subscriptionStatus)" /></td>
+            <td>{{ org.branchCount }}</td>
+            <td>{{ org.memberCount }}</td>
+            <td>{{ org.employeeCount }}</td>
+            <td>{{ org.createdAt | date: 'mediumDate' }}</td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr><td colspan="9" class="empty-row">No organizations match "{{ searchTerm() }}"</td></tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  }
+  <p-dialog
+    [(visible)]="detailVisible"
+    [modal]="true"
+    [style]="{ width: '72rem' }"
+    [breakpoints]="{ '960px': '92vw' }"
+    [header]="detailTitle()"
+  >
+    <div class="detail-filter-bar">
+      <p-iconfield iconPosition="left" class="search-field detail-search">
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" placeholder="Search by org, owner or email" [ngModel]="detailSearchTerm()" (ngModelChange)="detailSearchTerm.set($event)" />
+      </p-iconfield>
+      @if (detailKind() === 'organizations') {
+        <p-select
+          [options]="detailStatusFilterOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="detailStatusFilter()"
+          (ngModelChange)="detailStatusFilter.set($event)"
+          placeholder="Status"
+          appendTo="body"
+        />
+      }
+      <p-datepicker [ngModel]="detailDateFrom()" (ngModelChange)="detailDateFrom.set($event)" placeholder="From date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+      <p-datepicker [ngModel]="detailDateTo()" (ngModelChange)="detailDateTo.set($event)" placeholder="To date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+      <p-button label="Clear" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="clearDetailFilters()" />
+    </div>
+
+    @if (detailLoading()) {
+      <div class="state-message fixed-height">Loading…</div>
+    } @else if (detailKind() === 'organizations') {
+        <p-table appTableScrollShadow [value]="filteredDetailOrganizations()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 20, 50]" [scrollable]="true" scrollHeight="480px">
+          <ng-template #header>
+            <tr>
+              <th pSortableColumn="name">Organization <p-sort-icon field="name" /></th>
+              <th pSortableColumn="ownerName">Owner <p-sort-icon field="ownerName" /></th>
+              <th pSortableColumn="email">Email <p-sort-icon field="email" /></th>
+              <th pSortableColumn="subscriptionTier">Tier <p-sort-icon field="subscriptionTier" /></th>
+              <th pSortableColumn="subscriptionStatus">Status <p-sort-icon field="subscriptionStatus" /></th>
+              <th pSortableColumn="billingCycle">Billing <p-sort-icon field="billingCycle" /></th>
+              <th pSortableColumn="createdAt">Signed up <p-sort-icon field="createdAt" /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-org>
+            <tr>
+              <td>{{ org.name }}</td>
+              <td>{{ org.ownerName }}</td>
+              <td>{{ org.email }}</td>
+              <td>{{ org.subscriptionTier ?? '—' }}</td>
+              <td><p-tag [value]="org.subscriptionStatus" [severity]="statusSeverity(org.subscriptionStatus)" /></td>
+              <td>{{ org.billingCycle }}</td>
+              <td>{{ org.createdAt | date: 'mediumDate' }}</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr><td colspan="7" class="empty-row">No organizations match the current filters.</td></tr>
+          </ng-template>
+        </p-table>
+    } @else {
+        <p-table appTableScrollShadow [value]="filteredDetailCheckoutEvents()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 20, 50]" [scrollable]="true" scrollHeight="480px">
+          <ng-template #header>
+            <tr>
+              <th pSortableColumn="organizationName">Organization <p-sort-icon field="organizationName" /></th>
+              <th pSortableColumn="ownerName">Owner <p-sort-icon field="ownerName" /></th>
+              <th pSortableColumn="email">Email <p-sort-icon field="email" /></th>
+              <th pSortableColumn="eventType">Event <p-sort-icon field="eventType" /></th>
+              <th pSortableColumn="subscriptionStatus">Current status <p-sort-icon field="subscriptionStatus" /></th>
+              <th pSortableColumn="createdAt">When <p-sort-icon field="createdAt" /></th>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr><td colspan="6" class="empty-row">No checkout events match the current filters.</td></tr>
+          </ng-template>
+          <ng-template #body let-ev>
+            <tr>
+              <td>{{ ev.organizationName ?? '—' }}</td>
+              <td>{{ ev.ownerName ?? '—' }}</td>
+              <td>{{ ev.email ?? '—' }}</td>
+              <td>{{ ev.eventType }}</td>
+              <td>{{ ev.subscriptionStatus ? (ev.subscriptionStatus) : '—' }}</td>
+              <td>{{ ev.createdAt | date: 'medium' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+    }
+  </p-dialog>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="admin-portal-login-page">
+  <div class="theme-toggle-holder"><app-theme-toggle /></div>
+  <p-card styleClass="admin-portal-login-card">
+    <div class="header">
+      <div class="logo-mark">⚡</div>
+      <h1>FitNexus Platform</h1>
+      <p>Operator sign-in — not for gym owners or staff.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      @if (errorMessage()) {
+        <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+      }
+
+      <label for="email">Email</label>
+      <input id="email" pInputText type="email" formControlName="email" autocomplete="username" />
+
+      <label for="password">Password</label>
+      <p-password
+        id="password"
+        formControlName="password"
+        [feedback]="false"
+        [toggleMask]="true"
+        autocomplete="current-password"
+      />
+
+      <p-button type="submit" label="Sign in" [loading]="submitting()" styleClass="w-full" />
+    </form>
+  </p-card>
+</div>

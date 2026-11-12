@@ -1,0 +1,448 @@
+.admin-portal-page {
+  /* Independent scroll container — see the matching comment in
+     admin-portal-login.css: the global html/body rule assumes every
+     page lives inside the authenticated layout's own .app-content
+     scroller, which this standalone route doesn't use. */
+  height: 100vh;
+  overflow-y: auto;
+
+  background: radial-gradient(circle at 85% 0%, rgba(79, 110, 242, 0.08) 0%, rgba(79, 110, 242, 0) 45%), #f7f8fb;
+  color: #10172a;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s ease, color 0.2s ease;
+   header {
+    padding: 0 15px;
+    height: 75px;
+    box-shadow: 0 1px 28px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.admin-portal-body {
+  padding: 24px 32px 64px;
+}
+
+:host-context(.my-app-dark) .admin-portal-page {
+  background: radial-gradient(circle at 85% 0%, rgba(79, 110, 242, 0.12) 0%, rgba(79, 110, 242, 0) 45%), #0b1020;
+  color: #f7f8fb;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: inherit;
+  padding-top: 4px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #4f6ef2;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.brand-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+:host-context(.my-app-dark) .brand-sub {
+  color: #8792ac;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.state-message {
+  padding: 64px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+:host-context(.my-app-dark) .state-message {
+  color: #aeb7cc;
+}
+
+.state-message.error {
+  color: #dc2626;
+}
+
+:host-context(.my-app-dark) .state-message.error {
+  color: #f87171;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  padding: 20px;
+  border-left: 3px solid transparent;
+  box-shadow: 0 8px 24px rgba(16, 23, 42, 0.04);
+}
+
+:host-context(.my-app-dark) .kpi-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.kpi-card.clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.kpi-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(16, 23, 42, 0.1);
+}
+
+:host-context(.my-app-dark) .kpi-card.clickable:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.kpi-sub a {
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.chart-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8792ac;
+  text-align: center;
+}
+
+
+.kpi-card.accent-blue { border-left-color: #4f6ef2; }
+.kpi-card.accent-green { border-left-color: #22b07d; }
+.kpi-card.accent-amber { border-left-color: #f5a524; }
+.kpi-card.accent-purple { border-left-color: #c084fc; }
+.kpi-card.accent-teal { border-left-color: #2dd4bf; }
+.kpi-card.accent-red { border-left-color: #f87171; }
+
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  background: rgba(79, 110, 242, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+:host-context(.my-app-dark) .kpi-icon {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.kpi-card.accent-blue .kpi-icon { color: #4f6ef2; }
+.kpi-card.accent-green .kpi-icon { color: #22b07d; }
+.kpi-card.accent-amber .kpi-icon { color: #c88719; }
+.kpi-card.accent-purple .kpi-icon { color: #a855f7; }
+.kpi-card.accent-teal .kpi-icon { color: #0d9488; }
+.kpi-card.accent-red .kpi-icon { color: #dc2626; }
+
+:host-context(.my-app-dark) .kpi-card.accent-blue .kpi-icon { color: #8fa0e8; }
+:host-context(.my-app-dark) .kpi-card.accent-green .kpi-icon { color: #22b07d; }
+:host-context(.my-app-dark) .kpi-card.accent-amber .kpi-icon { color: #f5a524; }
+:host-context(.my-app-dark) .kpi-card.accent-purple .kpi-icon { color: #c084fc; }
+:host-context(.my-app-dark) .kpi-card.accent-teal .kpi-icon { color: #2dd4bf; }
+:host-context(.my-app-dark) .kpi-card.accent-red .kpi-icon { color: #f87171; }
+
+.kpi-label {
+  font-size: 12.5px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+:host-context(.my-app-dark) .kpi-label {
+  color: #aeb7cc;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: #8792ac;
+  margin-top: 4px;
+}
+
+.warn-text {
+  color: #dc2626;
+}
+
+:host-context(.my-app-dark) .warn-text {
+  color: #f87171;
+}
+
+.delta {
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.delta.up { color: #16a34a; }
+.delta.down { color: #dc2626; }
+
+:host-context(.my-app-dark) .delta.up { color: #22b07d; }
+:host-context(.my-app-dark) .delta.down { color: #f87171; }
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #4b5469;
+  margin: 4px 0 12px;
+}
+
+:host-context(.my-app-dark) .section-title {
+  color: #aeb7cc;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.tier-card {
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  border-left: 4px solid transparent;
+  padding: 16px 18px;
+  box-shadow: 0 6px 18px rgba(16, 23, 42, 0.04);
+}
+
+:host-context(.my-app-dark) .tier-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.tier-card.clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tier-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(16, 23, 42, 0.1);
+}
+
+:host-context(.my-app-dark) .tier-card.clickable:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.tier-name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+:host-context(.my-app-dark) .tier-name {
+  color: #aeb7cc;
+}
+
+.tier-orgs {
+  font-size: 13px;
+  color: #8792ac;
+  margin-bottom: 8px;
+}
+
+.tier-mrr {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tier-mrr-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8792ac;
+  margin-left: 2px;
+}
+
+.tier-sub {
+  font-size: 12px;
+  color: #8792ac;
+  margin-top: 4px;
+}
+
+.tier-trialing {
+  color: #f5a524;
+  font-style: italic;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 960px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-holder {
+  height: 220px;
+}
+
+.recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.recent-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.search-field input {
+  width: 280px;
+}
+
+.detail-search {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.detail-search input {
+  width: 100%;
+}
+
+.filter-bar,
+.detail-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.detail-filter-bar .detail-search {
+  flex: 1;
+  min-width: 220px;
+  margin-bottom: 0;
+}
+
+.detail-filter-bar .detail-search input {
+  width: 100%;
+}
+
+:host ::ng-deep .filter-bar .p-select,
+:host ::ng-deep .filter-bar .p-datepicker,
+:host ::ng-deep .detail-filter-bar .p-select,
+:host ::ng-deep .detail-filter-bar .p-datepicker {
+  min-width: 150px;
+}
+
+/* Reserves the same vertical space as a loaded, scrollable table so
+   the card/dialog doesn't change height while the fetch is in flight —
+   matches the table's own scrollHeight (480px) plus its chrome. */
+.state-message.fixed-height {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-row {
+  text-align: center;
+  color: #8792ac;
+  padding: 24px;
+}
+
+/* PrimeNG's own components (p-card, p-table, p-tag, p-chart) already
+   re-theme themselves via the global darkModeSelector ('.my-app-dark',
+   see app.config.ts) — no ::ng-deep overrides needed for those beyond
+   making the card surface feel at home on this page's own background. */
+:host ::ng-deep .p-card {
+  border-radius: 16px;
+}
+
+/* Sticky table headers — both the "Recent signups" table and every
+   detail-drill-down table inside the dialog. Sticky positioning comes
+   from PrimeNG's own [scrollable]="true" mode on each <p-table> (see
+   the .html) rather than a hand-rolled position:sticky — that mode
+   already handles header/column alignment and background correctly.
+   Header cell padding is left at PrimeNG's default (no extra height).
+
+   The box-shadow under the header only appears once the table body
+   has actually scrolled (TableScrollShadowDirective toggles the
+   .scrolled-header class on scroll) — at the top it looks like a
+   normal, flat header. */
+:host ::ng-deep .p-datatable.scrolled-header .p-datatable-thead > tr > th {
+  box-shadow: 0 3px 8px rgba(16, 23, 42, 0.12);
+}
+
+:host-context(.my-app-dark) ::ng-deep .p-datatable.scrolled-header .p-datatable-thead > tr > th {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+.profit-positive { color: #16a34a; }
+.profit-negative { color: #dc2626; }
+
+:host-context(.my-app-dark) .profit-positive { color: #22b07d; }
+:host-context(.my-app-dark) .profit-negative { color: #f87171; }
+
+.kpi-sub a {
+  color: #4f6ef2;
+  text-decoration: none;
+}
+
+.kpi-sub a:hover {
+  text-decoration: underline;
+}

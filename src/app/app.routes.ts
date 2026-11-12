@@ -29,10 +29,36 @@ import { Alerts } from './pages/auth/alerts/alerts';
 import { Billing } from './pages/auth/billing/billing';
 import { Placeholder } from './shared/placeholder/placeholder';
 import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard, planSelectionGuard, subscriptionGuard } from './core/auth/auth.guard';
+import { adminPortalGuard } from './core/admin-portal/admin-portal.guard';
 import { SubscriptionLocked } from './pages/auth/subscription-locked/subscription-locked';
 import { SelectPlan } from './pages/auth/select-plan/select-plan';
 
 export const routes: Routes = [
+  // Platform-operator-only routes — completely outside the tenant
+  // app's Layout/auth world (own login, own token, own guard: see
+  // admin-portal.guard.ts). Lazy-loaded so neither component ships in
+  // the bundle a normal gym owner/staff login ever downloads.
+  {
+    path: 'admin-portal/login',
+    loadComponent: () =>
+      import('./pages/admin-portal/login/admin-portal-login').then((m) => m.AdminPortalLogin),
+    title: 'Platform sign-in · FitNexus',
+  },
+  {
+    path: 'admin-portal/overview',
+    loadComponent: () =>
+      import('./pages/admin-portal/dashboard/admin-portal-dashboard').then((m) => m.AdminPortalDashboard),
+    canActivate: [adminPortalGuard],
+    title: 'Platform overview · FitNexus',
+  },
+  {
+    path: 'admin-portal/expenses',
+    loadComponent: () =>
+      import('./pages/admin-portal/expenses/admin-portal-expenses').then((m) => m.AdminPortalExpenses),
+    canActivate: [adminPortalGuard],
+    title: 'Platform expenses · FitNexus',
+  },
+
   // Public (no auth required) routes. noAuthGuard bounces an already
   // logged-in user (valid, non-expired token) straight to /dashboard.
   { path: '', pathMatch: 'full', redirectTo: 'login' },

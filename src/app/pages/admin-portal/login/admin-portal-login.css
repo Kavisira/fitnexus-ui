@@ -1,0 +1,87 @@
+.admin-portal-login-page {
+  /* Independent scroll container: the global html/body rule
+     (overflow: hidden, see styles.css) assumes every page lives inside
+     the authenticated layout's own .app-content scroller — this page
+     doesn't, so it has to scroll ITSELF on a short viewport instead of
+     silently clipping. */
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  background: radial-gradient(circle at 80% 15%, rgba(79, 110, 242, 0.18) 0%, rgba(79, 110, 242, 0) 45%), #f7f8fb;
+  transition: background 0.2s ease;
+}
+
+:host-context(.my-app-dark) .admin-portal-login-page {
+  background: radial-gradient(circle at 80% 15%, rgba(79, 110, 242, 0.3) 0%, rgba(79, 110, 242, 0) 45%),
+    linear-gradient(160deg, #0b1020 0%, #10172a 55%, #161f3d 100%);
+}
+
+.theme-toggle-holder {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+
+:host ::ng-deep .admin-portal-login-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.logo-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #4f6ef2;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 24px;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--p-text-color);
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--p-text-muted-color, #6b7280);
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--p-text-color);
+}
+
+.form p-password,
+.form input {
+  width: 100%;
+}
+
+.form p-button {
+  margin-top: 16px;
+}
