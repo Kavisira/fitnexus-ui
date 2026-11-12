@@ -31,6 +31,17 @@ let sessionReplacedDialogOpen = false;
  * the account wasn't just idle too long, it was actively logged in
  * somewhere else. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // /platform-admin/* runs its own entirely separate auth world (see
+  // AdminPortalApiService) — it attaches its own Authorization header
+  // itself and must never have it overwritten by a tenant token that
+  // might also be sitting in this browser, nor trigger this
+  // interceptor's tenant-session 401 handling (which would otherwise
+  // clear/redirect the UNRELATED tenant session on an admin-portal
+  // auth failure).
+  if (req.url.includes('/platform-admin')) {
+    return next(req);
+  }
+
   const tokenStorage = inject(TokenStorage);
   const router = inject(Router);
   const toast = inject(ToastService);

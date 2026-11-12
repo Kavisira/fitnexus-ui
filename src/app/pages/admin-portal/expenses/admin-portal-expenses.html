@@ -1,0 +1,204 @@
+<div class="admin-portal-page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="pi pi-bolt"></i></div>
+      <div>
+        <div class="brand-title">FitNexus Platform</div>
+        <div class="brand-sub">Running-the-business costs — hosting, marketing, dev, everything</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <p-button label="Overview" icon="pi pi-arrow-left" severity="secondary" [text]="true" routerLink="/admin-portal/overview" />
+      <app-theme-toggle />
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <p-message severity="error" styleClass="w-full">{{ errorMessage() }}</p-message>
+  }
+
+  <div class="kpi-grid">
+    <div class="kpi-card accent-red">
+      <div class="kpi-icon"><i class="pi pi-wallet"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">Monthly recurring cost</div>
+        <div class="kpi-value">₹{{ monthlyRecurringTotal() | number: '1.0-0' }}</div>
+        <div class="kpi-sub">Monthly + (annual ÷ 12)</div>
+      </div>
+    </div>
+    <div class="kpi-card accent-purple">
+      <div class="kpi-icon"><i class="pi pi-shopping-bag"></i></div>
+      <div class="kpi-body">
+        <div class="kpi-label">One-time spend (lifetime)</div>
+        <div class="kpi-value">₹{{ oneTimeTotal() | number: '1.0-0' }}</div>
+        <div class="kpi-sub">Dev work, setup fees, one-off campaigns</div>
+      </div>
+    </div>
+  </div>
+
+  <p-card styleClass="recent-card">
+    <div class="recent-header">
+      <div class="recent-title">Expense log</div>
+      <p-iconfield iconPosition="left" class="search-field">
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" placeholder="Search by label, category or notes" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+      </p-iconfield>
+      <p-button label="Add expense" icon="pi pi-plus" (onClick)="openAdd()" />
+    </div>
+
+    <div class="filter-bar">
+      <p-select
+        [options]="categoryFilterOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="categoryFilter.set($event)"
+        placeholder="Category"
+        appendTo="body"
+      />
+      <p-select
+        [options]="frequencyFilterOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="frequencyFilter()"
+        (ngModelChange)="frequencyFilter.set($event)"
+        placeholder="Frequency"
+        appendTo="body"
+      />
+      <p-datepicker [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)" placeholder="From date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+      <p-datepicker [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)" placeholder="To date" dateFormat="d M yy" [showIcon]="true" appendTo="body" />
+      <p-button label="Clear" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="clearFilters()" />
+    </div>
+
+    @if (loading()) {
+      <div class="state-message fixed-height">Loading…</div>
+    } @else {
+      <p-table
+        appTableScrollShadow
+        [value]="filteredExpenses()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 20, 50]"
+        [scrollable]="true"
+        scrollHeight="520px"
+      >
+        <ng-template #header>
+          <tr>
+            <th pSortableColumn="label">Label <p-sort-icon field="label" /></th>
+            <th pSortableColumn="category">Category <p-sort-icon field="category" /></th>
+            <th pSortableColumn="frequency">Frequency <p-sort-icon field="frequency" /></th>
+            <th pSortableColumn="amountInr">Amount <p-sort-icon field="amountInr" /></th>
+            <th pSortableColumn="incurredAt">Date <p-sort-icon field="incurredAt" /></th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-expense>
+          <tr>
+            <td>{{ expense.label }}</td>
+            <td>{{ categoryLabel(expense.category) }}</td>
+            <td><p-tag [value]="expense.frequency" severity="secondary" /></td>
+            <td>₹{{ +expense.amountInr | number }}</td>
+            <td>{{ expense.incurredAt | date: 'mediumDate' }}</td>
+            <td class="notes-cell">{{ expense.notes || '—' }}</td>
+            <td class="actions-cell">
+              <p-button icon="pi pi-pencil" [text]="true" severity="secondary" (onClick)="openEdit(expense)" />
+              <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="confirmDelete(expense)" />
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr><td colspan="7" class="empty-row">No expenses match the current filters.</td></tr>
+        </ng-template>
+      </p-table>
+    }
+  </p-card>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '32rem' }"
+    [breakpoints]="{ '768px': '96vw' }"
+    [header]="editingId() ? 'Edit expense' : 'Add expense'"
+  >
+    <form class="expense-form" [formGroup]="form" (ngSubmit)="save()">
+      @if (formError()) {
+        <p-message severity="error" styleClass="w-full">{{ formError() }}</p-message>
+      }
+
+      <div class="field">
+        <label for="x-label">Label</label>
+        <input pInputText id="x-label" type="text" formControlName="label" placeholder="e.g. Render — API hosting" />
+        @if (f.label.invalid && f.label.touched) {
+          <small class="field-error">Required</small>
+        }
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="x-category">Category</label>
+          <p-select
+            inputId="x-category"
+            formControlName="category"
+            [options]="categoryOptions"
+            optionLabel="label"
+            optionValue="value"
+            [appendTo]="'body'"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="field">
+          <label for="x-frequency">Frequency</label>
+          <p-select
+            inputId="x-frequency"
+            formControlName="frequency"
+            [options]="frequencyOptions"
+            optionLabel="label"
+            optionValue="value"
+            [appendTo]="'body'"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="field-row-2">
+        <div class="field">
+          <label for="x-amount">Amount (₹)</label>
+          <p-inputnumber
+            inputId="x-amount"
+            formControlName="amount"
+            mode="decimal"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            [min]="0"
+            styleClass="w-full"
+          />
+          @if (f.amount.invalid && f.amount.touched) {
+            <small class="field-error">Required</small>
+          }
+        </div>
+        <div class="field">
+          <label for="x-date">Date</label>
+          <p-datepicker
+            inputId="x-date"
+            formControlName="incurredAt"
+            dateFormat="M d, yy"
+            [showIcon]="true"
+            [appendTo]="'body'"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="x-notes">Notes (optional)</label>
+        <input pInputText id="x-notes" type="text" formControlName="notes" [maxlength]="200" />
+      </div>
+
+      <div class="dialog-actions">
+        <button pButton type="button" [text]="true" severity="secondary" (click)="closeDialog()">Cancel</button>
+        <button pButton type="submit" [loading]="saving()">Save</button>
+      </div>
+    </form>
+  </p-dialog>
+</div>
