@@ -223,21 +223,65 @@ export class Dashboard implements OnInit {
     });
   }
 
+  // Timeframe filters for primary trend charts
+  financeTimeframe = signal<'30D' | '90D' | '1Y'>('30D');
+  signupTimeframe = signal<'30D' | '90D' | '1Y'>('30D');
+
+  setFinanceTimeframe(tf: '30D' | '90D' | '1Y'): void {
+    this.financeTimeframe.set(tf);
+  }
+
+  setSignupTimeframe(tf: '30D' | '90D' | '1Y'): void {
+    this.signupTimeframe.set(tf);
+  }
+
+  primaryCurrency = computed(() => this.branches()[0]?.currency ?? 'INR');
+
+  profitMarginPct = computed(() => {
+    const fin = this.analytics()?.finance;
+    if (!fin || !fin.revenueThisMonth || fin.revenueThisMonth <= 0) return 0;
+    return Math.round((fin.netProfitThisMonth / fin.revenueThisMonth) * 100);
+  });
+
+  hasPlanRevenue = computed(() => {
+    const plans = this.analytics()?.finance.revenueByPlan ?? [];
+    return plans.some((p) => (p.value ?? 0) > 0);
+  });
+
+  hasLeadsData = computed(() => {
+    const leads = this.analytics()?.leads.byStatus ?? [];
+    return leads.some((l) => (l.value ?? 0) > 0);
+  });
+
   // ---- Chart data/options — all computed off the loaded summary +
   // current theme, so they redraw automatically on either change. ----
 
   signupChartData = computed(() => {
     const points = this.analytics()?.members.signupSeries ?? [];
+    let labels = points.map((p) => p.label);
+    let counts = points.map((p) => p.count ?? 0);
+
+    const tf = this.signupTimeframe();
+    if (tf === '30D' && labels.length > 2) {
+      labels = labels.slice(-2);
+      counts = counts.slice(-2);
+    } else if (tf === '90D' && labels.length > 3) {
+      labels = labels.slice(-3);
+      counts = counts.slice(-3);
+    }
+
     return {
-      labels: points.map((p) => p.label),
+      labels,
       datasets: [
         {
           label: this.i18n.t('dashboard.newSignups'),
-          data: points.map((p) => p.count ?? 0),
-          borderColor: PALETTE.blue,
-          backgroundColor: 'rgba(59, 130, 246, 0.15)',
+          data: counts,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.35,
           fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
         },
       ],
     };
@@ -245,31 +289,56 @@ export class Dashboard implements OnInit {
 
   financeChartData = computed(() => {
     const fin = this.analytics()?.finance;
-    const labels = fin?.revenueSeries.map((p) => p.label) ?? [];
+    if (!fin) return { labels: [], datasets: [] };
+    let labels = fin.revenueSeries.map((p) => p.label);
+    let rev = fin.revenueSeries.map((p) => p.amount ?? 0);
+    let exp = fin.expenseSeries.map((p) => p.amount ?? 0);
+    let net = fin.netProfitSeries.map((p) => p.amount ?? 0);
+
+    const tf = this.financeTimeframe();
+    if (tf === '30D' && labels.length > 2) {
+      labels = labels.slice(-2);
+      rev = rev.slice(-2);
+      exp = exp.slice(-2);
+      net = net.slice(-2);
+    } else if (tf === '90D' && labels.length > 3) {
+      labels = labels.slice(-3);
+      rev = rev.slice(-3);
+      exp = exp.slice(-3);
+      net = net.slice(-3);
+    }
+
     return {
       labels,
       datasets: [
         {
           label: this.i18n.t('dashboard.revenue'),
-          data: fin?.revenueSeries.map((p) => p.amount ?? 0) ?? [],
-          borderColor: PALETTE.green,
-          backgroundColor: 'rgba(22, 163, 74, 0.12)',
+          data: rev,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.08)',
           tension: 0.35,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
         },
         {
           label: this.i18n.t('dashboard.expenses'),
-          data: fin?.expenseSeries.map((p) => p.amount ?? 0) ?? [],
-          borderColor: PALETTE.red,
-          backgroundColor: 'rgba(239, 68, 68, 0.12)',
+          data: exp,
+          borderColor: '#ef4444',
+          backgroundColor: 'transparent',
           tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
         },
         {
           label: this.i18n.t('dashboard.netProfit'),
-          data: fin?.netProfitSeries.map((p) => p.amount ?? 0) ?? [],
-          borderColor: PALETTE.purple,
-          backgroundColor: 'rgba(124, 58, 237, 0.12)',
+          data: net,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'transparent',
+          borderDash: [5, 4],
           tension: 0.35,
-          borderDash: [6, 4],
+          pointRadius: 4,
+          pointHoverRadius: 6,
         },
       ],
     };
@@ -279,7 +348,13 @@ export class Dashboard implements OnInit {
     const groups = this.analytics()?.finance.revenueByPlan ?? [];
     return {
       labels: groups.map((g) => g.key),
-      datasets: [{ data: groups.map((g) => g.value), backgroundColor: CHART_COLORS }],
+      datasets: [
+        {
+          data: groups.map((g) => g.value),
+          backgroundColor: CHART_COLORS,
+          borderWidth: 0,
+        },
+      ],
     };
   });
 
@@ -287,7 +362,7 @@ export class Dashboard implements OnInit {
     const groups = this.analytics()?.finance.expensesByCategory ?? [];
     return {
       labels: groups.map((g) => this.i18n.t(`expensesPage.category.${g.key}`)),
-      datasets: [{ data: groups.map((g) => g.value), backgroundColor: CHART_COLORS }],
+      datasets: [{ data: groups.map((g) => g.value), backgroundColor: CHART_COLORS, borderWidth: 0 }],
     };
   });
 
@@ -308,7 +383,7 @@ export class Dashboard implements OnInit {
         {
           label: this.i18n.t('dashboard.leads'),
           data: groups.map((g) => g.value),
-          backgroundColor: PALETTE.blue,
+          backgroundColor: '#3b82f6',
           borderRadius: 6,
         },
       ],
@@ -318,10 +393,32 @@ export class Dashboard implements OnInit {
   lineChartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: this.axisColor() } } },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top' as const,
+        align: 'end' as const,
+        labels: {
+          color: this.axisColor(),
+          usePointStyle: true,
+          pointStyle: 'circle',
+          boxWidth: 6,
+          boxHeight: 6,
+          padding: 12,
+          font: { size: 11, family: 'Inter, system-ui, sans-serif' },
+        },
+      },
+    },
     scales: {
-      x: { ticks: { color: this.axisColor() }, grid: { color: this.gridColor() } },
-      y: { ticks: { color: this.axisColor() }, grid: { color: this.gridColor() }, beginAtZero: true },
+      x: {
+        ticks: { color: this.axisColor(), font: { size: 11 } },
+        grid: { color: this.gridColor() },
+      },
+      y: {
+        ticks: { color: this.axisColor(), font: { size: 11 } },
+        grid: { color: this.gridColor() },
+        beginAtZero: true,
+      },
     },
   }));
 
@@ -330,24 +427,38 @@ export class Dashboard implements OnInit {
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { ticks: { color: this.axisColor() }, grid: { display: false } },
-      y: { ticks: { color: this.axisColor() }, grid: { color: this.gridColor() }, beginAtZero: true },
+      x: { ticks: { color: this.axisColor(), font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { color: this.axisColor(), font: { size: 11 } }, grid: { color: this.gridColor() }, beginAtZero: true },
     },
   }));
 
   doughnutChartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' as const, labels: { color: this.axisColor() } } },
+    cutout: '70%',
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          color: this.axisColor(),
+          usePointStyle: true,
+          pointStyle: 'circle',
+          boxWidth: 6,
+          boxHeight: 6,
+          padding: 12,
+          font: { size: 11, family: 'Inter, system-ui, sans-serif' },
+        },
+      },
+    },
   }));
 
   leadStatusLabel(status: string): string {
     return Dashboard.LEAD_STATUS_LABELS[status] ?? status;
   }
 
-  formatMoney(amount: number, currency: string): string {
-    const symbol = currencySymbol(currency);
-    return `${symbol}${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  formatMoney(amount: number, currency: string = 'INR'): string {
+    const symbol = currency === 'INR' ? '₹' : currencySymbol(currency);
+    return `${symbol}${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
   }
 
   bmiSeverity(status: string): 'danger' | 'warn' | 'success' | 'info' {

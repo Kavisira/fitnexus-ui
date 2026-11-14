@@ -8,12 +8,12 @@
 /* Fixed height, matching .sidebar-brand exactly (see sidebar.css) —
    see that file's comment for why. */
 .app-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 60px;
   box-sizing: border-box;
-  padding: 0 1.1rem;
+  padding: 0 1.25rem;
   background: #ffffff;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   position: sticky;
@@ -30,36 +30,22 @@
 .header-left {
   display: flex;
   align-items: center;
-  justify-self: start;
+  gap: 0.85rem;
 }
 
-.header-title-wrap {
-  min-width: 0;
-  justify-self: center;
-}
-
-/* Clearly highlighted, unmissable page title — a filled pill instead
-   of plain text, so it's obvious which page you're on at a glance. */
 .header-title {
   display: block;
-  color: #1d4ed8;
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
-  border-radius: 999px;
-  padding: 0.3rem 1rem;
-  font-weight: 800;
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
+  color: var(--p-text-color, #0f172a);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 60vw;
 }
 
 :host-context(.my-app-dark) .header-title {
-  color: #93c5fd;
-  background: rgba(59, 130, 246, 0.14);
-  border-color: rgba(59, 130, 246, 0.3);
+  color: #f8fafc;
 }
 
 .header-right {
