@@ -1,436 +1,863 @@
+/* ============================================================
+   FitNexus Dashboard — Modern Premium B2B SaaS Standards
+   Inspired by Linear / Vercel / Stripe (clean, minimal, high-contrast)
+   ============================================================ */
+
 .dashboard-page {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  padding-bottom: 1.5rem;
-}
-
-.dash-tab-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  padding-bottom: 2.5rem;
 }
 
 .loading-text,
 .error-text {
-  color: var(--p-text-muted-color, #6b7280);
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.88rem;
+  padding: 1rem 0;
 }
 
 .error-text {
-  color: var(--p-red-500, #ef4444);
+  color: #ef4444;
 }
 
-/* ---- Organization overview strip ---- */
+/* ── 1. Page Header Sub-Bar ── */
 
-.org-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--p-primary-600, #6d28d9) 0%, var(--p-primary-500, #7c3aed) 55%, #4f46e5 100%);
-  color: #ffffff;
-  box-shadow: 0 10px 30px -12px rgba(109, 40, 217, 0.5);
-}
-
-.org-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.12);
-  flex: 1 1 130px;
-}
-
-.org-chip i {
-  font-size: 1.15rem;
-  opacity: 0.9;
-}
-
-.org-chip-value {
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.org-chip-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  opacity: 0.85;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-/* ---- Stat cards ---- */
-
-.ep-balance-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: 0.9rem;
-  margin-bottom: 1.5rem;
-}
-
-.ep-balance-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 1rem 1.1rem;
-  border-radius: 12px;
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.15);
-}
-
-.ep-balance-type {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #1d4ed8;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.ep-balance-value {
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: var(--p-text-color, #111827);
-}
-
-.ep-balance-label {
-  font-size: 0.76rem;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-.ep-header {
+.dash-subbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.85rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.ep-header h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.ep-table-wrap {
-  overflow-x: auto;
-}
-
-.ep-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 560px;
-}
-
-.ep-table th,
-.ep-table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
-  font-size: 0.86rem;
-}
-
-.ep-table thead th {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-.ep-apply-form {
+.dash-subbar-left {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.15rem;
 }
 
-.ep-apply-form label {
+.dash-view-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--p-text-color, #0f172a);
+}
+
+.dash-view-subtitle {
+  margin: 0;
   font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 0.6rem;
+  color: var(--p-text-muted-color, #64748b);
 }
 
-.ep-apply-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  resize: vertical;
-}
-
-.ep-apply-error {
-  color: #dc2626;
-  font-size: 0.82rem;
-  margin: 0.4rem 0 0;
-}
-
-.ep-apply-actions {
+.dash-subbar-right {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  margin-top: 1.1rem;
-}
-
-:host-context(.my-app-dark) .ep-balance-card {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.22);
-}
-
-:host-context(.my-app-dark) .ep-table th,
-:host-context(.my-app-dark) .ep-table td {
-  border-color: #1f2937;
-}
-
-.dash-tab-bar {
-  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.35rem;
-  background: var(--p-content-background, #ffffff);
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  border-radius: 12px;
 }
 
-.dash-tab-btn {
-  display: inline-flex;
+.dash-branch-control {
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .branch-filter-select {
+  min-width: 180px;
+}
+
+.dash-branch-badge {
+  display: flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.5rem 0.9rem;
-  border: none;
-  background: transparent;
-  border-radius: 9px;
-  color: var(--p-text-muted-color, #6b7280);
-  font-size: 0.86rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 0.82rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  color: #334155;
 }
 
-.dash-tab-btn:hover {
-  background: #f1f5f9;
-  color: #1d4ed8;
-}
+/* Sleek Low-Profile Billing Pill */
 
-.dash-tab-btn.active {
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
-}
-
-:host-context(.my-app-dark) .dash-tab-bar {
-  background: #0f172a;
-  border-color: #1f2937;
-}
-
-:host-context(.my-app-dark) .dash-tab-btn:hover {
-  background: rgba(59, 130, 246, 0.12);
-  color: #93c5fd;
-}
-
-:host-context(.my-app-dark) .dash-tab-btn.active {
-  background: rgba(59, 130, 246, 0.18);
-  color: #93c5fd;
-}
-
-.tab-placeholder {
-  display: flex;
-  flex-direction: column;
+.billing-pill {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.85rem;
-  padding: 4rem 1.5rem;
-  border: 1px dashed var(--p-content-border-color, #d1d5db);
-  border-radius: 14px;
-  color: var(--p-text-muted-color, #6b7280);
-  text-align: center;
-}
-
-.tab-placeholder-icon {
-  font-size: 2.4rem;
-  color: #93c5fd;
-}
-
-.tab-placeholder p {
-  margin: 0;
-  font-size: 0.92rem;
-  max-width: 26rem;
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.6rem;
-}
-
-.stat-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  background: var(--p-content-background, #ffffff);
-  overflow: hidden;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-size: 0.76rem;
+  color: #475569;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px -10px rgba(15, 23, 42, 0.18);
+.billing-pill.expired {
+  border-color: #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--p-primary-400, #a78bfa);
+.billing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
 }
 
-.stat-card-good::before {
-  background: var(--p-green-500, #22c55e);
+.billing-pill.expired .billing-dot {
+  background: #ef4444;
 }
 
-.stat-card-bad::before {
-  background: var(--p-red-500, #ef4444);
-}
-
-.stat-card-warn::before {
-  background: var(--p-orange-500, #f59e0b);
-}
-
-.stat-card-blue::before {
-  background: var(--p-blue-500, #3b82f6);
-}
-
-.stat-icon {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.65rem;
-  font-size: 1rem;
-  color: var(--p-primary-200, #ddd6fe);
-  opacity: 0.55;
-}
-
-.stat-card-good .stat-icon {
-  color: var(--p-green-200, #bbf7d0);
-}
-
-.stat-card-bad .stat-icon {
-  color: var(--p-red-200, #fecaca);
-}
-
-.stat-card-warn .stat-icon {
-  color: var(--p-orange-200, #fed7aa);
-}
-
-.stat-card-blue .stat-icon {
-  color: var(--p-blue-200, #bfdbfe);
-}
-
-.stat-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--p-text-muted-color, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  max-width: calc(100% - 1.5rem);
-}
-
-.stat-value {
-  font-size: 1.2rem;
-  font-weight: 800;
+.billing-text {
+  font-weight: 500;
   letter-spacing: -0.01em;
 }
 
-.stat-card-good .stat-value {
-  color: var(--p-green-600, #16a34a);
+.billing-manage-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 0.2rem;
+  color: #4f46e5;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
 }
 
-.stat-card-bad .stat-value {
-  color: var(--p-red-500, #ef4444);
+.billing-manage-btn:hover {
+  color: #3730a3;
 }
 
-.stat-card-warn .stat-value {
-  color: var(--p-orange-600, #d97706);
-}
+/* ── 2. Unified 4-Card Primary KPI Row ── */
 
-/* ---- Charts ----
-   The overflow bug lives in Chart.js sizing: a <canvas> inside a flex
-   column with no fixed width keeps growing to fit its own content
-   instead of shrinking to the card. Pinning position:relative + a
-   fixed height on .chart-box (Chart.js reads the *parent's* box, not
-   the canvas's own attributes, when responsive:true) plus width/height
-   100% + block on the canvas itself is what actually contains it. */
-
-.chart-grid {
+.kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 142px;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px -3px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
+
+.kpi-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 58px;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  height: 32px;
+}
+
+.kpi-value-denom {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.kpi-value-suffix {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-left: 0.25rem;
+}
+
+.kpi-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.kpi-icon-wrap {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.kpi-icon-wrap.green  { background: #ecfdf5; color: #059669; }
+.kpi-icon-wrap.blue   { background: #eff6ff; color: #2563eb; }
+.kpi-icon-wrap.indigo { background: #eef2ff; color: #4f46e5; }
+.kpi-icon-wrap.purple { background: #faf5ff; color: #7c3aed; }
+.kpi-icon-wrap.warn   { background: #fffbeb; color: #d97706; }
+
+.stat-expand-btn {
+  width: 1.65rem;
+  height: 1.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.72rem;
+  opacity: 0.55;
+  transition: all 0.15s ease;
+}
+
+.kpi-card:hover .stat-expand-btn {
+  opacity: 1;
+}
+
+.stat-expand-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.kpi-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.74rem;
+  color: #64748b;
+  min-height: 28px;
+  line-height: 1.3;
+}
+
+.kpi-card-footer strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.text-emerald {
+  color: #059669 !important;
+  font-weight: 600;
+}
+
+.text-blue {
+  color: #2563eb !important;
+  font-weight: 600;
+}
+
+.kpi-subtext-muted {
+  font-size: 0.73rem;
+  color: #64748b;
+}
+
+.kpi-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.5rem;
+  border-radius: 9999px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #047857;
+  flex-shrink: 0;
+}
+
+.kpi-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: kpiPulse 2s infinite ease-in-out;
+}
+
+@keyframes kpiPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+.kpi-badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.kpi-badge.green {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.kpi-badge.warn {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* ── 3. Chart Layout Grids ── */
+
+.charts-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
   align-items: stretch;
 }
 
-.chart-card-wide {
-  grid-column: 1 / -1;
+@media (max-width: 960px) {
+  .charts-top-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
+.charts-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .charts-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Chart Cards (Shared) ── */
 
 .chart-card {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.85rem;
   padding: 1.35rem;
-  border-radius: 16px;
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  background: var(--p-content-background, #ffffff);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: #ffffff;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   min-width: 0;
 }
 
-.chart-card h2 {
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.chart-title {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.chart-title i {
+  color: #6366f1;
+  font-size: 0.88rem;
+}
+
+.chart-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.chart-header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
-.chart-card h2 i:first-child {
-  color: var(--p-primary-500, #7c3aed);
-  font-size: 0.95rem;
+/* Timeframe Segmented Control (30D | 90D | 1Y) */
+
+.timeframe-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 2px;
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+}
+
+.timeframe-pill {
+  border: none;
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.timeframe-pill:hover {
+  color: #0f172a;
+}
+
+.timeframe-pill.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  font-weight: 700;
 }
 
 .expand-btn {
-  margin-left: auto;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 8px;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 7px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--p-text-muted-color, #9ca3af);
+  color: #94a3b8;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .expand-btn:hover {
-  background: var(--p-primary-50, #f5f3ff);
-  color: var(--p-primary-600, #7c3aed);
+  background: #f1f5f9;
+  color: #334155;
 }
 
 .expand-btn i {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
 }
+
+/* Chart Canvas Boxes */
+
+.chart-box {
+  position: relative;
+  width: 100%;
+  height: 275px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chart-box-secondary {
+  height: 220px;
+}
+
+.chart-box ::ng-deep p-chart {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+
+/* Clean Empty State */
+
+.chart-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 1.5rem;
+  color: #94a3b8;
+}
+
+.chart-empty-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 0.6rem;
+}
+
+.chart-empty-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.chart-empty-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  max-width: 200px;
+}
+
+/* ── 4. Alerts & Operations Widget ── */
+
+.alerts-widget-card {
+  justify-content: flex-start;
+}
+
+.alerts-widget-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  justify-content: space-around;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.alert-icon-wrap {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.alert-icon-wrap.blue   { background: #eff6ff; color: #2563eb; }
+.alert-icon-wrap.green  { background: #ecfdf5; color: #059669; }
+.alert-icon-wrap.warn   { background: #fffbeb; color: #d97706; }
+.alert-icon-wrap.purple { background: #faf5ff; color: #7c3aed; }
+
+.alert-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-primary {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.alert-secondary {
+  font-size: 0.71rem;
+  color: #64748b;
+  margin-top: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alert-tag {
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.alert-tag.blue    { background: #eff6ff; color: #2563eb; }
+.alert-tag.green   { background: #ecfdf5; color: #059669; }
+.alert-tag.warn    { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.alert-tag.purple  { background: #faf5ff; color: #7c3aed; }
+.alert-tag.neutral { background: #f1f5f9; color: #64748b; }
+
+/* ── 5. Branch Performance Table ── */
+
+.branch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.branch-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.branch-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.branch-count-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.branch-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.branch-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.84rem;
+}
+
+.branch-table thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.branch-table tbody td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+  color: #334155;
+}
+
+.branch-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.branch-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.branch-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #0f172a !important;
+}
+
+.branch-title-text {
+  font-weight: 600;
+}
+
+.branch-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.branch-status-dot.active {
+  background: #10b981;
+}
+
+.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-status {
+  text-align: center;
+}
+
+.text-muted {
+  color: #94a3b8 !important;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.profit-positive {
+  color: #059669 !important;
+  font-weight: 600;
+}
+
+.profit-negative {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.status-tag.tag-profitable {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.status-tag.tag-active {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.status-tag.tag-inactive {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* ── 6. OPS View (Trainer / Front Desk) ── */
+
+.ops-kpi-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+@media (max-width: 640px) {
+  .ops-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 800px) {
+  .ops-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ops-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.ops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ops-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #f8fafc;
+}
+
+.ops-row-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.ops-row-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+}
+
+.ops-row-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 0.15rem 0.45rem;
+  border-radius: 5px;
+}
+
+/* ── 7. Dialogs ── */
 
 .expanded-chart-box {
   position: relative;
   width: 100%;
-  height: 60vh;
+  height: 65vh;
 }
 
 .expanded-chart-box ::ng-deep p-chart {
@@ -439,473 +866,183 @@
   inset: 0;
 }
 
-.chart-box {
-  position: relative;
-  width: 100%;
-  height: 280px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.chart-box-small {
-  height: 230px;
-}
-
-/* The host <p-chart> element (not the canvas) is what Chart.js's
-   ResizeObserver measures to size the canvas — it needs to be an
-   absolutely-positioned, box-filling block so it actually reports
-   .chart-box's dimensions rather than its own content size. Do NOT
-   also force the canvas's CSS width/height here — Chart.js manages
-   that itself via inline styles after measuring the host, and fighting
-   it with !important is what caused the "chart spilling out of its
-   card" bug (canvas kept rendering at its own intrinsic size while the
-   card clipped it). */
-.chart-box ::ng-deep p-chart {
-  display: block;
-  position: absolute;
-  inset: 0;
-}
-
-.chart-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--p-text-muted-color, #9ca3af);
-  font-size: 0.85rem;
-}
-
-/* ---- Branch breakdown ---- */
-
-.branch-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  padding: 1.35rem;
-  border-radius: 16px;
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  background: var(--p-content-background, #ffffff);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-
-.branch-card h2 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.branch-card h2 i {
-  color: var(--p-primary-500, #7c3aed);
-}
-
-.branch-table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  border-radius: 12px;
-}
-
-.branch-table-wrap-expanded {
-  max-height: 100%;
-  overflow-y: auto;
-}
-
-.branch-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.85rem;
-}
-
-.branch-table thead th {
-  background: var(--p-content-background, #f9fafb);
-  color: var(--p-text-muted-color, #6b7280);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  text-align: left;
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
-  white-space: nowrap;
-}
-
-.branch-table tbody td {
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
-  white-space: nowrap;
-}
-
-.branch-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.branch-table tbody tr:nth-child(even) {
-  background: var(--p-content-background, #f9fafb);
-}
-
-.branch-table tbody tr:hover {
-  background: var(--p-primary-50, #f5f3ff);
-}
-
-.branch-name {
-  font-weight: 700;
-}
-
-.col-num {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.profit-positive {
-  color: var(--p-green-600, #16a34a);
-  font-weight: 700;
-}
-
-.profit-negative {
-  color: var(--p-red-500, #ef4444);
-  font-weight: 700;
-}
-
-/* ---- Ops view (Trainer / Front Desk) ---- */
-
-.ops-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.25rem;
-}
-
-.ops-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.35rem;
-  border-radius: 16px;
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  background: var(--p-content-background, #ffffff);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-
-.ops-card h2 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.ops-card h2 i {
-  color: var(--p-primary-500, #7c3aed);
-}
-
-.ops-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.ops-list-expanded {
-  max-height: 100%;
-  overflow-y: auto;
-}
-
-.ops-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-}
-
-.ops-row:nth-child(even) {
-  background: var(--p-content-background, #f3f4f6);
-}
-
-.ops-row-name {
-  font-weight: 700;
-}
-
-.ops-row-value {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-.ops-row-status {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--p-primary-600, #2563eb);
-}
-
-/* ---- Branch filter ---- */
-
-.branch-filter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.branch-filter label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-::ng-deep .branch-filter-select {
-  min-width: 200px;
-}
-
-/* ---- Dark mode ---- */
-
-:host-context(.my-app-dark) .stat-card,
-:host-context(.my-app-dark) .chart-card,
-:host-context(.my-app-dark) .ops-card,
-:host-context(.my-app-dark) .branch-card {
-  background: #111827;
-  border-color: #1f2937;
-  box-shadow: none;
-}
-
-:host-context(.my-app-dark) .branch-table thead th,
-:host-context(.my-app-dark) .branch-table tbody tr:nth-child(even) {
-  background: #0b1220;
-}
-
-:host-context(.my-app-dark) .branch-table thead th,
-:host-context(.my-app-dark) .branch-table tbody td {
-  border-color: #1f2937;
-}
-
-:host-context(.my-app-dark) .branch-table-wrap {
-  border-color: #1f2937;
-}
-
-:host-context(.my-app-dark) .ops-row:nth-child(even) {
-  background: #0b1220;
-}
-
-:host-context(.my-app-dark) .org-strip {
-  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
-}
-
-/* ---- Section titles for the un-tabbed analytics page ---- */
-
-.dash-section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--p-text-muted-color, #6b7280);
-  margin: 1.75rem 0 0.75rem;
-}
-
-.dash-section-title:first-of-type {
-  margin-top: 0.5rem;
-}
-
-/* ---- Single-branch label shown in place of the branch dropdown
-   (which only ever appears once there's more than one branch) ---- */
-
-.branch-filter-label {
-  gap: 0.4rem;
-}
-
-.branch-filter-static-label {
-  font-size: 0.85rem;
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-.branch-filter-static-value {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--p-text-color, #111827);
-}
-
-/* ---- Stat-card expand button (top-right corner) + full-screen
-   expand dialogs ---- */
-
-.stat-expand-btn {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  width: 1.3rem;
-  height: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 6px;
-  background: rgba(15, 23, 42, 0.06);
-  color: var(--p-text-muted-color, #6b7280);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, background 0.15s ease;
-  font-size: 0.65rem;
-  padding: 0;
-}
-
-.stat-card:hover .stat-expand-btn,
-.stat-expand-btn:focus-visible {
-  opacity: 1;
-}
-
-.stat-expand-btn:hover {
-  background: rgba(15, 23, 42, 0.12);
-}
-
-:host-context(.my-app-dark) .stat-expand-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-}
-
-:host-context(.my-app-dark) .stat-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* Dialog itself filling almost the whole viewport, as requested
-   ("large modal with full screen") — also applied to the existing
-   chart-expand dialog, not just the new stat one. */
-::ng-deep .dash-fullscreen-dialog {
-  max-height: 96vh;
-}
-
-::ng-deep .dash-fullscreen-dialog .p-dialog-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
 .expanded-stat-box {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  gap: 0.75rem;
 }
 
 .expanded-stat-icon {
-  font-size: 5rem;
-  opacity: 0.8;
-  color: var(--p-primary-400, #a78bfa);
+  font-size: 2.75rem;
+  color: #6366f1;
 }
 
 .expanded-stat-value {
-  font-size: 5rem;
+  font-size: 3.5rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--p-text-color, #111827);
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  line-height: 1;
 }
 
 .expanded-stat-label {
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--p-text-muted-color, #6b7280);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #64748b;
 }
 
-.expanded-stat-good .expanded-stat-icon,
-.expanded-stat-good .expanded-stat-value {
-  color: var(--p-green-600, #16a34a);
+.expanded-stat-good .expanded-stat-value { color: #059669; }
+.expanded-stat-good .expanded-stat-icon  { color: #10b981; }
+.expanded-stat-bad  .expanded-stat-value { color: #dc2626; }
+.expanded-stat-bad  .expanded-stat-icon  { color: #ef4444; }
+.expanded-stat-warn .expanded-stat-value { color: #d97706; }
+.expanded-stat-warn .expanded-stat-icon  { color: #f59e0b; }
+.expanded-stat-blue .expanded-stat-value { color: #2563eb; }
+.expanded-stat-blue .expanded-stat-icon  { color: #3b82f6; }
+
+/* ── 8. Dark Mode ── */
+
+:host-context(.my-app-dark) .dash-view-title {
+  color: #f8fafc;
 }
 
-.expanded-stat-bad .expanded-stat-icon,
-.expanded-stat-bad .expanded-stat-value {
-  color: var(--p-red-500, #ef4444);
+:host-context(.my-app-dark) .kpi-card,
+:host-context(.my-app-dark) .chart-card,
+:host-context(.my-app-dark) .branch-card,
+:host-context(.my-app-dark) .ops-card {
+  background: #0f172a;
+  border-color: #1e293b;
+  box-shadow: none;
 }
 
-.expanded-stat-warn .expanded-stat-icon,
-.expanded-stat-warn .expanded-stat-value {
-  color: var(--p-orange-600, #d97706);
+:host-context(.my-app-dark) .kpi-card:hover {
+  border-color: #334155;
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.4);
 }
 
-.expanded-stat-blue .expanded-stat-icon,
-.expanded-stat-blue .expanded-stat-value {
-  color: var(--p-blue-500, #3b82f6);
+:host-context(.my-app-dark) .kpi-value,
+:host-context(.my-app-dark) .chart-title,
+:host-context(.my-app-dark) .expanded-stat-value,
+:host-context(.my-app-dark) .alert-primary,
+:host-context(.my-app-dark) .ops-row-name,
+:host-context(.my-app-dark) .branch-name {
+  color: #f8fafc !important;
 }
 
-/* ---- Leads by Status + Branch Performance row: Leads stays its
-   normal chart width, Branch Performance stretches to fill the rest
-   of the row instead of both splitting evenly like chart-grid's equal
-   columns would. ---- */
-
-.chart-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  align-items: stretch;
-  margin-top: 1.25rem;
+:host-context(.my-app-dark) .kpi-card-footer {
+  border-color: #1e293b;
 }
 
-.chart-row-fixed {
-  flex: 0 1 360px;
+:host-context(.my-app-dark) .kpi-card-footer strong {
+  color: #f1f5f9;
 }
 
-.chart-row-fill {
-  flex: 1 1 320px;
+:host-context(.my-app-dark) .text-emerald {
+  color: #34d399 !important;
 }
 
-.subscription-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: var(--p-content-background, #f3f4f6);
-  border: 1px solid var(--p-content-border-color, #e5e7eb);
-  border-radius: 10px;
-  padding: 0.65rem 1.1rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+:host-context(.my-app-dark) .text-blue {
+  color: #60a5fa !important;
 }
 
-.subscription-banner.expired {
-  border-color: var(--p-red-300, #fca5a5);
-  background: color-mix(in srgb, var(--p-red-500, #ef4444) 8%, var(--p-content-background, #f3f4f6));
+:host-context(.my-app-dark) .kpi-subtext-muted {
+  color: #94a3b8;
 }
 
-.subscription-text {
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+:host-context(.my-app-dark) .kpi-live-indicator {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: #34d399;
 }
 
-.subscription-manage-btn {
-  border: 1px solid var(--p-primary-color, #2563eb);
-  background: transparent;
-  color: var(--p-primary-color, #2563eb);
-  border-radius: 999px;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s ease;
+:host-context(.my-app-dark) .billing-pill {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #cbd5e1;
 }
 
-.subscription-manage-btn:hover {
-  background: var(--p-primary-50, #eff6ff);
+:host-context(.my-app-dark) .billing-pill.expired {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #f87171;
 }
 
-.subscription-banner.expired .subscription-manage-btn {
-  border-color: var(--p-red-500, #ef4444);
-  color: var(--p-red-500, #ef4444);
+:host-context(.my-app-dark) .billing-manage-btn {
+  color: #818cf8;
 }
 
-.subscription-banner.expired .subscription-manage-btn:hover {
-  background: color-mix(in srgb, var(--p-red-500, #ef4444) 10%, transparent);
+:host-context(.my-app-dark) .dash-branch-badge {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+:host-context(.my-app-dark) .timeframe-group {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:host-context(.my-app-dark) .timeframe-pill {
+  color: #94a3b8;
+}
+
+:host-context(.my-app-dark) .timeframe-pill.active {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+:host-context(.my-app-dark) .expand-btn:hover,
+:host-context(.my-app-dark) .stat-expand-btn:hover {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+:host-context(.my-app-dark) .branch-table-wrap {
+  border-color: #1e293b;
+}
+
+:host-context(.my-app-dark) .branch-table thead th {
+  background: #090e17;
+  color: #94a3b8;
+  border-color: #1e293b;
+}
+
+:host-context(.my-app-dark) .branch-table tbody td {
+  border-color: #1e293b;
+  color: #cbd5e1;
+}
+
+:host-context(.my-app-dark) .branch-table tbody tr:hover {
+  background: #131d31;
+}
+
+:host-context(.my-app-dark) .branch-count-badge {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:host-context(.my-app-dark) .alert-item {
+  border-color: #1e293b;
+}
+
+:host-context(.my-app-dark) .alert-tag.neutral {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:host-context(.my-app-dark) .ops-row {
+  background: #131d31;
+}
+
+:host-context(.my-app-dark) .chart-empty-icon {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:host-context(.my-app-dark) .chart-empty-title {
+  color: #cbd5e1;
 }
