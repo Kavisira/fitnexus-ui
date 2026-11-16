@@ -1,0 +1,177 @@
+<div
+  class="min-h-screen w-full flex items-center justify-center p-4 relative bg-cover bg-center bg-no-repeat"
+  style="background-image: url('/assets/imgs/loginbg.png');"
+>
+  <div class="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-slate-900/80 to-slate-950/85 z-0 pointer-events-none"></div>
+
+  <div class="fixed top-4 right-4 z-50">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
+
+  <div class="relative z-10 w-full max-w-[480px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100/20 dark:border-gray-800 p-8 sm:p-9 my-8">
+    <div class="mb-6">
+      <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-blue-600 text-white shadow-md mx-auto mb-4">
+        <span nz-icon nzType="thunderbolt" class="text-2xl"></span>
+      </div>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-center text-gray-900 dark:text-white m-0">
+        Create your account
+      </h1>
+      <p class="text-xs sm:text-sm text-center text-gray-500 dark:text-gray-400 mt-1 mb-0">
+        Get started with FitNexus today.
+      </p>
+    </div>
+
+    @if (errorMessage(); as msg) {
+      <div class="mb-4">
+        <nz-alert nzType="error" [nzMessage]="msg" nzShowIcon class="!rounded-xl"></nz-alert>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="ownerName" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            Owner name
+          </label>
+          <nz-input-wrapper class="w-full">
+            <span nzInputPrefix nz-icon nzType="user" class="text-gray-400 text-sm mr-1"></span>
+            <input
+              nz-input
+              id="ownerName"
+              type="text"
+              formControlName="ownerName"
+              placeholder="John Doe"
+              class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+            />
+          </nz-input-wrapper>
+          @if (f.ownerName.invalid && f.ownerName.touched) {
+            <p class="text-[11px] text-red-500 mt-1 mb-0">Owner name is required.</p>
+          }
+        </div>
+
+        <div>
+          <label for="organizationName" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            Organization name
+          </label>
+          <nz-input-wrapper class="w-full">
+            <span nzInputPrefix nz-icon nzType="shop" class="text-gray-400 text-sm mr-1"></span>
+            <input
+              nz-input
+              id="organizationName"
+              type="text"
+              formControlName="organizationName"
+              placeholder="Apex Fitness"
+              class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+            />
+          </nz-input-wrapper>
+          @if (f.organizationName.invalid && f.organizationName.touched) {
+            <p class="text-[11px] text-red-500 mt-1 mb-0">Org name is required.</p>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label for="phone" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          Phone number
+        </label>
+        <nz-input-wrapper class="w-full">
+          <span nzInputPrefix nz-icon nzType="phone" class="text-gray-400 text-sm mr-1"></span>
+          <input
+            nz-input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            placeholder="+1 555 123 4567"
+            autocomplete="tel"
+            class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+          />
+        </nz-input-wrapper>
+        @if (f.phone.invalid && f.phone.touched) {
+          <p class="text-[11px] text-red-500 mt-1 mb-0">Enter a valid phone number with country code.</p>
+        }
+      </div>
+
+      <div>
+        <label for="email" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          Email address
+        </label>
+        <nz-input-wrapper class="w-full">
+          <span nzInputPrefix nz-icon nzType="mail" class="text-gray-400 text-sm mr-1"></span>
+          <input
+            nz-input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="you@domain.com"
+            autocomplete="email"
+            class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+          />
+        </nz-input-wrapper>
+        @if (f.email.invalid && f.email.touched) {
+          <p class="text-[11px] text-red-500 mt-1 mb-0">Enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="password" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            Password
+          </label>
+          <nz-input-password class="w-full">
+            <span nzInputPrefix nz-icon nzType="lock" class="text-gray-400 text-sm mr-1"></span>
+            <input
+              nz-input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+              class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+            />
+          </nz-input-password>
+          @if (f.password.invalid && f.password.touched) {
+            <p class="text-[11px] text-red-500 mt-1 mb-0">Min 6 chars, with uppercase, lowercase, & number.</p>
+          }
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            Confirm password
+          </label>
+          <nz-input-password class="w-full">
+            <span nzInputPrefix nz-icon nzType="lock" class="text-gray-400 text-sm mr-1"></span>
+            <input
+              nz-input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              class="w-full !py-2 !rounded-lg bg-blue-50/50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700"
+            />
+          </nz-input-password>
+          @if (form.errors?.['passwordMismatch'] && f.confirmPassword.touched) {
+            <p class="text-[11px] text-red-500 mt-1 mb-0">Passwords do not match.</p>
+          }
+        </div>
+      </div>
+
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        [nzLoading]="submitting()"
+        type="submit"
+        class="w-full !h-11 !rounded-xl !bg-blue-600 hover:!bg-blue-700 !font-semibold text-sm shadow-md mt-2"
+      >
+        Create Account
+      </button>
+    </form>
+
+    <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-6 mb-0">
+      Already have an account?
+      <a routerLink="/v2/login" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline ml-1">
+        Sign in
+      </a>
+    </p>
+  </div>
+</div>
+

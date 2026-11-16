@@ -1,0 +1,103 @@
+<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full space-y-4">
+  <!-- Filter & Action Bar -->
+  <app-employee-filter-bar
+    [branches]="branches()"
+    [jobTitles]="jobTitles()"
+    [canWrite]="canWrite()"
+    [hasFilters]="hasFilters()"
+    [(search)]="search"
+    [(selectedBranchIds)]="selectedBranchIds"
+    [(selectedRoles)]="selectedRoles"
+    [(selectedStatuses)]="selectedStatuses"
+    [(viewMode)]="viewMode"
+    (clearFilters)="clearFilters()"
+    (exportCsv)="exportCsv()"
+    (importCsv)="importModalVisible.set(true)"
+    (addEmployee)="openCreate()"
+  ></app-employee-filter-bar>
+
+  <!-- Table View or Card Grid View -->
+  @if (viewMode() === 'table') {
+    <app-employee-table
+      [employees]="paginatedEmployees()"
+      [loading]="employeeStore.loading()"
+      [canWrite]="canWrite()"
+      (editEmployee)="openEdit($event)"
+      (performance)="openPerformance($event)"
+      (deleteEmployee)="deleteEmployee($event)"
+    ></app-employee-table>
+  } @else {
+    <app-employee-card-grid
+      [employees]="paginatedEmployees()"
+      [canWrite]="canWrite()"
+      (editEmployee)="openEdit($event)"
+      (performance)="openPerformance($event)"
+      (deleteEmployee)="deleteEmployee($event)"
+    ></app-employee-card-grid>
+  }
+
+  <!-- Pagination Bar -->
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+    <div class="text-xs text-gray-500">
+      Total <strong class="text-gray-900 dark:text-white font-semibold">{{ filteredEmployees().length }}</strong> staff members
+    </div>
+    <nz-pagination
+      [nzPageIndex]="page()"
+      [nzPageSize]="pageSize()"
+      [nzTotal]="filteredEmployees().length"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 15, 25, 50]"
+      (nzPageIndexChange)="page.set($event)"
+      (nzPageSizeChange)="pageSize.set($event)"
+    ></nz-pagination>
+  </div>
+
+  <!-- Add / Edit Employee Wizard Modal -->
+  @if (formModalVisible()) {
+    <app-employee-form-modal
+      [visible]="formModalVisible()"
+      [editingEmployee]="editingEmployee()"
+      [branches]="branches()"
+      [jobTitles]="jobTitles()"
+      [saving]="saving()"
+      [creatingLogin]="creatingLogin()"
+      (cancel)="formModalVisible.set(false)"
+      (save)="onSaveEmployee($event)"
+      (generateLogin)="onGenerateLogin($event)"
+    ></app-employee-form-modal>
+  }
+
+  <!-- Newly Generated Login Modal -->
+  @if (generatedLogin()) {
+    <app-employee-generated-login-modal
+      [login]="generatedLogin()"
+      (close)="generatedLogin.set(null)"
+    ></app-employee-generated-login-modal>
+  }
+
+  <!-- Performance Modal -->
+  @if (performanceModalVisible()) {
+    <app-employee-performance-modal
+      [employee]="performanceEmployee()"
+      [reviews]="performanceReviews()"
+      [appraisals]="performanceAppraisals()"
+      [loading]="performanceLoading()"
+      [savingReview]="savingReview()"
+      [savingAppraisal]="savingAppraisal()"
+      (close)="performanceModalVisible.set(false)"
+      (createReview)="onCreateReview($event)"
+      (createAppraisal)="onCreateAppraisal($event)"
+    ></app-employee-performance-modal>
+  }
+
+  <!-- CSV Import Modal -->
+  @if (importModalVisible()) {
+    <app-employee-import-modal
+      [visible]="importModalVisible()"
+      [branches]="branches()"
+      (close)="importModalVisible.set(false)"
+      (imported)="employeeStore.reload()"
+    ></app-employee-import-modal>
+  }
+</div>
+

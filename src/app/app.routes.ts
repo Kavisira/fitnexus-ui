@@ -59,6 +59,12 @@ export const routes: Routes = [
     title: 'Platform expenses · FitNexus',
   },
 
+  // V2 Migration Routes (NG-ZORRO & Tailwind) — fully lazy-loaded
+  {
+    path: 'v2',
+    loadChildren: () => import('./v2/v2.routes').then((m) => m.V2_ROUTES),
+  },
+
   // Public (no auth required) routes. noAuthGuard bounces an already
   // logged-in user (valid, non-expired token) straight to /dashboard.
   { path: '', pathMatch: 'full', redirectTo: 'login' },

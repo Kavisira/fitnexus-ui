@@ -25,6 +25,7 @@ export class ThemeService {
 
   private applyToDocument(mode: ThemeMode): void {
     document.documentElement.classList.toggle(DARK_CLASS, mode === 'dark');
+    document.documentElement.classList.toggle('dark', mode === 'dark');
   }
 
   private resolveInitialMode(): ThemeMode {

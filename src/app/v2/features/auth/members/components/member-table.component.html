@@ -1,0 +1,201 @@
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
+  <div class="overflow-x-auto w-full">
+    <nz-table
+    #table
+    [nzData]="sortedCards()"
+    [nzLoading]="loading()"
+    [nzShowPagination]="false"
+    [nzFrontPagination]="false"
+    class="w-full text-left"
+  >
+    <thead>
+      <tr class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/40 border-b border-gray-100 dark:border-gray-800">
+        <th nzAlign="left" class="py-3 px-4 min-w-56 cursor-pointer select-none" (click)="toggleSort('name')">
+          <div class="inline-flex items-center gap-1.5">
+            <span>Member</span>
+            @if (sortField() === 'name') {
+              <span nz-icon [nzType]="sortOrder() === 1 ? 'up' : 'down'" class="text-[10px] text-blue-600"></span>
+            }
+          </div>
+        </th>
+        <th nzAlign="left" class="py-3 px-3 w-40 cursor-pointer select-none" (click)="toggleSort('plan')">
+          <div class="inline-flex items-center gap-1.5">
+            <span>Plan</span>
+            @if (sortField() === 'plan') {
+              <span nz-icon [nzType]="sortOrder() === 1 ? 'up' : 'down'" class="text-[10px] text-blue-600"></span>
+            }
+          </div>
+        </th>
+        <th nzAlign="left" class="py-3 px-3 w-40 hidden md:table-cell">Branch</th>
+        <th nzAlign="left" class="py-3 px-3 w-44 hidden lg:table-cell cursor-pointer select-none" (click)="toggleSort('trainer')">
+          <div class="inline-flex items-center gap-1.5">
+            <span>Trainer</span>
+            @if (sortField() === 'trainer') {
+              <span nz-icon [nzType]="sortOrder() === 1 ? 'up' : 'down'" class="text-[10px] text-blue-600"></span>
+            }
+          </div>
+        </th>
+        <th nzAlign="left" class="py-3 px-3 w-32 hidden xl:table-cell text-left">BMI</th>
+        <th nzAlign="left" class="py-3 px-3 w-28 text-left cursor-pointer select-none" (click)="toggleSort('status')">
+          <div class="inline-flex items-center gap-1.5">
+            <span>Status</span>
+            @if (sortField() === 'status') {
+              <span nz-icon [nzType]="sortOrder() === 1 ? 'up' : 'down'" class="text-[10px] text-blue-600"></span>
+            }
+          </div>
+        </th>
+        <th nzAlign="right" class="py-3 px-4 w-24 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-50 dark:divide-gray-800/60 text-sm">
+      @for (c of sortedCards(); track c.member.id) {
+        <tr class="hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors">
+          <td nzAlign="left" class="py-3 px-4">
+            <div class="flex items-center gap-3">
+              @if (c.member.photoUrl) {
+                <img [src]="c.member.photoUrl" [alt]="c.member.name" class="w-9 h-9 rounded-full object-cover shrink-0 border border-gray-200 dark:border-gray-700" />
+              } @else {
+                <nz-avatar [nzText]="c.member.name.charAt(0)" class="!bg-blue-600 !text-white font-semibold shrink-0"></nz-avatar>
+              }
+              <div class="min-w-0">
+                <div class="font-semibold text-gray-900 dark:text-white truncate flex items-center gap-1.5">
+                  <span>{{ c.member.name }}</span>
+                  @if (c.member.hasPersonalTrainer) {
+                    <span nz-tooltip nzTooltipTitle="Personal Training enrolled" class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">PT</span>
+                  }
+                </div>
+                <div class="text-xs text-gray-400 dark:text-gray-400 truncate">{{ c.member.phone }}</div>
+              </div>
+            </div>
+          </td>
+
+          <td nzAlign="left" class="py-3 px-3">
+            <div class="font-medium text-gray-800 dark:text-gray-200">{{ c.planLabel }}</div>
+            <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{{ c.priceLabel }}</div>
+          </td>
+
+          <td nzAlign="left" class="py-3 px-3 hidden md:table-cell">
+            <span class="text-xs text-gray-600 dark:text-gray-300">{{ c.branchLabel }}</span>
+          </td>
+
+          <td nzAlign="left" class="py-3 px-3 hidden lg:table-cell">
+            @if (c.member.assignedTrainerEmployee; as tr) {
+              <span class="inline-flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-medium">
+                <span nz-icon nzType="user" class="text-slate-400"></span>
+                {{ tr.name }}
+              </span>
+            } @else {
+              <span class="text-xs text-gray-400">—</span>
+            }
+          </td>
+
+          <td nzAlign="left" class="py-3 px-3 hidden xl:table-cell text-left">
+            @if (c.latest; as m) {
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-semibold inline-block"
+                [class.bg-emerald-50]="m.bmiStatus === 'NORMAL'"
+                [class.text-emerald-700]="m.bmiStatus === 'NORMAL'"
+                [class.dark:bg-emerald-900/30]="m.bmiStatus === 'NORMAL'"
+                [class.dark:text-emerald-300]="m.bmiStatus === 'NORMAL'"
+                [class.bg-amber-50]="m.bmiStatus === 'OVERWEIGHT'"
+                [class.text-amber-700]="m.bmiStatus === 'OVERWEIGHT'"
+                [class.dark:bg-amber-900/30]="m.bmiStatus === 'OVERWEIGHT'"
+                [class.dark:text-amber-300]="m.bmiStatus === 'OVERWEIGHT'"
+                [class.bg-red-50]="m.bmiStatus === 'OBESE' || m.bmiStatus === 'UNDERWEIGHT'"
+                [class.text-red-700]="m.bmiStatus === 'OBESE' || m.bmiStatus === 'UNDERWEIGHT'"
+                [class.dark:bg-red-900/30]="m.bmiStatus === 'OBESE' || m.bmiStatus === 'UNDERWEIGHT'"
+                [class.dark:text-red-300]="m.bmiStatus === 'OBESE' || m.bmiStatus === 'UNDERWEIGHT'"
+              >
+                {{ m.bmi }} ({{ m.bmiStatus }})
+              </span>
+            } @else {
+              <span class="text-xs text-gray-400">—</span>
+            }
+          </td>
+
+          <td nzAlign="left" class="py-3 px-3 text-left">
+            <span
+              class="px-2.5 py-0.5 rounded-full text-xs font-semibold inline-block"
+              [class.bg-emerald-50]="c.member.status === 'ACTIVE'"
+              [class.text-emerald-700]="c.member.status === 'ACTIVE'"
+              [class.dark:bg-emerald-900/30]="c.member.status === 'ACTIVE'"
+              [class.dark:text-emerald-300]="c.member.status === 'ACTIVE'"
+              [class.bg-gray-100]="c.member.status === 'INACTIVE'"
+              [class.text-gray-600]="c.member.status === 'INACTIVE'"
+              [class.dark:bg-gray-800]="c.member.status === 'INACTIVE'"
+              [class.dark:text-gray-400]="c.member.status === 'INACTIVE'"
+            >
+              {{ c.member.status }}
+            </span>
+          </td>
+
+          <td nzAlign="right" class="py-3 px-4 text-right">
+            <button
+              nz-button nzType="text" nzShape="circle" nz-dropdown [nzDropdownMenu]="menu"
+              nzTrigger="click" nzPlacement="bottomRight"
+              class="!text-gray-400 hover:!text-gray-600 dark:hover:!text-white"
+            >
+              <span nz-icon nzType="ellipsis" class="text-base font-bold"></span>
+            </button>
+
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu class="min-w-48 !p-1.5 !rounded-xl !shadow-xl border border-gray-100 dark:border-gray-800">
+                <li nz-menu-item (click)="viewDetails.emit(c)" class="!py-2 !px-3 !rounded-lg">
+                  <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                    <span nz-icon nzType="info-circle" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                    <span class="text-sm font-normal">Details</span>
+                  </div>
+                </li>
+                <li nz-menu-item (click)="viewProgress.emit(c.member)" class="!py-2 !px-3 !rounded-lg">
+                  <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                    <span nz-icon nzType="line-chart" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                    <span class="text-sm font-normal">Progress & Photos</span>
+                  </div>
+                </li>
+                <li nz-menu-item (click)="viewFitness.emit(c.member)" class="!py-2 !px-3 !rounded-lg">
+                  <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                    <span nz-icon nzType="heart" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                    <span class="text-sm font-normal">Diet & workout</span>
+                  </div>
+                </li>
+                @if (canWrite()) {
+                  <li nz-menu-item (click)="logMetrics.emit(c.member)" class="!py-2 !px-3 !rounded-lg">
+                    <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                      <span nz-icon nzType="plus-circle" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                      <span class="text-sm font-normal">Log check-in</span>
+                    </div>
+                  </li>
+                }
+                @if (!c.member.isTrial) {
+                  <li nz-menu-item (click)="downloadInvoice.emit(c.member)" class="!py-2 !px-3 !rounded-lg">
+                    <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                      <span nz-icon nzType="download" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                      <span class="text-sm font-normal">Invoice PDF</span>
+                    </div>
+                  </li>
+                }
+                @if (canWrite()) {
+                  <li nz-menu-divider class="!my-1.5 border-gray-100 dark:border-gray-800"></li>
+                  <li nz-menu-item (click)="editMember.emit(c.member)" class="!py-2 !px-3 !rounded-lg">
+                    <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                      <span nz-icon nzType="edit" class="text-base text-slate-500 dark:text-slate-400 shrink-0"></span>
+                      <span class="text-sm font-normal">Edit</span>
+                    </div>
+                  </li>
+                  <li nz-menu-item (click)="deleteMember.emit(c.member)" class="!py-2 !px-3 !rounded-lg hover:!bg-red-50 dark:hover:!bg-red-950/20">
+                    <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
+                      <span nz-icon nzType="delete" class="text-base text-red-500 shrink-0"></span>
+                      <span class="text-sm font-normal text-red-600 dark:text-red-400">Delete</span>
+                    </div>
+                  </li>
+                }
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+  </div>
+</div>
+

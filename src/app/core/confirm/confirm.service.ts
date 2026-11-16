@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 export interface ConfirmOptions {
   message: string;
@@ -12,60 +14,99 @@ export interface ConfirmOptions {
 }
 
 /** Single place all features call to ask the user to confirm something,
- * so every confirmation in the app is the same themed PrimeNG dialog
- * (rendered once, globally, via <p-confirmdialog> in app.html) instead
- * of the browser's native `confirm()` popup. Mirrors the ToastService
- * pattern — call this, never wire ConfirmationService directly. */
+ * so every confirmation in the app is consistent. Seamlessly bridges
+ * v1 (PrimeNG) and v2 (NG-ZORRO). */
 @Injectable({ providedIn: 'root' })
 export class ConfirmService {
-  private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
+  private confirmationService = inject(ConfirmationService, { optional: true });
+  private nzModalService = inject(NzModalService, { optional: true });
 
-  /** A plain OK-only notice using the same themed dialog — no Cancel
-   * button, resolves once the user dismisses it. Use this instead of
-   * `confirm()` for something the user needs to acknowledge rather
-   * than decide (e.g. being signed out because the account logged in
-   * elsewhere), where offering a "Cancel" wouldn't make sense. */
+  private isV2(): boolean {
+    return this.router.url.includes('/v2');
+  }
+
+  /** A plain OK-only notice — no Cancel button, resolves once dismissed. */
   alert(options: { message: string; header?: string; okLabel?: string }): Promise<void> {
     return new Promise((resolve) => {
-      this.confirmationService.confirm({
-        message: options.message,
-        header: options.header ?? 'Notice',
-        icon: 'pi pi-info-circle',
-        acceptLabel: options.okLabel ?? 'OK',
-        rejectVisible: false,
-        acceptButtonProps: {
-          severity: 'info',
-        },
-        accept: () => resolve(),
-        // No reject button, but Escape/outside-click still dismisses —
-        // treat that the same as clicking OK.
-        reject: () => resolve(),
-      });
+      if (this.isV2() && this.nzModalService) {
+        this.nzModalService.info({
+          nzTitle: options.header ?? 'Notice',
+          nzContent: options.message,
+          nzOkText: options.okLabel ?? 'OK',
+          nzOnOk: () => resolve(),
+          nzOnCancel: () => resolve(),
+        });
+        return;
+      }
+
+      if (this.confirmationService) {
+        this.confirmationService.confirm({
+          message: options.message,
+          header: options.header ?? 'Notice',
+          icon: 'pi pi-info-circle',
+          acceptLabel: options.okLabel ?? 'OK',
+          rejectVisible: false,
+          acceptButtonProps: { severity: 'info' },
+          accept: () => resolve(),
+          reject: () => resolve(),
+        });
+      } else if (this.nzModalService) {
+        this.nzModalService.info({
+          nzTitle: options.header ?? 'Notice',
+          nzContent: options.message,
+          nzOkText: options.okLabel ?? 'OK',
+          nzOnOk: () => resolve(),
+          nzOnCancel: () => resolve(),
+        });
+      }
     });
   }
 
-  /** Resolves true if the user accepted, false if they rejected or
-   * dismissed the dialog (Escape, clicking outside, etc). */
+  /** Resolves true if accepted, false if rejected/dismissed. */
   confirm(options: ConfirmOptions): Promise<boolean> {
     return new Promise((resolve) => {
-      this.confirmationService.confirm({
-        message: options.message,
-        header: options.header ?? 'Please confirm',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: options.acceptLabel ?? 'Yes',
-        rejectLabel: options.rejectLabel ?? 'Cancel',
-        acceptButtonProps: {
-          severity: options.severity ?? 'danger',
-        },
-        rejectButtonProps: {
-          severity: 'secondary',
-          outlined: true,
-        },
-        // reject fires both on an explicit Cancel click AND on dismissal
-        // (Escape, clicking outside) — either way it's "not confirmed".
-        accept: () => resolve(true),
-        reject: () => resolve(false),
-      });
+      if (this.isV2() && this.nzModalService) {
+        this.nzModalService.confirm({
+          nzTitle: options.header ?? 'Please confirm',
+          nzContent: options.message,
+          nzOkText: options.acceptLabel ?? 'Yes',
+          nzOkDanger: options.severity === 'danger',
+          nzCancelText: options.rejectLabel ?? 'Cancel',
+          nzOnOk: () => resolve(true),
+          nzOnCancel: () => resolve(false),
+        });
+        return;
+      }
+
+      if (this.confirmationService) {
+        this.confirmationService.confirm({
+          message: options.message,
+          header: options.header ?? 'Please confirm',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: options.acceptLabel ?? 'Yes',
+          rejectLabel: options.rejectLabel ?? 'Cancel',
+          acceptButtonProps: {
+            severity: options.severity ?? 'danger',
+          },
+          rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true,
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false),
+        });
+      } else if (this.nzModalService) {
+        this.nzModalService.confirm({
+          nzTitle: options.header ?? 'Please confirm',
+          nzContent: options.message,
+          nzOkText: options.acceptLabel ?? 'Yes',
+          nzOkDanger: options.severity === 'danger',
+          nzCancelText: options.rejectLabel ?? 'Cancel',
+          nzOnOk: () => resolve(true),
+          nzOnCancel: () => resolve(false),
+        });
+      }
     });
   }
 }

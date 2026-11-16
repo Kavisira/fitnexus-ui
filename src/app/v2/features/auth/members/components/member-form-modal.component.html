@@ -1,0 +1,131 @@
+<nz-modal
+  [nzVisible]="visible()"
+  [nzTitle]="editingMember() ? 'Edit Member Profile' : 'Register New Member'"
+  [nzFooter]="null"
+  [nzWidth]="820"
+  (nzOnCancel)="cancel.emit()"
+>
+  <div *nzModalContent class="space-y-4 max-h-[80vh] overflow-y-auto p-1">
+    <!-- Wizard Step Chips -->
+    <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+      @for (step of wizardSteps; track step.label; let i = $index) {
+        <div
+          class="flex items-center gap-2 cursor-pointer transition-opacity"
+          [class.opacity-40]="!canJumpToStep(i)"
+          (click)="goToStep(i)"
+        >
+          <div
+            class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+            [class.bg-blue-600]="wizardStep() === i"
+            [class.text-white]="wizardStep() === i"
+            [class.bg-emerald-500]="wizardStep() > i"
+            [class.text-white]="wizardStep() > i"
+            [class.bg-gray-100]="wizardStep() < i"
+            [class.dark:bg-gray-800]="wizardStep() < i"
+            [class.text-gray-500]="wizardStep() < i"
+          >
+            @if (wizardStep() > i) {
+              <span nz-icon nzType="check"></span>
+            } @else {
+              {{ i + 1 }}
+            }
+          </div>
+          <span class="text-xs font-semibold" [class.text-blue-600]="wizardStep() === i" [class.text-gray-500]="wizardStep() !== i">
+            {{ step.label }}
+          </span>
+        </div>
+        @if (i < wizardSteps.length - 1) {
+          <div class="h-0.5 flex-1 mx-2 bg-gray-200 dark:bg-gray-700" [class.bg-emerald-500]="wizardStep() > i"></div>
+        }
+      }
+    </div>
+
+    @if (errorMessage(); as err) {
+      <nz-alert nzType="error" [nzMessage]="err" nzShowIcon class="!rounded-xl"></nz-alert>
+    }
+
+    <!-- Steps -->
+    @if (wizardStep() === 0) {
+      <app-step-personal
+        [form]="form"
+        [photoUrl]="profilePhotoDataUrl()"
+        [photoProcessing]="photoProcessing()"
+        (photoSelected)="onProfilePhotoSelected($event)"
+        (photoCleared)="clearProfilePhoto()"
+      ></app-step-personal>
+    }
+
+    @if (wizardStep() === 1) {
+      <app-step-membership
+        [form]="form"
+        [partnerForm]="partnerForm"
+        [branches]="branches()"
+        [plans]="plans()"
+        [offers]="offers()"
+        [employees]="employees()"
+        [allMembers]="allMembers()"
+        [isEditing]="!!editingMember()"
+        [selectedBranchId]="selectedBranchId()"
+        [partnerMode]="partnerMode()"
+        [partnerMemberId]="partnerMemberId()"
+        [endDate]="endDatePreview()"
+        [partnerPrice]="partnerPricePreview()"
+        [isCoupleOffer]="isCoupleOffer()"
+        (partnerModeChange)="partnerMode.set($event)"
+        (partnerMemberIdChange)="partnerMemberId.set($event)"
+        (ptToggled)="onPersonalTrainerToggle()"
+      ></app-step-membership>
+    }
+
+    @if (wizardStep() === 2) {
+      <app-step-payment
+        [form]="form"
+        [currency]="currency()"
+        [pricePreview]="pricePreviewLabel()"
+        [ptTotalPreview]="ptTotalPreview()"
+        [ptEndDate]="ptEndDatePreview()"
+        [ptDurationExceeds]="ptDurationExceedsMembership()"
+        [totalPayable]="totalPayable()"
+        [balanceDueLabel]="balanceDueLabel()"
+        [showFollowUp]="showFollowUpSection()"
+        [showSettle]="showSettleBalance()"
+        [paymentType]="paymentType()"
+        (paymentTypeChange)="setPaymentType($event)"
+      ></app-step-payment>
+    }
+
+    @if (wizardStep() === 3) {
+      <app-step-measurements
+        [form]="form"
+        [metricPhotoUrl]="metricPhotoDataUrl()"
+        [metricPhotoProcessing]="photoProcessing()"
+        [bmiPreview]="wizardBmiPreview()"
+        (photoSelected)="onMetricPhotoSelected($event)"
+        (photoCleared)="metricPhotoDataUrl.set(null)"
+      ></app-step-measurements>
+    }
+
+    <!-- Wizard Footer Actions -->
+    <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+      <button nz-button nzType="default" (click)="cancel.emit()" class="!rounded-xl">Cancel</button>
+
+      <div class="flex items-center gap-2">
+        @if (wizardStep() > 0) {
+          <button nz-button nzType="default" (click)="prevStep()" class="!rounded-xl">
+            <span nz-icon nzType="left"></span> Back
+          </button>
+        }
+
+        @if (wizardStep() < 3) {
+          <button nz-button nzType="primary" (click)="nextStep()" class="!rounded-xl !bg-blue-600 hover:!bg-blue-500">
+            Next <span nz-icon nzType="right"></span>
+          </button>
+        } @else {
+          <button nz-button nzType="primary" (click)="submit()" [nzLoading]="saving()" class="!rounded-xl !bg-emerald-600 hover:!bg-emerald-500">
+            <span nz-icon nzType="check"></span> {{ editingMember() ? 'Save Changes' : 'Register Member' }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</nz-modal>

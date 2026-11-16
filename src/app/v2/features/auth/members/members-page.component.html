@@ -1,0 +1,106 @@
+<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full space-y-4">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white m-0">Members</h1>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Manage gym memberships, track body metrics, and process check-ins.</p>
+    </div>
+  </div>
+
+  <!-- Filter & Action Bar -->
+  <app-member-filter-bar
+    [branches]="branchStore.branches()"
+    [canWrite]="canWrite()"
+    [hasFilters]="hasFilters()"
+    [(search)]="search"
+    [(selectedBranchIds)]="selectedBranchIds"
+    [(selectedStatuses)]="selectedStatuses"
+    [(ptOnly)]="ptOnly"
+    [(viewMode)]="viewMode"
+    (clearFilters)="clearFilters()"
+    (exportCsv)="exportCsv()"
+    (openCreate)="openCreate()"
+  ></app-member-filter-bar>
+
+  <!-- Members View (Table or Grid) -->
+  @if (viewMode() === 'table') {
+    <app-member-table
+      [cards]="memberCards()"
+      [loading]="memberStore.loading()"
+      [canWrite]="canWrite()"
+      (viewDetails)="detailCard.set($event)"
+      (viewProgress)="progressMember.set($event)"
+      (viewFitness)="openFitnessDialog($event)"
+      (logMetrics)="openLogMetrics($event)"
+      (downloadInvoice)="downloadInvoice($event)"
+      (editMember)="openEdit($event)"
+      (deleteMember)="deleteMember($event)"
+    ></app-member-table>
+  } @else {
+    <app-member-card-grid
+      [cards]="memberCards()"
+      [canWrite]="canWrite()"
+      (viewDetails)="detailCard.set($event)"
+      (viewProgress)="progressMember.set($event)"
+      (viewFitness)="openFitnessDialog($event)"
+      (logMetrics)="openLogMetrics($event)"
+      (downloadInvoice)="downloadInvoice($event)"
+      (editMember)="openEdit($event)"
+      (deleteMember)="deleteMember($event)"
+    ></app-member-card-grid>
+  }
+
+  <!-- Pagination Bar -->
+  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+    <div class="text-xs text-gray-500">
+      Total <strong class="text-gray-900 dark:text-white font-semibold">{{ memberStore.total() }}</strong> registered members
+    </div>
+    <nz-pagination
+      [nzPageIndex]="page()"
+      [nzPageSize]="pageSize()"
+      [nzTotal]="memberStore.total()"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[10, 20, 50]"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+    ></nz-pagination>
+  </div>
+
+  <!-- Modals -->
+  @if (detailCard()) {
+    <app-member-detail-modal [card]="detailCard()" (close)="detailCard.set(null)"></app-member-detail-modal>
+  }
+
+  @if (metricsMember()) {
+    <app-member-metrics-modal [member]="metricsMember()" [saving]="saving()" (close)="metricsMember.set(null)" (save)="onSaveMetrics($event)"></app-member-metrics-modal>
+  }
+
+  @if (progressMember()) {
+    <app-member-progress-modal [member]="progressMember()" (close)="progressMember.set(null)"></app-member-progress-modal>
+  }
+
+  @if (formModalVisible()) {
+    <app-member-form-modal
+      [visible]="formModalVisible()"
+      [editingMember]="editingMember()"
+      [saving]="saving()"
+      [branches]="branchStore.branches()"
+      [plans]="plans()"
+      [offers]="offers()"
+      [employees]="employeeStore.employees()"
+      [allMembers]="memberStore.allMembers()"
+      (cancel)="formModalVisible.set(false)"
+      (save)="onSaveMember($event)"
+    ></app-member-form-modal>
+  }
+
+  <app-member-fitness-dialog
+    [visible]="fitnessDialogVisible()"
+    (visibleChange)="fitnessDialogVisible.set($event)"
+    [memberId]="fitnessMemberId()"
+    [memberName]="fitnessMemberName()"
+    [memberGender]="fitnessMemberGender()"
+    [canWrite]="canWriteFitness()"
+  />
+</div>
+

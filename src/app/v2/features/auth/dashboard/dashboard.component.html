@@ -1,0 +1,152 @@
+<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full space-y-5">
+  <!-- 1. Header & Sub-Bar matching existing dashboard -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-800">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white m-0">
+        Dashboard
+      </h1>
+      <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-300 mt-0.5 mb-0">
+        A snapshot of how your gym is doing right now.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Branch Selector -->
+      @if (showBranchFilter()) {
+        <nz-select
+          [ngModel]="selectedBranchId()"
+          (ngModelChange)="onBranchChange($event)"
+          [nzShowSearch]="true"
+          class="w-44 !rounded-xl"
+        >
+          @for (opt of branchOptions(); track opt.value) {
+            <nz-option [nzLabel]="opt.label" [nzValue]="opt.value"></nz-option>
+          }
+        </nz-select>
+      } @else if (singleBranchLabel(); as branchLabel) {
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+          <span nz-icon nzType="branches"></span>
+          <span>{{ branchLabel }}</span>
+        </div>
+      }
+
+      <!-- Subscription Pill -->
+      @if (subscription(); as sub) {
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-colors cursor-pointer"
+          [class.bg-amber-50]="!sub.isExpired"
+          [class.text-amber-800]="!sub.isExpired"
+          [class.border-amber-200]="!sub.isExpired"
+          [class.dark:bg-amber-900/30]="!sub.isExpired"
+          [class.dark:text-amber-300]="!sub.isExpired"
+          [class.dark:border-amber-800]="!sub.isExpired"
+          [class.bg-red-50]="sub.isExpired"
+          [class.text-red-700]="sub.isExpired"
+          [class.border-red-200]="sub.isExpired"
+          (click)="goToBilling()"
+        >
+          <span class="w-1.5 h-1.5 rounded-full" [class.bg-amber-500]="!sub.isExpired" [class.bg-red-500]="sub.isExpired"></span>
+          <span>
+            @if (sub.isExpired) {
+              Plan expired
+            } @else {
+              {{ sub.tier ? sub.tier : 'Free trial' }} &bull; {{ subscriptionDaysRemaining() }} day{{ subscriptionDaysRemaining() === 1 ? '' : 's' }} left
+            }
+          </span>
+          @if (isOwner()) {
+            <span class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Manage</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  @if (loading() && !summary()) {
+    <div class="flex items-center justify-center p-16">
+      <nz-spin nzSimple nzSize="large"></nz-spin>
+    </div>
+  } @else if (analytics(); as data) {
+    <!-- 2. Primary 4-Card KPI Row -->
+    <app-dashboard-kpi-row
+      [data]="data"
+      [currency]="primaryCurrency()"
+      [marginPct]="profitMarginPct()"
+      (expandStat)="expandedStat.set($event)"
+    ></app-dashboard-kpi-row>
+
+    <!-- 3. Primary Trend Charts -->
+    <app-dashboard-trend-charts
+      [financeData]="financeChartData()"
+      [signupData]="signupChartData()"
+      [chartOptions]="chartService.lineChartOptions()"
+      [(financeTf)]="financeTimeframe"
+      [(signupTf)]="signupTimeframe"
+      (expandChart)="expandedChart.set($event)"
+    ></app-dashboard-trend-charts>
+
+    <!-- 4. Secondary Row -->
+    <app-dashboard-secondary-row
+      [data]="data"
+      [planData]="revenueByPlanChartData()"
+      [donutOptions]="chartService.doughnutChartOptions()"
+      [leadsData]="leadsByStatusChartData()"
+      [barOptions]="chartService.barChartOptions()"
+      [hasPlanRevenue]="hasPlanRevenue()"
+      [hasLeadsData]="hasLeadsData()"
+      (expandChart)="expandedChart.set($event)"
+    ></app-dashboard-secondary-row>
+
+    <!-- 5. Branch Breakdown Table -->
+    @if (data.branchBreakdown && data.branchBreakdown.length > 0) {
+      <app-dashboard-branch-table
+        [rows]="data.branchBreakdown"
+        (expandTable)="expandedTable.set($event)"
+      ></app-dashboard-branch-table>
+    }
+  }
+
+  <!-- Expand Modals -->
+  @if (expandedStat(); as stat) {
+    <nz-modal
+      [nzVisible]="true"
+      [nzTitle]="stat.labelKey | translate"
+      [nzFooter]="null"
+      (nzOnCancel)="expandedStat.set(null)"
+    >
+      <div *nzModalContent class="text-center p-8">
+        <span nz-icon [nzType]="stat.icon" class="text-4xl text-blue-600 mb-3"></span>
+        <div class="text-4xl font-extrabold text-gray-900 dark:text-white">{{ stat.value }}</div>
+      </div>
+    </nz-modal>
+  }
+
+  @if (expandedChart(); as chart) {
+    <nz-modal
+      [nzVisible]="true"
+      [nzTitle]="chart.titleKey | translate"
+      [nzFooter]="null"
+      [nzWidth]="800"
+      (nzOnCancel)="expandedChart.set(null)"
+    >
+      <div *nzModalContent class="p-4 h-[420px]">
+        <app-chart [type]="chart.type" [data]="$any(chart.data)" [options]="$any(chart.options)" height="400px"></app-chart>
+      </div>
+    </nz-modal>
+  }
+
+  @if (expandedTable(); as rows) {
+    <nz-modal
+      [nzVisible]="true"
+      [nzTitle]="'dashboard.branchBreakdownTitle' | translate"
+      [nzFooter]="null"
+      [nzWidth]="850"
+      (nzOnCancel)="expandedTable.set(null)"
+    >
+      <div *nzModalContent class="p-4">
+        <app-dashboard-branch-table [rows]="rows"></app-dashboard-branch-table>
+      </div>
+    </nz-modal>
+  }
+</div>
+

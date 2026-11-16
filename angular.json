@@ -26,6 +26,7 @@
               }
             ],
             "styles": [
+              "node_modules/ng-zorro-antd/ng-zorro-antd.variable.min.css",
               "src/styles.css"
             ]
           },
@@ -34,8 +35,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2.4MB",
-                  "maximumError": "3MB"
+                  "maximumWarning": "3.5MB",
+                  "maximumError": "4.5MB"
                 },
                 {
                   "type": "anyComponentStyle",

@@ -1,6 +1,356 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles and CSS libraries */
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.my-app-dark, .my-app-dark *, .dark, .dark *));
 @import 'primeicons/primeicons.css';
 @import 'driver.js/dist/driver.css';
+
+:root {
+  --ant-primary-color: #2563eb;
+  --ant-primary-color-hover: #1d4ed8;
+  --ant-primary-color-active: #1e40af;
+  --ant-primary-color-outline: rgba(37, 99, 235, 0.2);
+  --ant-primary-1: #eff6ff;
+  --ant-primary-2: #dbeafe;
+  --ant-primary-3: #bfdbfe;
+  --ant-primary-4: #93c5fd;
+  --ant-primary-5: #60a5fa;
+  --ant-primary-6: #2563eb;
+  --ant-primary-7: #1d4ed8;
+  --ant-success-color: #16a34a;
+  --ant-warning-color: #f59e0b;
+  --ant-error-color: #dc2626;
+  --ant-info-color: #2563eb;
+}
+
+html.my-app-dark,
+html.dark {
+  color-scheme: dark;
+  background-color: #030712 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Headings in Dark Mode - Overrides Ant Design's rgba(0,0,0,0.85) defaults */
+html.my-app-dark h1,
+html.my-app-dark h2,
+html.my-app-dark h3,
+html.my-app-dark h4,
+html.my-app-dark h5,
+html.my-app-dark h6,
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #f9fafb !important;
+}
+
+/* Ant Form Controls full-width defaults inside form and modal containers */
+form nz-input-number,
+form .ant-input-number,
+.ant-modal-body nz-input-number,
+.ant-modal-body .ant-input-number,
+.grid nz-input-number,
+.grid .ant-input-number {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center;
+}
+
+.ant-input-number-input-wrap {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ant-input-number-input {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+nz-date-picker,
+.ant-picker {
+  width: 100% !important;
+  display: flex !important;
+}
+
+form nz-select,
+form .ant-select,
+.ant-modal-body nz-select,
+.ant-modal-body .ant-select,
+.grid nz-select,
+.grid .ant-select {
+  width: 100% !important;
+}
+
+/* Ant Inputs */
+html.my-app-dark .ant-input,
+html.my-app-dark .ant-input-password,
+html.my-app-dark .ant-input-wrapper,
+html.my-app-dark .ant-input-number,
+html.dark .ant-input,
+html.dark .ant-input-password,
+html.dark .ant-input-wrapper,
+html.dark .ant-input-number {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-input-number-input,
+html.dark .ant-input-number-input {
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-input::placeholder,
+html.dark .ant-input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Ant Select */
+html.my-app-dark .ant-select-selector,
+html.dark .ant-select-selector {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+  border-radius: 0.75rem !important;
+}
+
+html.my-app-dark .ant-select:hover .ant-select-selector,
+html.dark .ant-select:hover .ant-select-selector,
+html.my-app-dark .ant-select-focused .ant-select-selector,
+html.dark .ant-select-focused .ant-select-selector {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+html.my-app-dark .ant-select-selection-item,
+html.dark .ant-select-selection-item {
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-select-selection-placeholder,
+html.dark .ant-select-selection-placeholder {
+  color: #9ca3af !important;
+}
+
+html.my-app-dark .ant-select-arrow,
+html.dark .ant-select-arrow {
+  color: #9ca3af !important;
+}
+
+html.my-app-dark .ant-select-dropdown,
+html.dark .ant-select-dropdown {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  color: #f3f4f6 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.my-app-dark .ant-select-item,
+html.dark .ant-select-item {
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+html.dark .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.my-app-dark .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
+html.dark .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: rgba(37, 99, 235, 0.25) !important;
+  color: #60a5fa !important;
+  font-weight: 600 !important;
+}
+
+/* Ant Dropdown Menu */
+.ant-dropdown-menu {
+  background-color: #ffffff !important;
+  border: 1px solid #f1f5f9 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.35rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+.ant-dropdown-menu-item {
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 0.85rem !important;
+  font-size: 0.84rem !important;
+  font-weight: 450 !important;
+  color: #334155 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.ant-dropdown-menu-item .ant-menu-title-content {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.ant-dropdown-menu-item .anticon,
+.ant-dropdown-menu-item .ant-menu-title-content .anticon {
+  font-size: 0.95rem !important;
+  color: #64748b !important;
+  margin-right: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.ant-dropdown-menu-item:hover .anticon,
+.ant-dropdown-menu-item:hover .ant-menu-title-content .anticon {
+  color: #334155 !important;
+}
+
+.ant-dropdown-menu-item-divider {
+  background-color: #f1f5f9 !important;
+  margin: 0.35rem 0 !important;
+}
+
+html.my-app-dark .ant-dropdown-menu,
+html.dark .ant-dropdown-menu {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  color: #f3f4f6 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.my-app-dark .ant-dropdown-menu-item,
+html.dark .ant-dropdown-menu-item {
+  color: #e2e8f0 !important;
+}
+
+html.my-app-dark .ant-dropdown-menu-item:hover,
+html.dark .ant-dropdown-menu-item:hover {
+  background-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.my-app-dark .ant-dropdown-menu-item .anticon,
+html.dark .ant-dropdown-menu-item .anticon,
+html.my-app-dark .ant-dropdown-menu-item .ant-menu-title-content .anticon,
+html.dark .ant-dropdown-menu-item .ant-menu-title-content .anticon {
+  color: #94a3b8 !important;
+}
+
+html.my-app-dark .ant-dropdown-menu-item:hover .anticon,
+html.dark .ant-dropdown-menu-item:hover .anticon,
+html.my-app-dark .ant-dropdown-menu-item:hover .ant-menu-title-content .anticon,
+html.dark .ant-dropdown-menu-item:hover .ant-menu-title-content .anticon {
+  color: #ffffff !important;
+}
+
+html.my-app-dark .ant-dropdown-menu-item-divider,
+html.dark .ant-dropdown-menu-item-divider {
+  background-color: #374151 !important;
+}
+
+/* Ant Table Alignment Fixes */
+.ant-table-thead > tr > th {
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 600 !important;
+  color: #6b7280 !important;
+  background-color: rgba(249, 250, 251, 0.7) !important;
+}
+
+html.my-app-dark .ant-table-thead > tr > th,
+html.dark .ant-table-thead > tr > th {
+  background-color: rgba(31, 41, 55, 0.5) !important;
+  color: #9ca3af !important;
+}
+
+.ant-table-cell[nzAlign="center"],
+th.text-center,
+td.text-center {
+  text-align: center !important;
+}
+
+.ant-table-cell[nzAlign="right"],
+th.text-right,
+td.text-right {
+  text-align: right !important;
+}
+
+.ant-table-cell[nzAlign="left"],
+th.text-left,
+td.text-left {
+  text-align: left !important;
+}
+
+/* Ant Buttons */
+html.my-app-dark .ant-btn-default,
+html.dark .ant-btn-default {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-btn-default:hover,
+html.dark .ant-btn-default:hover {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+/* Ant Text Buttons (Header icon buttons, modal close, card fullscreen, etc.) */
+html.my-app-dark .ant-btn-text,
+html.dark .ant-btn-text {
+  color: #f3f4f6 !important;
+}
+
+html.my-app-dark .ant-btn-text:hover,
+html.dark .ant-btn-text:hover,
+html.my-app-dark .ant-btn-text:focus,
+html.dark .ant-btn-text:focus {
+  color: #60a5fa !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Ant Modal */
+html.my-app-dark .ant-modal-content,
+html.dark .ant-modal-content {
+  background-color: #111827 !important;
+  color: #f3f4f6 !important;
+  border: 1px solid #374151 !important;
+}
+
+html.my-app-dark .ant-modal-header,
+html.dark .ant-modal-header {
+  background-color: #111827 !important;
+  border-bottom-color: #374151 !important;
+}
+
+html.my-app-dark .ant-modal-title,
+html.dark .ant-modal-title {
+  color: #f9fafb !important;
+}
+
+html.my-app-dark .ant-modal-close,
+html.dark .ant-modal-close {
+  color: #9ca3af !important;
+}
+
+html.my-app-dark .ant-modal-close:hover,
+html.dark .ant-modal-close:hover {
+  color: #ffffff !important;
+}
+
+/* Ant Spin */
+html.my-app-dark .ant-spin-dot-item,
+html.dark .ant-spin-dot-item {
+  background-color: #3b82f6 !important;
+}
 
 html {
     /* Standard browser default — most components size themselves in
