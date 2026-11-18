@@ -53,6 +53,7 @@ export interface NavGroup {
         @if (showDashboard()) {
           <a
             [routerLink]="buildRoute(dashboard.route)"
+            data-tour="nav-DASHBOARD"
             routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
             class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             nz-tooltip
@@ -104,6 +105,7 @@ export interface NavGroup {
               @for (item of group.items; track item.route) {
                 <a
                   [routerLink]="buildRoute(item.route)"
+                  [attr.data-tour]="item.screen ? 'nav-' + item.screen : null"
                   routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
                   class="flex items-center gap-3 px-3 py-1.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   nz-tooltip
@@ -154,7 +156,7 @@ export interface NavGroup {
   `,
 })
 export class V2SidebarComponent {
-  readonly routePrefix = input<string>('/v2');
+  readonly routePrefix = input<string>('');
 
   private permissions = inject(PermissionsService);
   private tokenStorage = inject(TokenStorage);

@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
+/** Root component. Toasts (NzMessageService) and confirmations (NzModalService)
+ * render through NG-ZORRO's own overlay containers — see ToastService and
+ * ConfirmService — so nothing global is mounted here besides the router. */
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, ToastModule, ConfirmDialogModule],
-  templateUrl: './app.html',
-  styleUrls: ['./app.css'],
+  imports: [RouterOutlet],
+  template: '<router-outlet></router-outlet>',
 })
 export class App {}

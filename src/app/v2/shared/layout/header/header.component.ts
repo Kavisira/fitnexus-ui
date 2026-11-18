@@ -20,6 +20,9 @@ import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle
 import { SettingsDialog } from '../../../../shared/settings-dialog/settings-dialog';
 import { VersionDialog } from '../../../../shared/version-dialog/version-dialog';
 import { OrgInfoDialog } from '../../../../shared/org-info-dialog/org-info-dialog';
+// v1 (PrimeNG) bell — kept until it gets an NG-ZORRO version.
+import { NotificationBell } from '../../../../shared/notification-bell/notification-bell';
+import { NotificationStore } from '../../../../core/notifications/notification-store.service';
 
 @Component({
   selector: 'app-v2-header',
@@ -34,6 +37,7 @@ import { OrgInfoDialog } from '../../../../shared/org-info-dialog/org-info-dialo
     SettingsDialog,
     VersionDialog,
     OrgInfoDialog,
+    NotificationBell,
   ],
   template: `
     <header class="flex items-center justify-between h-14 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-10 shrink-0">
@@ -73,6 +77,10 @@ import { OrgInfoDialog } from '../../../../shared/org-info-dialog/org-info-dialo
         >
           <span nz-icon nzType="question-circle" class="text-lg"></span>
         </button>
+
+        @if (notificationStore.enabled()) {
+          <app-notification-bell></app-notification-bell>
+        }
 
         <app-theme-toggle></app-theme-toggle>
 
@@ -134,6 +142,7 @@ export class V2HeaderComponent {
   private i18n = inject(TranslationService);
   readonly pageHeader = inject(PageHeaderService);
   readonly sidebarState = inject(SidebarStateService);
+  readonly notificationStore = inject(NotificationStore);
 
   readonly orgInfoVisible = signal(false);
   readonly settingsVisible = signal(false);
@@ -145,7 +154,7 @@ export class V2HeaderComponent {
   }
 
   openHelp(): void {
-    this.router.navigateByUrl('/v2/help');
+    this.router.navigateByUrl('/help');
   }
 
   logout(): void {

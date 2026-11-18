@@ -3,13 +3,13 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 
 import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { provideNzDateFnsAdapter } from 'ng-zorro-antd/core/time';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { ICONS } from './v2/shared/icons';
 
 import { routes } from './app.routes';
@@ -45,8 +45,10 @@ export const appConfig: ApplicationConfig = {
     provideNzI18n(en_US),
     provideNzIcons(ICONS),
     provideNzDateFnsAdapter(),
-    MessageService,
-    ConfirmationService,
+    // NzModalService isn't providedIn: 'root' (only NzModalModule provides it),
+    // so register it app-wide for ConfirmService, which any page may inject.
+    NzModalService,
+    // PrimeNG stays only for v1 screens still awaiting migration (legacy-shell.routes.ts).
     providePrimeNG({
       theme: {
         preset: FitNexusPreset,

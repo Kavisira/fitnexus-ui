@@ -1,306 +1,159 @@
 import { Routes } from '@angular/router';
-import { Login } from './pages/noauth/login/login';
-import { ForgotPassword } from './pages/noauth/forgot-password/forgot-password';
-import { Signup } from './pages/noauth/signup/signup';
-import { VerifyOtp } from './pages/noauth/verify-otp/verify-otp';
-import { PublicFormFill } from './pages/noauth/public-form-fill/public-form-fill';
-import { PublicMemberPlans } from './pages/noauth/public-member-plans/public-member-plans';
-import { Layout } from './pages/auth/layout/layout';
-import { Dashboard } from './pages/auth/dashboard/dashboard';
-import { MyWorkspace } from './pages/auth/my-workspace/my-workspace';
-import { Payroll } from './pages/auth/payroll/payroll';
-import { Branches } from './pages/auth/branches/branches';
-import { Plans } from './pages/auth/plans/plans';
-import { Offers } from './pages/auth/offers/offers';
-import { Leads } from './pages/auth/leads/leads';
-import { FormsAdmin } from './pages/auth/forms-admin/forms-admin';
-import { Employees } from './pages/auth/employees/employees';
-import { Members } from './pages/auth/members/members';
-import { Expenses } from './pages/auth/expenses/expenses';
-import { NotificationSettingsLayout } from './pages/auth/notification-settings/notification-settings-layout';
-import { NotificationSetup } from './pages/auth/settings/notification-setup/notification-setup';
-import { NotificationConfiguration } from './pages/auth/settings/notification-configuration/notification-configuration';
-import { RolePermissions } from './pages/auth/role-permissions/role-permissions';
-import { Help } from './pages/auth/help/help';
-import { LeaveManagement } from './pages/auth/leave-management/leave-management';
-import { Todo } from './pages/auth/todo/todo';
-import { Attendance } from './pages/auth/attendance/attendance';
-import { Alerts } from './pages/auth/alerts/alerts';
-import { Billing } from './pages/auth/billing/billing';
-import { Placeholder } from './shared/placeholder/placeholder';
+
 import { authGuard, firstBranchGuard, noAuthGuard, ownerGuard, permissionGuard, planSelectionGuard, subscriptionGuard } from './core/auth/auth.guard';
 import { adminPortalGuard } from './core/admin-portal/admin-portal.guard';
-import { SubscriptionLocked } from './pages/auth/subscription-locked/subscription-locked';
-import { SelectPlan } from './pages/auth/select-plan/select-plan';
+import { LEGACY_SHELL_ROUTES } from './legacy-shell.routes';
 
+/**
+ * App routes. The NG-ZORRO + Tailwind app (src/app/v2) now serves every URL
+ * at the root — /login, /dashboard, /members, ... (the old /v2 prefix is gone).
+ * Screens not migrated yet still render their v1 (PrimeNG) component, but
+ * inside the v2 shell — see legacy-shell.routes.ts; delete each entry there as
+ * its v2 version lands.
+ */
 export const routes: Routes = [
-  // Platform-operator-only routes — completely outside the tenant
-  // app's Layout/auth world (own login, own token, own guard: see
-  // admin-portal.guard.ts). Lazy-loaded so neither component ships in
-  // the bundle a normal gym owner/staff login ever downloads.
+  // ---- Platform-operator portal (own login/token/guard; lazy, not yet migrated) ----
   {
     path: 'admin-portal/login',
-    loadComponent: () =>
-      import('./pages/admin-portal/login/admin-portal-login').then((m) => m.AdminPortalLogin),
+    loadComponent: () => import('./pages/admin-portal/login/admin-portal-login').then((m) => m.AdminPortalLogin),
     title: 'Platform sign-in · FitNexus',
   },
   {
     path: 'admin-portal/overview',
-    loadComponent: () =>
-      import('./pages/admin-portal/dashboard/admin-portal-dashboard').then((m) => m.AdminPortalDashboard),
+    loadComponent: () => import('./pages/admin-portal/dashboard/admin-portal-dashboard').then((m) => m.AdminPortalDashboard),
     canActivate: [adminPortalGuard],
     title: 'Platform overview · FitNexus',
   },
   {
     path: 'admin-portal/expenses',
-    loadComponent: () =>
-      import('./pages/admin-portal/expenses/admin-portal-expenses').then((m) => m.AdminPortalExpenses),
+    loadComponent: () => import('./pages/admin-portal/expenses/admin-portal-expenses').then((m) => m.AdminPortalExpenses),
     canActivate: [adminPortalGuard],
     title: 'Platform expenses · FitNexus',
   },
 
-  // V2 Migration Routes (NG-ZORRO & Tailwind) — fully lazy-loaded
-  {
-    path: 'v2',
-    loadChildren: () => import('./v2/v2.routes').then((m) => m.V2_ROUTES),
-  },
-
-  // Public (no auth required) routes. noAuthGuard bounces an already
-  // logged-in user (valid, non-expired token) straight to /dashboard.
+  // ---- Public auth pages (noAuthGuard bounces a logged-in user to /dashboard) ----
   { path: '', pathMatch: 'full', redirectTo: 'login' },
-  { path: 'login', component: Login, canActivate: [noAuthGuard], title: 'Sign in · FitNexus' },
+  {
+    path: 'login',
+    loadComponent: () => import('./v2/features/noauth/login/login.component').then((m) => m.V2LoginComponent),
+    canActivate: [noAuthGuard],
+    title: 'Sign in · FitNexus',
+  },
+  {
+    path: 'signup',
+    loadComponent: () => import('./v2/features/noauth/signup/signup.component').then((m) => m.V2SignupComponent),
+    canActivate: [noAuthGuard],
+    title: 'Create account · FitNexus',
+  },
   {
     path: 'forgot-password',
-    component: ForgotPassword,
+    loadComponent: () => import('./v2/features/noauth/forgot-password/forgot-password.component').then((m) => m.V2ForgotPasswordComponent),
     canActivate: [noAuthGuard],
-    title: 'Forgot password · FitNexus',
+    title: 'Reset password · FitNexus',
   },
-  { path: 'signup', component: Signup, canActivate: [noAuthGuard], title: 'Create account · FitNexus' },
   {
     path: 'verify-otp',
-    component: VerifyOtp,
+    loadComponent: () => import('./v2/features/noauth/verify-otp/verify-otp.component').then((m) => m.V2VerifyOtpComponent),
     canActivate: [noAuthGuard],
     title: 'Verify account · FitNexus',
   },
 
-  // Public, unauthenticated pages reached via a shared link/QR code —
-  // no guard at all (not even noAuthGuard, since a logged-in staff
-  // member opening a link they generated themselves should still see
-  // it render, not get bounced to /dashboard). See FormsService and
-  // FitnessService's public endpoints on the backend for the token
-  // model these pages rely on.
+  // ---- Public share-link pages (no guard: links/QR codes already sent out; not yet migrated) ----
   {
     path: 'public-forms/:token',
-    component: PublicFormFill,
+    loadComponent: () => import('./pages/noauth/public-form-fill/public-form-fill').then((m) => m.PublicFormFill),
     title: 'Feedback form · FitNexus',
   },
   {
     path: 'public-fitness/:token',
-    component: PublicMemberPlans,
+    loadComponent: () => import('./pages/noauth/public-member-plans/public-member-plans').then((m) => m.PublicMemberPlans),
     title: 'My plans · FitNexus',
   },
 
-  // Authenticated routes — everything nested under Layout requires a
-  // valid, non-expired session (authGuard), which also loads the
-  // logged-in user's permission matrix before any child route's own
-  // guard runs. Each child route below declares `data: { screen }` and
-  // `canActivate: [permissionGuard]`, so typing a screen's URL directly
-  // without read access on it redirects to /dashboard instead of
-  // rendering — the same matrix the sidenav uses to hide the link in
-  // the first place.
-  // Full-page hard lock — deliberately OUTSIDE Layout (no sidebar/nav
-  // at all) so it can't be worked around by anything Layout renders.
-  // Still requires a valid session (authGuard) so a logged-out visitor
-  // goes to /login as normal, not here.
+  // ---- Full-page gates: outside the shell, still behind authGuard (not yet migrated) ----
   {
     path: 'subscription-locked',
-    component: SubscriptionLocked,
+    loadComponent: () => import('./pages/auth/subscription-locked/subscription-locked').then((m) => m.SubscriptionLocked),
     canActivate: [authGuard],
     title: 'Subscription expired · FitNexus',
   },
-  // Mandatory post-registration gate — same "outside Layout, still
-  // behind authGuard" pattern as subscription-locked above. A
-  // brand-new org has subscriptionTier left unset by AuthService
-  // .register; planSelectionGuard (below) sends every other nested
-  // navigation here until BillingService.selectTrialPlan assigns one.
   {
     path: 'select-plan',
-    component: SelectPlan,
+    loadComponent: () => import('./pages/auth/select-plan/select-plan').then((m) => m.SelectPlan),
     canActivate: [authGuard],
     title: 'Choose your plan · FitNexus',
   },
+
+  // ---- Authenticated app inside the v2 shell ----
   {
     path: '',
-    component: Layout,
+    loadComponent: () => import('./v2/shared/layout/auth-layout.component').then((m) => m.V2AuthLayoutComponent),
     canActivate: [authGuard],
-    // planSelectionGuard runs first (an org with no tier yet should
-    // never even reach the subscription-expiry check), then
-    // subscriptionGuard, both short-circuiting firstBranchGuard when
-    // they redirect (see each guard's own doc comment in auth.guard.ts).
+    // planSelectionGuard first (no tier yet → /select-plan), then the
+    // subscription-expiry check, then first-branch onboarding — each
+    // short-circuits the next when it redirects (see auth.guard.ts).
     canActivateChild: [planSelectionGuard, subscriptionGuard, firstBranchGuard],
     children: [
       {
         path: 'dashboard',
-        component: Dashboard,
+        loadComponent: () => import('./v2/features/auth/dashboard/dashboard.component').then((m) => m.V2DashboardComponent),
         canActivate: [permissionGuard],
         data: { screen: 'DASHBOARD' },
         title: 'Dashboard · FitNexus',
       },
       {
-        path: 'branches',
-        component: Branches,
-        canActivate: [permissionGuard],
-        data: { screen: 'BRANCHES' },
-        title: 'Branches · FitNexus',
-      },
-      {
-        path: 'plans',
-        component: Plans,
-        canActivate: [permissionGuard],
-        data: { screen: 'PLANS' },
-        title: 'Plans & Packages · FitNexus',
-      },
-      {
-        // Offers are part of Plans management (same PLANS permission),
-        // just kept on their own screen rather than inside the Plans
-        // dialog — see the doc comment on the Offers component.
-        path: 'offers',
-        component: Offers,
-        canActivate: [permissionGuard],
-        data: { screen: 'PLANS' },
-        title: 'Offers · FitNexus',
-      },
-      {
         path: 'members',
-        component: Members,
+        loadComponent: () => import('./v2/features/auth/members/members-page.component').then((m) => m.V2MembersPageComponent),
         canActivate: [permissionGuard],
         data: { screen: 'MEMBERS' },
         title: 'Members · FitNexus',
       },
       {
-        path: 'expenses',
-        component: Expenses,
-        canActivate: [permissionGuard],
-        data: { screen: 'EXPENSES' },
-        title: 'Expenses · FitNexus',
-      },
-      {
         path: 'employees',
-        component: Employees,
+        loadComponent: () => import('./v2/features/auth/employees/employees-page.component').then((m) => m.V2EmployeesPageComponent),
         canActivate: [permissionGuard],
         data: { screen: 'EMPLOYEES' },
         title: 'Employees · FitNexus',
       },
       {
-        path: 'leads',
-        component: Leads,
+        path: 'offers',
+        loadComponent: () => import('./v2/features/auth/offers/offers-page.component').then((m) => m.V2OffersPageComponent),
         canActivate: [permissionGuard],
-        data: { screen: 'LEADS' },
-        title: 'Leads · FitNexus',
+        data: { screen: 'PLANS' },
+        title: 'Offers · FitNexus',
       },
       {
-        path: 'forms',
-        component: FormsAdmin,
+        path: 'expenses',
+        loadComponent: () => import('./v2/features/auth/expenses/expenses-page.component').then((m) => m.V2ExpensesPageComponent),
         canActivate: [permissionGuard],
-        data: { screen: 'FORMS' },
-        title: 'Forms · FitNexus',
+        data: { screen: 'EXPENSES' },
+        title: 'Expenses · FitNexus',
       },
       {
-        path: 'attendance',
-        component: Attendance,
+        path: 'todo',
+        loadComponent: () => import('./v2/features/auth/todo/todo-page.component').then((m) => m.V2TodoPageComponent),
         canActivate: [permissionGuard],
-        data: { labelKey: 'common.attendance', screen: 'ATTENDANCE' },
-        title: 'Attendance · FitNexus',
+        data: { screen: 'LEAVES' },
+        title: 'To-Do · FitNexus',
       },
       {
-        // Editing the role×screen matrix itself is owner-only — it
-        // isn't part of the matrix it edits, so it uses ownerGuard
-        // instead of permissionGuard.
-        path: 'roles-permissions',
-        component: RolePermissions,
-        canActivate: [ownerGuard],
-        title: 'Roles & Permissions · FitNexus',
-      },
-      {
-        // Login alerts are configured org-wide and shown to every
-        // login, so — like Roles & Permissions — this is owner-only
-        // rather than gated by a per-role permission screen.
+        // Org-wide login alerts — Owner-only, like Roles & Permissions.
         path: 'alerts',
-        component: Alerts,
+        loadComponent: () => import('./v2/features/auth/alerts/alerts-page.component').then((m) => m.V2AlertsPageComponent),
         canActivate: [ownerGuard],
         title: 'Login Alerts · FitNexus',
       },
       {
-        // Running payroll is a financial action gated Owner-only in
-        // the service itself (see PayrollService.requireOwner), same
-        // reasoning as Alerts/Roles & Permissions above — so this uses
-        // ownerGuard rather than a permission-matrix screen too.
-        path: 'payroll',
-        component: Payroll,
-        canActivate: [ownerGuard],
-        title: 'Payroll · FitNexus',
-      },
-      {
-        // Subscription/billing is the organization's own paid plan
-        // for FitNexus itself — same ownerGuard reasoning as
-        // Alerts/Payroll/Roles above (nothing for a Manager/Trainer/
-        // Front Desk login to configure here).
-        path: 'billing',
-        component: Billing,
-        canActivate: [ownerGuard],
-        title: 'Billing · FitNexus',
-      },
-      {
-        // The pending-decision queue (approve/reject) — the To-Do
-        // page. Leave Management below is now allocation *setup*
-        // only.
-        path: 'todo',
-        component: Todo,
-        canActivate: [permissionGuard],
-        data: { labelKey: 'common.todo', screen: 'LEAVES' },
-        title: 'To-Do · FitNexus',
-      },
-      {
-        path: 'leave-management',
-        component: LeaveManagement,
-        canActivate: [permissionGuard],
-        data: { screen: 'LEAVES' },
-        title: 'Leave Settings · FitNexus',
-      },
-      {
-        // Help is reference documentation, not a data screen — every
-        // logged-in user can open it regardless of role, so it has no
-        // permissionGuard/screen data like the other children here.
+        // Reference docs — every logged-in user, no permission screen.
         path: 'help',
-        component: Help,
+        loadComponent: () => import('./v2/features/auth/help/help-page.component').then((m) => m.V2HelpPageComponent),
         title: 'Help & Guide · FitNexus',
       },
-      {
-        // Self-service home for any logged-in employee (Apply Leave,
-        // Attendance Tracker, Payslips, Reviews, Appraisal Letters) —
-        // not part of the permission matrix, same as Help, since it
-        // only ever shows the caller's own data. The Owner has no
-        // Employee record, so the component itself shows a notice
-        // instead of the tabs when isOwnerAccount() is true (see
-        // MyWorkspace.isOwnerAccount).
-        path: 'my-workspace',
-        component: MyWorkspace,
-        title: 'My Workspace · FitNexus',
-      },
-      {
-        // Setup and Configuration are two tabs of one page, each with
-        // its own bookmarkable route — not tucked inside the Settings
-        // dialog. Both are gated by the same NOTIFICATIONS screen.
-        path: 'notifications',
-        component: NotificationSettingsLayout,
-        canActivate: [permissionGuard],
-        data: { screen: 'NOTIFICATIONS' },
-        children: [
-          { path: '', pathMatch: 'full', redirectTo: 'setup' },
-          { path: 'setup', component: NotificationSetup, title: 'Notification Setup · FitNexus' },
-          { path: 'configuration', component: NotificationConfiguration, title: 'Notification Configuration · FitNexus' },
-        ],
-      },
+      ...LEGACY_SHELL_ROUTES,
     ],
   },
+
+  // Old bookmarks from the migration period (/v2/members → /members).
+  { path: 'v2', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: 'v2/:rest', redirectTo: ':rest' },
 ];

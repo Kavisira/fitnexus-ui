@@ -170,6 +170,6 @@ export class V2ForgotPasswordComponent {
   }
 
   goToLogin(): void {
-    this.router.navigateByUrl('/v2/login');
+    this.router.navigateByUrl('/login');
   }
 }

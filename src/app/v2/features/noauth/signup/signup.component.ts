@@ -79,7 +79,7 @@ export class V2SignupComponent {
         next: () => {
           this.submitting.set(false);
           this.toast.success('Verification codes sent to your email and phone.');
-          this.router.navigate(['/v2/verify-otp'], { queryParams: { email } });
+          this.router.navigate(['/verify-otp'], { queryParams: { email } });
         },
         error: (err) => {
           this.submitting.set(false);

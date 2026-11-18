@@ -90,7 +90,7 @@ import { ConfirmService } from '../../../../core/confirm/confirm.service';
               />
             </nz-input-password>
             <div class="flex justify-end mt-1">
-              <a routerLink="/v2/forgot-password" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+              <a routerLink="/forgot-password" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
                 Forgot password?
               </a>
             </div>
@@ -128,7 +128,7 @@ import { ConfirmService } from '../../../../core/confirm/confirm.service';
         <!-- Sign Up Link -->
         <div class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
           Don't have an account?
-          <a routerLink="/v2/signup" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline ml-1">
+          <a routerLink="/signup" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline ml-1">
             Sign up
           </a>
         </div>
@@ -190,7 +190,7 @@ export class V2LoginComponent {
           return;
         }
 
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/v2/dashboard';
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
         this.router.navigateByUrl(returnUrl);
       },
       error: (err) => {
@@ -198,7 +198,7 @@ export class V2LoginComponent {
 
         if (err?.error?.requiresVerification && err?.error?.email) {
           this.toast.warn('Please verify your email and phone to continue.', 'Verification required');
-          this.router.navigate(['/v2/verify-otp'], { queryParams: { email: err.error.email } });
+          this.router.navigate(['/verify-otp'], { queryParams: { email: err.error.email } });
           return;
         }
 

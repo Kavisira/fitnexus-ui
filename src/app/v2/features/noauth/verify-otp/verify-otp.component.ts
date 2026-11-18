@@ -101,7 +101,7 @@ import { ToastService } from '../../../../core/toast/toast.service';
           >
             Resend codes
           </button>
-          <a routerLink="/v2/login" class="text-gray-500 dark:text-gray-400 hover:underline">
+          <a routerLink="/login" class="text-gray-500 dark:text-gray-400 hover:underline">
             Back to login
           </a>
         </div>
@@ -137,7 +137,7 @@ export class V2VerifyOtpComponent implements OnInit {
   ngOnInit(): void {
     const email = this.route.snapshot.queryParamMap.get('email');
     if (!email) {
-      this.router.navigateByUrl('/v2/login');
+      this.router.navigateByUrl('/login');
       return;
     }
     this.email.set(email);
@@ -164,7 +164,7 @@ export class V2VerifyOtpComponent implements OnInit {
           this.verifying.set(false);
           this.tokenStorage.set(res.accessToken);
           this.toast.success('Account verified successfully.');
-          this.router.navigateByUrl('/v2/dashboard');
+          this.router.navigateByUrl('/dashboard');
         },
         error: (err) => {
           this.verifying.set(false);
