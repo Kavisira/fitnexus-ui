@@ -4,6 +4,9 @@
 @custom-variant dark (&:where(.my-app-dark, .my-app-dark *, .dark, .dark *));
 @import 'primeicons/primeicons.css';
 @import 'driver.js/dist/driver.css';
+@import './app/v2/shared/styles/form-controls.css';
+@import './app/v2/shared/styles/data-table.css';
+@import './app/v2/shared/styles/dark-theme.css';
 
 :root {
   --ant-primary-color: #2563eb;
@@ -46,27 +49,7 @@ html.dark h6 {
   color: #f9fafb !important;
 }
 
-/* Ant Form Controls full-width defaults inside form and modal containers */
-form nz-input-number,
-form .ant-input-number,
-.ant-modal-body nz-input-number,
-.ant-modal-body .ant-input-number,
-.grid nz-input-number,
-.grid .ant-input-number {
-  width: 100% !important;
-  display: flex !important;
-  align-items: center;
-}
-
-.ant-input-number-input-wrap {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.ant-input-number-input {
-  width: 100% !important;
-  height: 100% !important;
-}
+/* Number-input sizing lives in app/v2/shared/styles/form-controls.css */
 
 nz-date-picker,
 .ant-picker {

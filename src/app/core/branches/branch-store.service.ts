@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { Branch, BranchApiService } from './branch-api.service';
+import { PermissionsService } from '../roles/permissions.service';
 
 /** Shared client-side cache of the org's branch list — same pattern as
  * NotificationStore (core/notifications/notification-store.service.ts):
@@ -22,6 +23,7 @@ import { Branch, BranchApiService } from './branch-api.service';
 @Injectable({ providedIn: 'root' })
 export class BranchStore {
   private api = inject(BranchApiService);
+  private permissions = inject(PermissionsService);
 
   private branchesSignal = signal<Branch[]>([]);
   loading = signal(false);
@@ -56,6 +58,14 @@ export class BranchStore {
    * management page) can still show one; callers that don't care can
    * omit it. */
   reload(onError?: () => void): void {
+    // GET /branches requires BRANCHES read server-side — skip the call for
+    // roles without it (e.g. Trainer) instead of firing a guaranteed 403.
+    // Permissions are already loaded here: authGuard awaits them before any
+    // authenticated route (and therefore any caller of this store) renders.
+    if (!this.permissions.canRead('BRANCHES')) {
+      this.branchesSignal.set([]);
+      return;
+    }
     this.loading.set(true);
     this.api.list().subscribe({
       next: (branches) => {

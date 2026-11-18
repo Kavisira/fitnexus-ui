@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -12,6 +13,7 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 import { Branch } from '../../../../../core/branches/branch-api.service';
+import { currencySymbol } from '../../../../../core/constants/currencies';
 import {
   Employee,
   EmployeeRole,
@@ -70,6 +72,8 @@ export class EmployeeFormModalComponent implements OnInit {
     createLogin: [false],
   });
 
+  private readonly branchId = toSignal(this.form.get('branchId')!.valueChanges, { initialValue: '' as string });
+  readonly currency = computed(() => currencySymbol(this.branches().find((b) => b.id === this.branchId())?.currency));
   readonly netPayPreview = computed(() => calculateNetPay(this.form.get('basicPay')?.value, this.components()));
 
   ngOnInit(): void {

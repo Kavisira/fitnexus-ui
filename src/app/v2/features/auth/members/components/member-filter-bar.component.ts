@@ -1,47 +1,34 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 import { Branch } from '../../../../../core/branches/branch-api.service';
 import { MemberStatus } from '../../../../../core/members/member-api.service';
+import { SearchInputComponent } from '../../../../shared/components/search-input/search-input.component';
 import { FilterDropdownComponent, FilterOption } from '../../../../shared/components/filter-dropdown/filter-dropdown.component';
 
 @Component({
   selector: 'app-member-filter-bar',
   imports: [
-    CommonModule,
-    FormsModule,
+    SearchInputComponent, CommonModule,
     NzButtonModule,
     NzIconModule,
-    NzInputModule,
     NzTooltipModule,
     FilterDropdownComponent,
   ],
   template: `
     <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs space-y-3.5">
       <!-- First Row (Tailwind Grid): Search Box on Left, Import & Add Options on Right -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
         <!-- Search Field -->
-        <div class="md:col-span-5 min-w-0">
-          <nz-input-wrapper class="w-full">
-            <span nzInputPrefix nz-icon nzType="search" class="text-gray-400 text-sm"></span>
-            <input
-              nz-input
-              type="text"
-              [ngModel]="search()"
-              (ngModelChange)="search.set($event)"
-              placeholder="Search by name, phone, email..."
-              class="!h-10 !rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-xs w-full"
-            />
-          </nz-input-wrapper>
+        <div class="sm:col-span-5 min-w-0">
+          <app-search-input placeholder="Search by name, phone, email..." [(value)]="search"></app-search-input>
         </div>
 
         <!-- Action Options: View Toggle, Export, Import, Add Member -->
-        <div class="md:col-span-7 flex items-center justify-start md:justify-end gap-2 flex-wrap">
+        <div class="sm:col-span-7 flex items-center justify-start sm:justify-end gap-2 flex-wrap min-w-0">
           <!-- View Toggle -->
           <div class="inline-flex rounded-xl bg-gray-100 dark:bg-gray-800 p-0.5 border border-gray-200 dark:border-gray-700 shrink-0">
             <button
@@ -79,7 +66,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
             nz-button
             nzType="default"
             (click)="exportCsv.emit()"
-            class="!rounded-xl text-xs font-semibold !h-10 flex items-center gap-1.5 shrink-0"
+            class="!rounded-xl text-xs font-semibold !h-9 !inline-flex !items-center gap-1.5 shrink-0"
             nz-tooltip
             nzTooltipTitle="Export members to CSV"
           >
@@ -93,7 +80,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
               nz-button
               nzType="default"
               (click)="openImport.emit()"
-              class="!rounded-xl text-xs font-semibold !h-10 flex items-center gap-1.5 shrink-0"
+              class="!rounded-xl text-xs font-semibold !h-9 !inline-flex !items-center gap-1.5 shrink-0"
               nz-tooltip
               nzTooltipTitle="Import members from spreadsheet"
             >
@@ -106,7 +93,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
               nz-button
               nzType="primary"
               (click)="openCreate.emit()"
-              class="!rounded-xl text-xs font-semibold !h-10 !bg-blue-600 hover:!bg-blue-500 flex items-center gap-1.5 shrink-0 shadow-xs"
+              class="!rounded-xl text-xs font-semibold !h-9 !bg-blue-600 hover:!bg-blue-500 !inline-flex !items-center gap-1.5 shrink-0 shadow-xs"
             >
               <span nz-icon nzType="plus"></span>
               <span>Add Member</span>
@@ -147,7 +134,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
           nz-button
           [nzType]="ptOnly() ? 'primary' : 'default'"
           (click)="ptOnly.set(!ptOnly())"
-          class="!rounded-xl text-xs font-semibold !h-9 flex items-center gap-1.5 shrink-0"
+          class="!rounded-xl text-xs font-semibold !h-9 !inline-flex !items-center gap-1.5 shrink-0"
         >
           <span nz-icon nzType="team"></span>
           <span>PT Only</span>
@@ -160,7 +147,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
             nzType="text"
             nzDanger
             (click)="clearFilters.emit()"
-            class="text-xs font-semibold !h-9 flex items-center gap-1.5 shrink-0 hover:!bg-red-50 dark:hover:!bg-red-950/20 !rounded-lg"
+            class="text-xs font-semibold !h-9 !inline-flex !items-center gap-1.5 shrink-0 hover:!bg-red-50 dark:hover:!bg-red-950/20 !rounded-lg"
           >
             <span nz-icon nzType="close-circle"></span>
             <span>Reset</span>

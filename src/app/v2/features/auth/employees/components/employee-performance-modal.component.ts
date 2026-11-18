@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -11,6 +11,8 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 
+import { BranchStore } from '../../../../../core/branches/branch-store.service';
+import { currencySymbol } from '../../../../../core/constants/currencies';
 import { Employee } from '../../../../../core/employees/employee-api.service';
 import { Appraisal, CreateAppraisalPayload, CreateReviewPayload, Review } from '../../../../../core/performance/performance-api.service';
 
@@ -111,8 +113,8 @@ import { Appraisal, CreateAppraisalPayload, CreateReviewPayload, Review } from '
                         <nz-date-picker [(ngModel)]="newAppraisalDate" class="w-full !h-8 !rounded-lg"></nz-date-picker>
                       </div>
                       <div>
-                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">New Monthly Basic Pay (₹)</label>
-                        <nz-input-number [(ngModel)]="newAppraisalPay" [nzMin]="0" [nzStep]="500" class="!w-full !h-8 !rounded-lg"></nz-input-number>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">New Monthly Basic Pay</label>
+                        <nz-input-number [(ngModel)]="newAppraisalPay" [nzPrefix]="currency()" [nzMin]="0" [nzStep]="500" class="!w-full !h-8 !rounded-lg"></nz-input-number>
                       </div>
                     </div>
                     <div>
@@ -154,6 +156,8 @@ import { Appraisal, CreateAppraisalPayload, CreateReviewPayload, Review } from '
 })
 export class EmployeePerformanceModalComponent {
   readonly employee = input<Employee | null>(null);
+  private readonly branchStore = inject(BranchStore);
+  readonly currency = computed(() => currencySymbol(this.branchStore.branches().find((b) => b.id === this.employee()?.branchId)?.currency));
   readonly reviews = input<Review[]>([]);
   readonly appraisals = input<Appraisal[]>([]);
   readonly loading = input<boolean>(false);

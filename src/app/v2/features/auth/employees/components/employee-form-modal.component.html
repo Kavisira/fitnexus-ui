@@ -100,7 +100,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Basic Monthly Pay</label>
-            <nz-input-number formControlName="basicPay" [nzMin]="0" [nzStep]="500" nzPlaceHolder="0" class="!w-full !h-9 !rounded-xl"></nz-input-number>
+            <nz-input-number formControlName="basicPay" [nzPrefix]="currency()" [nzMin]="0" [nzStep]="500" nzPlaceHolder="0" class="!w-full !h-9 !rounded-xl"></nz-input-number>
           </div>
 
           <div class="space-y-2">

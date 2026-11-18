@@ -145,7 +145,7 @@ export class V2HeaderComponent {
   }
 
   openHelp(): void {
-    this.router.navigateByUrl('/help');
+    this.router.navigateByUrl('/v2/help');
   }
 
   logout(): void {

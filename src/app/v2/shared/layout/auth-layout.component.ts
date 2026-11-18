@@ -3,17 +3,17 @@ import { RouterOutlet } from '@angular/router';
 
 import { V2HeaderComponent } from './header/header.component';
 import { V2SidebarComponent } from './sidebar/sidebar.component';
-import { LoginAlerts } from '../../../shared/login-alerts/login-alerts';
+import { LoginAlertsModalComponent } from '../components/login-alerts/login-alerts-modal.component';
 import { NotificationStore } from '../../../core/notifications/notification-store.service';
 import { TourService } from '../../../core/tour/tour.service';
 
 @Component({
   selector: 'app-v2-auth-layout',
-  imports: [RouterOutlet, V2HeaderComponent, V2SidebarComponent, LoginAlerts],
+  imports: [RouterOutlet, V2HeaderComponent, V2SidebarComponent, LoginAlertsModalComponent],
   template: `
     <div class="flex h-screen max-h-screen w-full max-w-full overflow-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <!-- Dismissible Global Broadcast Alerts -->
-      <app-login-alerts class="contents"></app-login-alerts>
+      <!-- Login announcements: all pending alerts in one list modal -->
+      <app-login-alerts-modal></app-login-alerts-modal>
 
       <!-- Collapsible Navigation Sidebar -->
       <app-v2-sidebar></app-v2-sidebar>

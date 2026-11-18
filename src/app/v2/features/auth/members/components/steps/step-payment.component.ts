@@ -75,8 +75,8 @@ import { PAYMENT_MODES } from '../../../../../../core/constants/payment-modes';
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">PT rate per month * ({{ currency() }})</label>
-              <nz-input-number formControlName="ptRatePerMonth" [nzMin]="0" class="!w-full !h-9 !rounded-xl"></nz-input-number>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">PT rate per month *</label>
+              <nz-input-number formControlName="ptRatePerMonth" [nzPrefix]="currency()" [nzMin]="0" class="!w-full !h-9 !rounded-xl"></nz-input-number>
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">PT total fee</label>
@@ -111,8 +111,8 @@ import { PAYMENT_MODES } from '../../../../../../core/constants/payment-modes';
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-amber-900 dark:text-amber-200 mb-1">Amount paid now * ({{ currency() }})</label>
-              <nz-input-number formControlName="amountPaid" [nzMin]="0" [nzMax]="totalPayable()" class="!w-full !h-9 !rounded-xl"></nz-input-number>
+              <label class="block text-xs font-semibold text-amber-900 dark:text-amber-200 mb-1">Amount paid now *</label>
+              <nz-input-number formControlName="amountPaid" [nzPrefix]="currency()" [nzMin]="0" [nzMax]="totalPayable()" class="!w-full !h-9 !rounded-xl"></nz-input-number>
             </div>
             <div>
               <label class="block text-xs font-semibold text-amber-900 dark:text-amber-200 mb-1">Balance due</label>

@@ -6,7 +6,7 @@
         Dashboard
       </h1>
       <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-300 mt-0.5 mb-0">
-        A snapshot of how your gym is doing right now.
+        {{ subtitle }}
       </p>
     </div>
 
@@ -66,6 +66,17 @@
     <div class="flex items-center justify-center p-16">
       <nz-spin nzSimple nzSize="large"></nz-spin>
     </div>
+  } @else if (errorMessage() && !summary()) {
+    <div class="flex flex-col items-center justify-center gap-3 p-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 text-center">
+      <span nz-icon nzType="exclamation-circle" class="text-3xl text-red-500"></span>
+      <p class="text-sm text-gray-700 dark:text-gray-200 m-0">{{ errorMessage() }}</p>
+      <button nz-button nzType="default" [nzLoading]="loading()" (click)="loadData()" class="!rounded-xl !inline-flex !items-center gap-1.5">
+        <span nz-icon nzType="reload"></span><span>Retry</span>
+      </button>
+    </div>
+  } @else if (ops(); as opsData) {
+    <!-- Operations view (Trainer / Front Desk) — backend returns view 'OPS' for these roles -->
+    <app-dashboard-ops-view [data]="opsData" (expandStat)="expandedStat.set($event)"></app-dashboard-ops-view>
   } @else if (analytics(); as data) {
     <!-- 2. Primary 4-Card KPI Row -->
     <app-dashboard-kpi-row

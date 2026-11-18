@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { AppNotification, NotificationApiService, NotificationType } from './notification-api.service';
 import { NotificationSocketService } from './notification-socket.service';
 import { ToastService } from '../toast/toast.service';
+import { PermissionsService } from '../roles/permissions.service';
 
 export type NotificationCategory = 'LEADS' | 'BIRTHDAYS' | 'RENEWALS';
 
@@ -30,6 +31,7 @@ export class NotificationStore {
   private api = inject(NotificationApiService);
   private socket = inject(NotificationSocketService);
   private toast = inject(ToastService);
+  private permissions = inject(PermissionsService);
 
   notifications = signal<AppNotification[]>([]);
   loaded = signal(false);
@@ -71,6 +73,16 @@ export class NotificationStore {
       return;
     }
     this.started = true;
+
+    // Every /notifications endpoint requires NOTIFICATIONS read server-side.
+    // Without it (e.g. Trainer by default) skip the REST calls + socket, which
+    // would only 403, and hide the bell. Permissions are already loaded here —
+    // authGuard awaits them before the layout that calls start() renders.
+    if (!this.permissions.canRead('NOTIFICATIONS')) {
+      this.enabled.set(false);
+      this.loaded.set(true);
+      return;
+    }
 
     this.api.getSetup().subscribe({
       next: (setup) => this.enabled.set(setup.enabled),

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, noAuthGuard } from '../core/auth/auth.guard';
+import { authGuard, noAuthGuard, ownerGuard, permissionGuard } from '../core/auth/auth.guard';
 
 export const V2_ROUTES: Routes = [
   // Public unauthenticated routes
@@ -73,6 +73,53 @@ export const V2_ROUTES: Routes = [
             (m) => m.V2EmployeesPageComponent
           ),
         title: 'Employees (v2) · FitNexus',
+      },
+      {
+        path: 'todo',
+        loadComponent: () =>
+          import('./features/auth/todo/todo-page.component').then(
+            (m) => m.V2TodoPageComponent
+          ),
+        canActivate: [permissionGuard],
+        data: { screen: 'LEAVES' },
+        title: 'To-Do (v2) · FitNexus',
+      },
+      {
+        path: 'offers',
+        loadComponent: () =>
+          import('./features/auth/offers/offers-page.component').then(
+            (m) => m.V2OffersPageComponent
+          ),
+        canActivate: [permissionGuard],
+        data: { screen: 'PLANS' },
+        title: 'Offers (v2) · FitNexus',
+      },
+      {
+        path: 'expenses',
+        loadComponent: () =>
+          import('./features/auth/expenses/expenses-page.component').then(
+            (m) => m.V2ExpensesPageComponent
+          ),
+        canActivate: [permissionGuard],
+        data: { screen: 'EXPENSES' },
+        title: 'Expenses (v2) · FitNexus',
+      },
+      {
+        path: 'alerts',
+        loadComponent: () =>
+          import('./features/auth/alerts/alerts-page.component').then(
+            (m) => m.V2AlertsPageComponent
+          ),
+        canActivate: [ownerGuard],
+        title: 'Alerts (v2) · FitNexus',
+      },
+      {
+        path: 'help',
+        loadComponent: () =>
+          import('./features/auth/help/help-page.component').then(
+            (m) => m.V2HelpPageComponent
+          ),
+        title: 'Help (v2) · FitNexus',
       },
     ],
   },

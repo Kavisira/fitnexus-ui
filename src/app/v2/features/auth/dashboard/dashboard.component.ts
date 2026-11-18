@@ -14,13 +14,16 @@ import { DashboardKpiRowComponent, StatExpandEvent } from './components/dashboar
 import { ChartExpandEvent, DashboardTrendChartsComponent } from './components/dashboard-trend-charts.component';
 import { DashboardSecondaryRowComponent } from './components/dashboard-secondary-row.component';
 import { DashboardBranchTableComponent } from './components/dashboard-branch-table.component';
+import { DashboardOpsViewComponent } from './components/dashboard-ops-view.component';
 import { DashboardChartService } from './services/dashboard-chart.service';
+import { canSeeSubscription, dashboardSubtitle } from './services/dashboard-role.utils';
 
 import {
   AnalyticsSummary,
   BranchBreakdownRow,
   DashboardApiService,
   DashboardSummary,
+  OpsSummary,
 } from '../../../../core/dashboard/dashboard-api.service';
 import { BranchStore } from '../../../../core/branches/branch-store.service';
 import { AuthApiService } from '../../../../core/auth/auth-api.service';
@@ -43,6 +46,7 @@ import { TokenStorage } from '../../../../core/auth/token-storage.service';
     DashboardTrendChartsComponent,
     DashboardSecondaryRowComponent,
     DashboardBranchTableComponent,
+    DashboardOpsViewComponent,
   ],
   templateUrl: './dashboard.component.html',
   host: {
@@ -58,6 +62,7 @@ export class V2DashboardComponent implements OnInit {
   readonly chartService = inject(DashboardChartService);
 
   readonly loading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
   readonly summary = signal<DashboardSummary | null>(null);
   readonly subscription = signal<SubscriptionSummary | null>(null);
   readonly selectedBranchId = signal<string>('ALL');
@@ -71,10 +76,16 @@ export class V2DashboardComponent implements OnInit {
 
   readonly branches = this.branchStore.branches;
   readonly isOwner = computed(() => this.tokenStorage.getRole() === 'OWNER');
+  readonly subtitle = dashboardSubtitle(this.tokenStorage.getRole());
+  /** Subscription tier/expiry is org billing info — Owner & Branch Manager only. */
+  readonly showSubscription = canSeeSubscription(this.tokenStorage.getRole());
   readonly analytics = computed(() => (this.summary()?.view === 'ANALYTICS' ? (this.summary() as AnalyticsSummary) : null));
+  /** Trainer / Front Desk get the OPS shape (no money figures) — see DashboardService server-side. */
+  readonly ops = computed(() => (this.summary()?.view === 'OPS' ? (this.summary() as OpsSummary) : null));
 
-  readonly showBranchFilter = computed(() => this.branches().length > 1);
-  readonly singleBranchLabel = computed(() => (this.branches().length === 1 ? this.branches()[0].location : null));
+  // Branch picker only applies to the analytics view; staff are pinned to their branch server-side.
+  readonly showBranchFilter = computed(() => !!this.analytics() && this.branches().length > 1);
+  readonly singleBranchLabel = computed(() => (this.analytics() && this.branches().length === 1 ? this.branches()[0].location : null));
   readonly branchOptions = computed(() => [
     { label: 'All branches', value: 'ALL' },
     ...this.branches().map((b) => ({ label: b.location, value: b.id })),
@@ -124,21 +135,28 @@ export class V2DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.branchStore.ensureLoaded();
     this.loadData();
-    this.authApi.me().subscribe({
-      next: (me) => this.subscription.set(me.subscription),
-      error: () => {},
-    });
+    // /auth/me is only needed for the subscription pill — skip it for other roles.
+    if (this.showSubscription) {
+      this.authApi.me().subscribe({
+        next: (me) => this.subscription.set(me.subscription),
+        error: () => {},
+      });
+    }
   }
 
   loadData(): void {
     this.loading.set(true);
+    this.errorMessage.set(null);
     const branchId = this.selectedBranchId() === 'ALL' ? null : this.selectedBranchId();
     this.api.summary(branchId).subscribe({
       next: (res) => {
         this.summary.set(res);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err?.error?.message ?? 'Could not load the dashboard. Please try again.');
+      },
     });
   }
 

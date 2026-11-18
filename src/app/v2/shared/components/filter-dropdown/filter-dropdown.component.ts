@@ -22,7 +22,7 @@ export interface FilterOption {
       [nzDropdownMenu]="menu"
       [nzClickHide]="false"
       nzTrigger="click"
-      class="!h-9 !rounded-xl text-xs font-medium flex items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-blue-500 hover:text-blue-600 transition-colors shrink-0 max-w-56"
+      class="!h-9 !rounded-xl !px-3 text-xs font-medium !inline-flex !items-center justify-between gap-2 whitespace-nowrap border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-blue-500 hover:text-blue-600 transition-colors shrink-0 max-w-56"
       [class.!border-blue-500]="selectedValues().length > 0"
       [class.!text-blue-600]="selectedValues().length > 0"
       [class.dark:!text-blue-400]="selectedValues().length > 0"
@@ -62,13 +62,14 @@ export interface FilterOption {
               class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-pointer text-xs select-none transition-colors"
               [class.bg-blue-50/60]="isSelected(opt.value)"
               [class.dark:bg-blue-950/30]="isSelected(opt.value)"
-              (click)="toggleOption(opt.value)"
             >
+              <!-- Toggle only on (change): a click on the label text is forwarded to the
+                   checkbox by the browser, so handling (click) on both double-toggles. -->
               <input
                 type="checkbox"
                 [checked]="isSelected(opt.value)"
                 class="rounded border-gray-300 text-blue-600 focus:ring-0 cursor-pointer"
-                (click)="$event.stopPropagation(); toggleOption(opt.value)"
+                (change)="toggleOption(opt.value)"
               />
               <span class="truncate flex-1 font-normal text-gray-700 dark:text-gray-200" [class.font-semibold]="isSelected(opt.value)">
                 {{ opt.label }}
