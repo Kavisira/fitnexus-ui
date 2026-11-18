@@ -1,0 +1,96 @@
+/*
+ * NG-ZORRO form-control overrides for v2.
+ * Goal: every input / select / date picker / number input in a form is
+ * full-width, 36px tall (Tailwind h-9) and rounded-xl, so fields in a grid
+ * line up. A Tailwind `!h-*` class on a control still wins (e.g. !h-8).
+ */
+
+/* ---------- Number input (plain + with prefix/suffix) ---------- */
+nz-input-number.ant-input-number,
+nz-input-number.ant-input-number-affix-wrapper,
+nz-input-number.ant-input-number-group-wrapper {
+  width: 100% !important;
+}
+
+nz-input-number.ant-input-number,
+nz-input-number.ant-input-number-affix-wrapper {
+  display: inline-flex !important;
+  align-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+}
+
+/* Inner number box inside an affix wrapper: borderless, fills remaining space. */
+.ant-input-number-affix-wrapper > .ant-input-number {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+  height: 100%;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.ant-input-number-input-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ant-input-number-input {
+  box-sizing: border-box;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Currency / unit prefix (e.g. "₹", "$"). */
+.ant-input-number-prefix {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 6px;
+  color: #6b7280;
+  font-weight: 600;
+  user-select: none;
+}
+
+html.my-app-dark .ant-input-number-prefix,
+html.dark .ant-input-number-prefix {
+  color: #9ca3af;
+}
+
+html.my-app-dark .ant-input-number-affix-wrapper,
+html.dark .ant-input-number-affix-wrapper {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+}
+
+/* Keep the up/down handlers inside the rounded corner. */
+.ant-input-number-handler-wrap {
+  border-start-end-radius: 0.75rem;
+  border-end-end-radius: 0.75rem;
+}
+
+/* ---------- Select (single) ---------- */
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  height: 36px !important;
+  align-items: center;
+  border-radius: 0.75rem !important;
+}
+
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
+  height: 34px !important;
+}
+
+.ant-select-multiple .ant-select-selector {
+  min-height: 36px;
+  border-radius: 0.75rem !important;
+}
+
+/* ---------- Date picker ---------- */
+.ant-picker {
+  height: 36px;
+  border-radius: 0.75rem !important;
+}
