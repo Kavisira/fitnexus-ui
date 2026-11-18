@@ -23,7 +23,7 @@ import { AlertTableComponent } from './components/alert-table.component';
           </div>
           <div class="sm:col-span-7 flex items-center justify-start sm:justify-end gap-2 flex-wrap min-w-0">
             <p class="text-xs text-gray-500 dark:text-gray-400 m-0 hidden xl:block mr-2">Shown to users right after they sign in.</p>
-            <button nz-button nzType="primary" (click)="openCreate()" class="!rounded-xl text-xs font-semibold !h-9 !bg-blue-600 hover:!bg-blue-500 !inline-flex !items-center gap-1.5 shadow-xs">
+            <button nz-button nzType="primary" (click)="openCreate()" class="!rounded-xl text-xs font-semibold !h-9 !bg-blue-700 hover:!bg-blue-800 !inline-flex !items-center gap-1.5 shadow-xs">
               <span nz-icon nzType="plus"></span><span>Add Alert</span>
             </button>
           </div>

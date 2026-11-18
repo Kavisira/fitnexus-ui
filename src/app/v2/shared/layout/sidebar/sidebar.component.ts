@@ -18,6 +18,15 @@ export interface NavGroup {
   labelKey: string; icon: string; items: NavLeaf[];
 }
 
+const NAV_ACTIVE =
+  'bg-blue-700/10 text-blue-800 shadow-[inset_3px_0_0_0_#1d4ed8] dark:bg-blue-500/15 dark:text-blue-300 dark:shadow-[inset_3px_0_0_0_#60a5fa] font-semibold';
+const NAV_BASE =
+  'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+const NAV_BASE_COMPACT =
+  'group flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+const NAV_BASE_BETWEEN =
+  'group flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+
 @Component({
   selector: 'app-v2-sidebar',
   imports: [RouterLink, RouterLinkActive, NzIconModule, NzTooltipModule, TranslatePipe],
@@ -36,26 +45,29 @@ export interface NavGroup {
       [class.shadow-xl]="state.mobileOpen()"
     >
       <!-- Brand Logo Bar -->
-      <div class="flex items-center h-14 px-4 border-b border-gray-100 dark:border-gray-800 gap-2.5 overflow-hidden shrink-0">
-        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600 text-white shrink-0 shadow-xs">
+      <div class="flex items-center h-16 px-4 border-b border-gray-100 dark:border-gray-800 gap-3 overflow-hidden shrink-0">
+        <div
+          class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shrink-0 shadow-sm ring-1 ring-blue-900/10"
+        >
           <span nz-icon nzType="thunderbolt" class="text-lg"></span>
         </div>
         @if (showLabels()) {
-          <span class="text-base font-bold text-gray-900 dark:text-white tracking-tight truncate">
-            FitNexus
-          </span>
+          <div class="flex flex-col justify-center min-w-0 leading-tight">
+            <span class="text-base font-bold text-gray-900 dark:text-white tracking-tight truncate">FitNexus</span>
+            <span class="text-[11px] font-medium text-gray-400 dark:text-gray-500 truncate">Workspace</span>
+          </div>
         }
       </div>
 
       <!-- Navigation Items Container -->
-      <nav class="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-1">
+      <nav class="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-3 space-y-0.5">
         <!-- Dashboard Link -->
         @if (showDashboard()) {
           <a
             [routerLink]="buildRoute(dashboard.route)"
             data-tour="nav-DASHBOARD"
-            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
-            class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            routerLinkActive="${NAV_ACTIVE}"
+            class="${NAV_BASE}"
             nz-tooltip
             [nzTooltipTitle]="!showLabels() ? (dashboard.labelKey | translate) : ''"
             nzTooltipPlacement="right"
@@ -72,8 +84,8 @@ export interface NavGroup {
         @if (showTodo()) {
           <a
             [routerLink]="buildRoute(todo.route)"
-            routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
-            class="flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            routerLinkActive="${NAV_ACTIVE}"
+            class="${NAV_BASE_BETWEEN}"
             nz-tooltip
             [nzTooltipTitle]="!showLabels() ? (todo.labelKey | translate) : ''"
             nzTooltipPlacement="right"
@@ -86,18 +98,23 @@ export interface NavGroup {
               }
             </div>
             @if (todoCount() > 0) {
-              <span class="flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-semibold rounded-full bg-red-500 text-white shrink-0">
+              <span
+                class="flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-semibold rounded-full bg-red-500 text-white shrink-0 shadow-xs"
+              >
                 {{ todoCount() }}
               </span>
             }
           </a>
         }
 
+        <!-- Hairline divider before grouped nav -->
+        <div class="h-px bg-gray-100 dark:bg-gray-800 mx-1 my-2"></div>
+
         <!-- Grouped Navigation -->
         @for (group of visibleGroups(); track group.labelKey) {
-          <div class="pt-3">
+          <div class="pt-1">
             @if (showLabels()) {
-              <div class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <div class="px-3 pb-1.5 pt-2 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                 {{ group.labelKey | translate }}
               </div>
             }
@@ -106,8 +123,8 @@ export interface NavGroup {
                 <a
                   [routerLink]="buildRoute(item.route)"
                   [attr.data-tour]="item.screen ? 'nav-' + item.screen : null"
-                  routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
-                  class="flex items-center gap-3 px-3 py-1.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  routerLinkActive="${NAV_ACTIVE}"
+                  class="${NAV_BASE_COMPACT}"
                   nz-tooltip
                   [nzTooltipTitle]="!showLabels() ? (item.labelKey | translate) : ''"
                   nzTooltipPlacement="right"
@@ -126,10 +143,11 @@ export interface NavGroup {
         <!-- My Workspace Link -->
         @if (showMyWorkspace()) {
           <div class="pt-2">
+            <div class="h-px bg-gray-100 dark:bg-gray-800 mx-1 mb-2"></div>
             <a
               [routerLink]="buildRoute(myWorkspace.route)"
-              routerLinkActive="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold"
-              class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              routerLinkActive="${NAV_ACTIVE}"
+              class="${NAV_BASE}"
               nz-tooltip
               [nzTooltipTitle]="!showLabels() ? (myWorkspace.labelKey | translate) : ''"
               nzTooltipPlacement="right"

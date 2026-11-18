@@ -65,9 +65,9 @@ import { MemberFitnessStore } from './member-fitness.store';
           <button nz-button nzType="default" (click)="closed.emit()" class="!rounded-xl">Close</button>
           @if (canWrite() && !store.loading()) {
             @if (tab() === 0) {
-              <button nz-button nzType="primary" [nzLoading]="store.savingDiet()" (click)="store.saveDiet()" class="!rounded-xl !bg-blue-600 hover:!bg-blue-500">Save diet plan</button>
+              <button nz-button nzType="primary" [nzLoading]="store.savingDiet()" (click)="store.saveDiet()" class="!rounded-xl !bg-blue-700 hover:!bg-blue-800">Save diet plan</button>
             } @else {
-              <button nz-button nzType="primary" [nzLoading]="store.savingWorkout()" (click)="store.saveWorkout()" class="!rounded-xl !bg-blue-600 hover:!bg-blue-500">Save workout plan</button>
+              <button nz-button nzType="primary" [nzLoading]="store.savingWorkout()" (click)="store.saveWorkout()" class="!rounded-xl !bg-blue-700 hover:!bg-blue-800">Save workout plan</button>
             }
           }
         </div>

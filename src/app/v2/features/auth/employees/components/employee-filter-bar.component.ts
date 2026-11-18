@@ -93,7 +93,7 @@ import { FilterDropdownComponent, FilterOption } from '../../../../shared/compon
               nz-button
               nzType="primary"
               (click)="addEmployee.emit()"
-              class="!rounded-xl text-xs font-semibold !h-9 !bg-blue-600 hover:!bg-blue-500 !inline-flex !items-center gap-1.5 shrink-0 shadow-xs"
+              class="!rounded-xl text-xs font-semibold !h-9 !bg-blue-700 hover:!bg-blue-800 !inline-flex !items-center gap-1.5 shrink-0 shadow-xs"
             >
               <span nz-icon nzType="plus"></span>
               <span>Add Employee</span>

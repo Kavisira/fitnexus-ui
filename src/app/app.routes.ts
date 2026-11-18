@@ -102,6 +102,13 @@ export const routes: Routes = [
         title: 'Dashboard · FitNexus',
       },
       {
+        path: 'branches',
+        loadComponent: () => import('./v2/features/auth/branches/branches-page.component').then((m) => m.V2BranchesPageComponent),
+        canActivate: [permissionGuard],
+        data: { screen: 'BRANCHES' },
+        title: 'Branches · FitNexus',
+      },
+      {
         path: 'members',
         loadComponent: () => import('./v2/features/auth/members/members-page.component').then((m) => m.V2MembersPageComponent),
         canActivate: [permissionGuard],
@@ -123,6 +130,34 @@ export const routes: Routes = [
         title: 'Offers · FitNexus',
       },
       {
+        path: 'plans',
+        loadComponent: () => import('./v2/features/auth/plans/plans-page.component').then((m) => m.V2PlansPageComponent),
+        canActivate: [permissionGuard],
+        data: { screen: 'PLANS' },
+        title: 'Plans & Packages · FitNexus',
+      },
+      {
+        path: 'leave-management',
+        loadComponent: () => import('./v2/features/auth/leave-management/leave-management-page.component').then((m) => m.V2LeaveManagementPageComponent),
+        canActivate: [permissionGuard],
+        data: { screen: 'LEAVES' },
+        title: 'Leave Settings · FitNexus',
+      },
+      {
+        path: 'forms',
+        loadComponent: () => import('./v2/features/auth/forms-admin/forms-admin-page.component').then((m) => m.V2FormsAdminPageComponent),
+        canActivate: [permissionGuard],
+        data: { screen: 'FORMS' },
+        title: 'Forms · FitNexus',
+      },
+      {
+        path: 'leads',
+        loadComponent: () => import('./v2/features/auth/leads/leads-page.component').then((m) => m.V2LeadsPageComponent),
+        canActivate: [permissionGuard],
+        data: { screen: 'LEADS' },
+        title: 'Leads · FitNexus',
+      },
+      {
         path: 'expenses',
         loadComponent: () => import('./v2/features/auth/expenses/expenses-page.component').then((m) => m.V2ExpensesPageComponent),
         canActivate: [permissionGuard],
@@ -137,6 +172,16 @@ export const routes: Routes = [
         title: 'To-Do · FitNexus',
       },
       {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./v2/features/auth/notification-settings/notification-settings-page.component').then(
+            (m) => m.V2NotificationSettingsPageComponent,
+          ),
+        canActivate: [permissionGuard],
+        data: { screen: 'NOTIFICATIONS' },
+        title: 'Notifications · FitNexus',
+      },
+      {
         // Org-wide login alerts — Owner-only, like Roles & Permissions.
         path: 'alerts',
         loadComponent: () => import('./v2/features/auth/alerts/alerts-page.component').then((m) => m.V2AlertsPageComponent),
@@ -148,6 +193,13 @@ export const routes: Routes = [
         path: 'help',
         loadComponent: () => import('./v2/features/auth/help/help-page.component').then((m) => m.V2HelpPageComponent),
         title: 'Help & Guide · FitNexus',
+      },
+      {
+        // Self-service area for any logged-in employee — no permission screen.
+        path: 'my-workspace',
+        loadComponent: () =>
+          import('./v2/features/auth/my-workspace/my-workspace-page.component').then((m) => m.V2MyWorkspacePageComponent),
+        title: 'My Workspace · FitNexus',
       },
       ...LEGACY_SHELL_ROUTES,
     ],

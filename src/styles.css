@@ -10,21 +10,24 @@
 @import './app/v2/shared/styles/dark-theme-components.css';
 
 :root {
-  --ant-primary-color: #2563eb;
-  --ant-primary-color-hover: #1d4ed8;
-  --ant-primary-color-active: #1e40af;
-  --ant-primary-color-outline: rgba(37, 99, 235, 0.2);
+  /* Refined primary blue — a notch deeper than the flat Tailwind blue-600
+     default, with clearer hover/active steps, so buttons, the sidebar's
+     active state and other accents read as intentional rather than flat. */
+  --ant-primary-color: #1d4ed8;
+  --ant-primary-color-hover: #1e40af;
+  --ant-primary-color-active: #1e3a8a;
+  --ant-primary-color-outline: rgba(29, 78, 216, 0.2);
   --ant-primary-1: #eff6ff;
   --ant-primary-2: #dbeafe;
   --ant-primary-3: #bfdbfe;
-  --ant-primary-4: #93c5fd;
-  --ant-primary-5: #60a5fa;
-  --ant-primary-6: #2563eb;
-  --ant-primary-7: #1d4ed8;
+  --ant-primary-4: #60a5fa;
+  --ant-primary-5: #3b82f6;
+  --ant-primary-6: #1d4ed8;
+  --ant-primary-7: #1e40af;
   --ant-success-color: #16a34a;
   --ant-warning-color: #f59e0b;
   --ant-error-color: #dc2626;
-  --ant-info-color: #2563eb;
+  --ant-info-color: #1d4ed8;
 }
 
 html.my-app-dark,
@@ -56,6 +59,13 @@ nz-date-picker,
 .ant-picker {
   width: 100% !important;
   display: flex !important;
+}
+
+/* Ant Modal — rounded corners everywhere, with the content clipped so a
+   full-bleed header/footer inside a modal doesn't poke out past the radius. */
+.ant-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden !important;
 }
 
 form nz-select,
@@ -92,6 +102,33 @@ html.dark .ant-input::placeholder {
 }
 
 /* Ant Select */
+/* Ant Select — light mode. The dropdown panel is rendered into a CDK
+   overlay appended to <body>, outside any component's scoped styles, so
+   it needs its own explicit rules here to look deliberate rather than
+   bare/unstyled. */
+.ant-select-dropdown {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06) !important;
+  padding: 0.35rem !important;
+}
+
+.ant-select-item {
+  border-radius: 0.5rem !important;
+  padding: 0.4rem 0.7rem !important;
+  font-size: 0.85rem !important;
+  min-height: auto !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: #eff6ff !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
 html.my-app-dark .ant-select-selector,
 html.dark .ant-select-selector {
   background-color: #111827 !important;

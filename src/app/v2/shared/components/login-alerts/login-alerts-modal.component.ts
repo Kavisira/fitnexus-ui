@@ -70,7 +70,7 @@ import { Alert, AlertsApiService } from '../../../../core/alerts/alerts-api.serv
             <span class="text-xs text-gray-500 dark:text-gray-400">
               @if (muted().size) { {{ muted().size }} will be hidden from now on }
             </span>
-            <button nz-button nzType="primary" [nzLoading]="saving()" (click)="close()" class="!rounded-xl !bg-blue-600 hover:!bg-blue-500">Got it</button>
+            <button nz-button nzType="primary" [nzLoading]="saving()" (click)="close()" class="!rounded-xl !bg-blue-700 hover:!bg-blue-800">Got it</button>
           </div>
         </ng-template>
       </nz-modal>

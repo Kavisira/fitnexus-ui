@@ -78,7 +78,7 @@ import { Alert, AlertAudienceType, AlertPayload, AssignableTargets } from '../..
 
         <div class="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
           <button nz-button type="button" nzType="default" (click)="cancel.emit()" class="!rounded-xl">Cancel</button>
-          <button nz-button type="submit" nzType="primary" [nzLoading]="saving()" class="!rounded-xl !bg-blue-600 hover:!bg-blue-500">
+          <button nz-button type="submit" nzType="primary" [nzLoading]="saving()" class="!rounded-xl !bg-blue-700 hover:!bg-blue-800">
             {{ alert() ? 'Save Changes' : 'Create Alert' }}
           </button>
         </div>

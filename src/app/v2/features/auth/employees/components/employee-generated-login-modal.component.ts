@@ -44,7 +44,7 @@ import { GeneratedLogin } from '../../../../../core/employees/employee-api.servi
               <span nz-icon nzType="copy"></span>
               <span>{{ copied() ? 'Copied!' : 'Copy Credentials' }}</span>
             </button>
-            <button nz-button nzType="primary" (click)="close.emit()" class="!rounded-xl font-semibold !bg-blue-600 hover:!bg-blue-500">
+            <button nz-button nzType="primary" (click)="close.emit()" class="!rounded-xl font-semibold !bg-blue-700 hover:!bg-blue-800">
               Done
             </button>
           </div>

@@ -39,7 +39,7 @@ import { OFFER_TYPE_FILTER_OPTIONS } from './services/offer.utils';
               </button>
             }
             @if (canWrite()) {
-              <button nz-button nzType="primary" (click)="openCreate()" class="!h-9 !rounded-xl !px-4 !inline-flex !items-center gap-1.5 text-xs font-semibold !bg-blue-600 hover:!bg-blue-500 shadow-xs shrink-0">
+              <button nz-button nzType="primary" (click)="openCreate()" class="!h-9 !rounded-xl !px-4 !inline-flex !items-center gap-1.5 text-xs font-semibold !bg-blue-700 hover:!bg-blue-800 shadow-xs shrink-0">
                 <span nz-icon nzType="plus"></span><span>Add Offer</span>
               </button>
             }
