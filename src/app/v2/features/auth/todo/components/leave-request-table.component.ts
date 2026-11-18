@@ -13,8 +13,9 @@ import { LEAVE_STATUS_CHIP, leaveTypeLabel } from '../services/todo.utils';
   selector: 'app-leave-request-table',
   imports: [DatePipe, NzAvatarModule, NzButtonModule, NzIconModule, NzTableModule, NzTooltipModule],
   template: `
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
-      <div class="overflow-x-auto w-full">
+    <div class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
+      <!-- Only the table body scrolls; header is sticky (see v2/shared/styles/data-table.css) -->
+<div class="v2-data-table flex-1 min-h-0 overflow-auto w-full">
         <nz-table
           [nzData]="requests()"
           [nzLoading]="loading()"
@@ -90,7 +91,8 @@ import { LEAVE_STATUS_CHIP, leaveTypeLabel } from '../services/todo.utils';
       </div>
     </div>
   `,
-  host: { class: 'block w-full' },
+  // min-h-80 keeps the table usable on short screens (the page scrolls instead).
+  host: { class: 'flex flex-col flex-1 min-h-80 w-full' },
 })
 export class LeaveRequestTableComponent {
   readonly requests = input.required<LeaveRequest[]>();

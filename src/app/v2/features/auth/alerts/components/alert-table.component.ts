@@ -10,8 +10,9 @@ import { Alert } from '../../../../../core/alerts/alerts-api.service';
   selector: 'app-alert-table',
   imports: [NzButtonModule, NzIconModule, NzTableModule, NzTooltipModule],
   template: `
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
-      <div class="overflow-x-auto w-full">
+    <div class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
+      <!-- Only the table body scrolls; header is sticky (see v2/shared/styles/data-table.css) -->
+<div class="v2-data-table flex-1 min-h-0 overflow-auto w-full">
         <nz-table
           [nzData]="alerts()"
           [nzLoading]="loading()"
@@ -73,7 +74,8 @@ import { Alert } from '../../../../../core/alerts/alerts-api.service';
       </div>
     </div>
   `,
-  host: { class: 'block w-full' },
+  // min-h-80 keeps the table usable on short screens (the page scrolls instead).
+  host: { class: 'flex flex-col flex-1 min-h-80 w-full' },
 })
 export class AlertTableComponent {
   readonly alerts = input.required<Alert[]>();

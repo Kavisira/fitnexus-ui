@@ -12,8 +12,9 @@ import { Employee } from '../../../../../core/employees/employee-api.service';
   selector: 'app-employee-table',
   imports: [CommonModule, NzTableModule, NzButtonModule, NzIconModule, NzDropdownModule, NzAvatarModule],
   template: `
-    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
-      <div class="overflow-x-auto w-full">
+    <div class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs overflow-hidden max-w-full">
+      <!-- Only the table body scrolls; header is sticky (see v2/shared/styles/data-table.css) -->
+<div class="v2-data-table flex-1 min-h-0 overflow-auto w-full">
         <nz-table
           #table
           [nzData]="sortedEmployees()"
@@ -145,7 +146,8 @@ import { Employee } from '../../../../../core/employees/employee-api.service';
       </div>
     </div>
   `,
-  host: { class: 'block w-full' },
+  // min-h-80 keeps the table usable on short screens (the page scrolls instead).
+  host: { class: 'flex flex-col flex-1 min-h-80 w-full' },
 })
 export class EmployeeTableComponent {
   readonly employees = input.required<Employee[]>();

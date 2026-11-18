@@ -7,6 +7,7 @@
 @import './app/v2/shared/styles/form-controls.css';
 @import './app/v2/shared/styles/data-table.css';
 @import './app/v2/shared/styles/dark-theme.css';
+@import './app/v2/shared/styles/dark-theme-components.css';
 
 :root {
   --ant-primary-color: #2563eb;

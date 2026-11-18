@@ -1,0 +1,84 @@
+/*
+ * Dark-theme overrides (part 2): checkbox, collapse, alerts, skeleton, switch,
+ * modal footer, tabs, dashed buttons. Same palette as dark-theme.css.
+ */
+
+/* ---------- Checkbox / collapse / alert / skeleton ---------- */
+html.dark .ant-checkbox-wrapper {
+  color: #e5e7eb;
+}
+
+html.dark .ant-checkbox-inner {
+  background-color: #111827;
+  border-color: #4b5563;
+}
+
+html.dark .ant-collapse,
+html.dark .ant-collapse > .ant-collapse-item {
+  border-color: #374151 !important;
+}
+
+html.dark .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  color: #f3f4f6 !important;
+}
+
+html.dark .ant-alert-error {
+  background-color: rgba(220, 38, 38, 0.12) !important;
+  border-color: rgba(220, 38, 38, 0.4) !important;
+}
+
+html.dark .ant-alert-message {
+  color: #fecaca !important;
+}
+
+html.dark .ant-skeleton-content .ant-skeleton-title,
+html.dark .ant-skeleton-content .ant-skeleton-paragraph > li {
+  background: #1f2937 !important;
+}
+
+/* ---------- Switch / modal footer ---------- */
+html.dark .ant-switch:not(.ant-switch-checked) {
+  background-color: #4b5563 !important;
+}
+
+html.dark .ant-modal-footer {
+  border-top-color: #1f2937 !important;
+}
+
+/* ---------- Form labels inside modals ---------- */
+html.dark .ant-modal-body {
+  color: #e5e7eb;
+}
+
+/* ---------- Tabs ---------- */
+html.dark .ant-tabs {
+  color: #d1d5db;
+}
+
+html.dark .ant-tabs-tab {
+  color: #9ca3af;
+}
+
+html.dark .ant-tabs-tab:hover,
+html.dark .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #60a5fa !important;
+}
+
+html.dark .ant-tabs-top > .ant-tabs-nav::before {
+  border-bottom-color: #374151 !important;
+}
+
+html.dark .ant-btn-dashed {
+  background: transparent !important;
+  border-color: #4b5563 !important;
+  color: #d1d5db !important;
+}
+
+html.dark .ant-alert-info {
+  background-color: rgba(37, 99, 235, 0.12) !important;
+  border-color: rgba(37, 99, 235, 0.4) !important;
+}
+
+html.dark .ant-alert-info .ant-alert-message {
+  color: #bfdbfe !important;
+}

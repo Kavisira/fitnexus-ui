@@ -10,6 +10,13 @@ import { en_US, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import { provideNzDateFnsAdapter } from 'ng-zorro-antd/core/time';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
+
+/** App-wide NG-ZORRO defaults (a component input still overrides these). */
+const NZ_CONFIG: NzConfig = {
+  // Compact tables everywhere (8px cell padding) so list pages show more rows.
+  table: { nzSize: 'small' },
+};
 import { ICONS } from './v2/shared/icons';
 
 import { routes } from './app.routes';
@@ -45,6 +52,7 @@ export const appConfig: ApplicationConfig = {
     provideNzI18n(en_US),
     provideNzIcons(ICONS),
     provideNzDateFnsAdapter(),
+    provideNzConfig(NZ_CONFIG),
     // NzModalService isn't providedIn: 'root' (only NzModalModule provides it),
     // so register it app-wide for ConfirmService, which any page may inject.
     NzModalService,

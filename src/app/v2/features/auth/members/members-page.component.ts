@@ -22,7 +22,7 @@ import { MemberDetailModalComponent } from './components/member-detail-modal.com
 import { MemberMetricsModalComponent } from './components/member-metrics-modal.component';
 import { MemberProgressModalComponent } from './components/member-progress-modal.component';
 import { MemberFormModalComponent } from './components/member-form-modal.component';
-import { MemberFitnessDialog } from '../../../../pages/auth/members/member-fitness-dialog/member-fitness-dialog';
+import { MemberFitnessModalComponent } from './components/fitness/member-fitness-modal.component';
 import { downloadInvoicePdf, exportMembersToCsv } from './services/member-download.utils';
 
 @Component({
@@ -38,7 +38,7 @@ import { downloadInvoicePdf, exportMembersToCsv } from './services/member-downlo
     MemberMetricsModalComponent,
     MemberProgressModalComponent,
     MemberFormModalComponent,
-    MemberFitnessDialog,
+    MemberFitnessModalComponent,
   ],
   providers: [MemberFormService],
   templateUrl: './members-page.component.html',

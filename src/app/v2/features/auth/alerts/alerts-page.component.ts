@@ -15,8 +15,8 @@ import { AlertTableComponent } from './components/alert-table.component';
   selector: 'app-v2-alerts-page',
   imports: [SearchInputComponent, NzButtonModule, NzIconModule, AlertFormModalComponent, AlertTableComponent],
   template: `
-    <div class="flex flex-col flex-1 min-w-0 space-y-4">
-      <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+    <div class="flex flex-col flex-1 min-w-0 min-h-0 gap-3">
+      <div class="shrink-0 bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
           <div class="sm:col-span-5 min-w-0">
             <app-search-input placeholder="Search alerts by title or message..." [(value)]="search"></app-search-input>

@@ -1,6 +1,7 @@
-<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full space-y-4">
+<!-- Fits the viewport: bars keep their size, the table takes the rest and scrolls internally -->
+<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full gap-3">
   <!-- Page Header -->
-  <div class="flex items-center justify-between">
+  <div class="shrink-0 flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white m-0">Members</h1>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Manage gym memberships, track body metrics, and process check-ins.</p>
@@ -9,6 +10,7 @@
 
   <!-- Filter & Action Bar -->
   <app-member-filter-bar
+    class="shrink-0"
     [branches]="branchStore.branches()"
     [canWrite]="canWrite()"
     [hasFilters]="hasFilters()"
@@ -51,11 +53,12 @@
   }
 
   <!-- Pagination Bar -->
-  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+  <div class="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
     <div class="text-xs text-gray-500">
       Total <strong class="text-gray-900 dark:text-white font-semibold">{{ memberStore.total() }}</strong> registered members
     </div>
     <nz-pagination
+      nzSize="small"
       [nzPageIndex]="page()"
       [nzPageSize]="pageSize()"
       [nzTotal]="memberStore.total()"
@@ -94,13 +97,14 @@
     ></app-member-form-modal>
   }
 
-  <app-member-fitness-dialog
-    [visible]="fitnessDialogVisible()"
-    (visibleChange)="fitnessDialogVisible.set($event)"
-    [memberId]="fitnessMemberId()"
-    [memberName]="fitnessMemberName()"
-    [memberGender]="fitnessMemberGender()"
-    [canWrite]="canWriteFitness()"
-  />
+  @if (fitnessDialogVisible() && fitnessMemberId(); as memberId) {
+    <app-member-fitness-modal
+      [memberId]="memberId"
+      [memberName]="fitnessMemberName()"
+      [memberGender]="fitnessMemberGender()"
+      [canWrite]="canWriteFitness()"
+      (closed)="fitnessDialogVisible.set(false)"
+    ></app-member-fitness-modal>
+  }
 </div>
 

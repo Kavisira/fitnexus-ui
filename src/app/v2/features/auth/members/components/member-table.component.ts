@@ -22,7 +22,8 @@ import { Member } from '../../../../../core/members/member-api.service';
     NzTooltipModule,
   ],
   templateUrl: './member-table.component.html',
-  host: { class: 'block w-full' },
+  // min-h-80 keeps the table usable on short screens (the page scrolls instead).
+  host: { class: 'flex flex-col flex-1 min-h-80 w-full' },
 })
 export class MemberTableComponent {
   readonly cards = input.required<MemberCard[]>();

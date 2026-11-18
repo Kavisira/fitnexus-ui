@@ -1,18 +1,14 @@
 /*
- * Compact, sticky-header NG-ZORRO table for v2 list pages.
- * Opt in by adding `v2-data-table` to the element that scrolls the table
- * (an `overflow-auto` wrapper around <nz-table>).
+ * Sticky-header NG-ZORRO table for v2 list pages.
+ * Row density comes from the app-wide `table: { nzSize: 'small' }` config in
+ * app.config.ts (8px cell padding) — this file doesn't override padding.
  *
- * - Rows drop from ~64px (antd's 16px cell padding) to ~44px.
- * - Header sticks to the top of the scroll area, so it stays visible while
- *   the table body scrolls inside the viewport.
+ * Opt in by adding `v2-data-table` to the element that scrolls the table
+ * (an `overflow-auto` wrapper around <nz-table>); the header then sticks to
+ * the top of that scroll area while the body scrolls inside the viewport.
  */
 
-.v2-data-table .ant-table-thead > tr > th,
-.v2-data-table .ant-table-tbody > tr > td {
-  padding: 8px 12px !important;
-}
-
+/* A little more breathing room at the table's outer edges. */
 .v2-data-table .ant-table-thead > tr > th:first-child,
 .v2-data-table .ant-table-tbody > tr > td:first-child {
   padding-inline-start: 16px !important;
@@ -36,7 +32,7 @@ html.dark .v2-data-table .ant-table-thead > tr > th {
   background-color: #1f2937 !important;
 }
 
-/* Smaller icon-only action buttons inside rows. */
+/* Compact icon-only action buttons inside rows. */
 .v2-data-table .ant-table-tbody .ant-btn-icon-only,
 .v2-data-table .ant-table-tbody .ant-btn-circle {
   width: 28px;

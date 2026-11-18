@@ -1,6 +1,8 @@
-<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full space-y-4">
+<!-- Fits the viewport: bars keep their size, the table takes the rest and scrolls internally -->
+<div class="flex flex-col flex-1 min-h-0 min-w-0 w-full max-w-full gap-3">
   <!-- Filter & Action Bar -->
   <app-employee-filter-bar
+    class="shrink-0"
     [branches]="branches()"
     [jobTitles]="jobTitles()"
     [canWrite]="canWrite()"
@@ -37,11 +39,12 @@
   }
 
   <!-- Pagination Bar -->
-  <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+  <div class="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
     <div class="text-xs text-gray-500">
       Total <strong class="text-gray-900 dark:text-white font-semibold">{{ filteredEmployees().length }}</strong> staff members
     </div>
     <nz-pagination
+      nzSize="small"
       [nzPageIndex]="page()"
       [nzPageSize]="pageSize()"
       [nzTotal]="filteredEmployees().length"

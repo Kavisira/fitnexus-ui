@@ -17,8 +17,8 @@ import { LEAVE_STATUS_FILTER_OPTIONS, LeaveStatusFilter } from './services/todo.
   selector: 'app-v2-todo-page',
   imports: [FormsModule, NzIconModule, NzSelectModule, LeaveDecisionModalComponent, LeaveRequestTableComponent],
   template: `
-    <div class="flex flex-col flex-1 min-w-0 space-y-4">
-      <section class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
+    <div class="flex flex-col flex-1 min-w-0 min-h-0 gap-3">
+      <section class="shrink-0 bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xs">
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
           <div class="sm:col-span-8 flex items-center gap-3 min-w-0">
             <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300 shrink-0">
