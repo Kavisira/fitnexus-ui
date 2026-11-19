@@ -18,14 +18,16 @@ export interface NavGroup {
   labelKey: string; icon: string; items: NavLeaf[];
 }
 
+// Hover stays strictly neutral (gray) so that blue, anywhere in the
+// sidebar, means exactly one thing: "this is the page you're on."
 const NAV_ACTIVE =
-  'bg-blue-700/10 text-blue-800 shadow-[inset_3px_0_0_0_#1d4ed8] dark:bg-blue-500/15 dark:text-blue-300 dark:shadow-[inset_3px_0_0_0_#60a5fa] font-semibold';
+  'nav-item-active bg-blue-700/15 text-blue-800 shadow-[inset_3px_0_0_0_#1d4ed8] dark:bg-blue-500/20 dark:text-blue-300 dark:shadow-[inset_3px_0_0_0_#60a5fa] font-semibold';
 const NAV_BASE =
-  'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+  'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
 const NAV_BASE_COMPACT =
-  'group flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+  'group flex items-center gap-3 px-3 py-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
 const NAV_BASE_BETWEEN =
-  'group flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
+  'group flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200';
 
 @Component({
   selector: 'app-v2-sidebar',
@@ -60,7 +62,7 @@ const NAV_BASE_BETWEEN =
       </div>
 
       <!-- Navigation Items Container -->
-      <nav class="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-3 space-y-0.5">
+      <nav class="app-v2-sidebar-nav flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-3 space-y-0.5">
         <!-- Dashboard Link -->
         @if (showDashboard()) {
           <a

@@ -61,6 +61,51 @@ nz-date-picker,
   display: flex !important;
 }
 
+/* ng-zorro-antd's base reset sets every <a> to the theme's primary blue
+   via a plain, UN-layered `a { color: var(--ant-primary-color); ... }`
+   rule (ng-zorro-antd.variable.min.css, loaded before this file). Per the
+   CSS cascade-layers spec, any un-layered rule beats ANY rule inside a
+   @layer — including Tailwind's utility classes — regardless of
+   specificity. So a bare <a> styled only with a Tailwind text-color
+   class (exactly what the v2 sidebar's nav links are) always rendered
+   that default blue, no matter what color/background class was on it.
+   This block is also un-layered and loads after ng-zorro's CSS, so it
+   wins back control for the sidebar specifically. */
+.app-v2-sidebar-nav a {
+  color: var(--color-gray-600, #4b5563);
+  background-color: transparent;
+}
+.app-v2-sidebar-nav a:hover {
+  color: var(--color-gray-900, #111827);
+  background-color: var(--color-gray-100, #f3f4f6);
+}
+.app-v2-sidebar-nav a.nav-item-active:hover {
+  /* Active item stays on its own tint on hover, not the neutral gray. */
+  background-color: rgba(29, 78, 216, 0.18);
+}
+.app-v2-sidebar-nav a.nav-item-active {
+  color: var(--color-blue-800, #1e40af);
+  background-color: rgba(29, 78, 216, 0.15);
+}
+html.dark .app-v2-sidebar-nav a,
+html.my-app-dark .app-v2-sidebar-nav a {
+  color: var(--color-gray-300, #d1d5db);
+}
+html.dark .app-v2-sidebar-nav a:hover,
+html.my-app-dark .app-v2-sidebar-nav a:hover {
+  color: #ffffff;
+  background-color: var(--color-gray-800, #1f2937);
+}
+html.dark .app-v2-sidebar-nav a.nav-item-active:hover,
+html.my-app-dark .app-v2-sidebar-nav a.nav-item-active:hover {
+  background-color: rgba(96, 165, 250, 0.25);
+}
+html.dark .app-v2-sidebar-nav a.nav-item-active,
+html.my-app-dark .app-v2-sidebar-nav a.nav-item-active {
+  color: var(--color-blue-300, #93c5fd);
+  background-color: rgba(96, 165, 250, 0.2);
+}
+
 /* Ant Modal — rounded corners everywhere, with the content clipped so a
    full-bleed header/footer inside a modal doesn't poke out past the radius. */
 .ant-modal-content {
